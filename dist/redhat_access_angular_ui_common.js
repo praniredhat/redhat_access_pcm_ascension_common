@@ -1,4 +1,4 @@
-/*! redhat_access_angular_ui_common - v1.1.41 - 2016-05-11
+/*! redhat_access_angular_ui_common - v1.1.41 - 2016-05-27
  * Copyright (c) 2016 ;
  * Licensed 
  */
@@ -2253,7 +2253,7 @@ angular.module('RedhatAccess.security').directive('rhaLoginstatus', function () 
 /*jshint camelcase: false */
 angular.module('RedhatAccess.security').factory('securityService', [
     '$rootScope',
-    '$modal',
+    '$uibModal',
     'AUTH_EVENTS',
     '$q',
     'LOGIN_VIEW_CONFIG',
@@ -2261,7 +2261,7 @@ angular.module('RedhatAccess.security').factory('securityService', [
     'strataService',
     'AlertService',
     'RHAUtils',
-    function($rootScope, $modal, AUTH_EVENTS, $q, LOGIN_VIEW_CONFIG, SECURITY_CONFIG, strataService, AlertService, RHAUtils) {
+    function($rootScope, $uibModal, AUTH_EVENTS, $q, LOGIN_VIEW_CONFIG, SECURITY_CONFIG, strataService, AlertService, RHAUtils) {
         var service = {
             loginStatus: {
                 isLoggedIn: false,
@@ -2416,8 +2416,8 @@ angular.module('RedhatAccess.security').factory('securityService', [
                 if (!tempModalDefaults.controller) {
                     tempModalDefaults.controller = [
                         '$scope',
-                        '$modalInstance',
-                        function($scope, $modalInstance) {
+                        '$uibModalInstance',
+                        function($scope, $uibModalInstance) {
                             $scope.user = {
                                 user: null,
                                 password: null
@@ -2442,7 +2442,7 @@ angular.module('RedhatAccess.security').factory('securityService', [
                                             $scope.user.password = '';
                                             $scope.authError = null;
                                             try {
-                                                $modalInstance.close(authedUser);
+                                                $uibModalInstance.close(authedUser);
                                             } catch (err) {}
                                             $scope.status.authenticating = false;
                                         },
@@ -2464,12 +2464,12 @@ angular.module('RedhatAccess.security').factory('securityService', [
                             };
                             $scope.modalOptions.close = function() {
                                 $scope.status.authenticating = false;
-                                $modalInstance.dismiss('User Canceled Login');
+                                $uibModalInstance.dismiss('User Canceled Login');
                             };
                         }
                     ];
                 }
-                return $modal.open(tempModalDefaults).result;
+                return $uibModal.open(tempModalDefaults).result;
             }
         };
         return service;
@@ -2499,7 +2499,7 @@ angular.module("common/views/404.html", []).run(["$templateCache", function($tem
 
 angular.module("common/views/alert.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("common/views/alert.html",
-    "<div ng-hide=\"HeaderService.pageLoadFailure || !securityService.loginStatus.userAllowedToManageCases\"><a style=\"float: right\" ng-show=\"AlertService.alerts.length &gt; 1\" ng-href=\"\" ng-click=\"dismissAlerts()\">{{'Close messages'|translate}}</a><div alert=\"alert\" ng-repeat=\"alert in AlertService.alerts\" type=\"alert.type\" close=\"closeAlert($index)\"><span ng-show=\"alert.type==='info' || alert.isHtml\" ng-bind-html=\"alert.message\" class=\"icon-innov-prev alert-icon\"></span><span ng-hide=\"alert.type==='info' || alert.isHtml\">{{alert.message}}</span></div></div>");
+    "<div ng-hide=\"HeaderService.pageLoadFailure || !securityService.loginStatus.userAllowedToManageCases\"><a style=\"float: right\" ng-show=\"AlertService.alerts.length &gt; 1\" ng-href=\"\" ng-click=\"dismissAlerts()\">{{'Close messages'|translate}}</a><div uib-alert=\"uib-alert\" ng-repeat=\"alert in AlertService.alerts\" type=\"alert.type\" close=\"closeAlert($index)\"><span ng-show=\"alert.type==='info' || alert.isHtml\" ng-bind-html=\"alert.message\" class=\"icon-innov-prev alert-icon\"></span><span ng-hide=\"alert.type==='info' || alert.isHtml\">{{alert.message}}</span></div></div>");
 }]);
 
 angular.module("common/views/chatButton.html", []).run(["$templateCache", function($templateCache) {

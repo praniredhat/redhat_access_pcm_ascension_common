@@ -3,7 +3,7 @@
 /*jshint camelcase: false */
 angular.module('RedhatAccess.security').factory('securityService', [
     '$rootScope',
-    '$modal',
+    '$uibModal',
     'AUTH_EVENTS',
     '$q',
     'LOGIN_VIEW_CONFIG',
@@ -11,7 +11,7 @@ angular.module('RedhatAccess.security').factory('securityService', [
     'strataService',
     'AlertService',
     'RHAUtils',
-    function($rootScope, $modal, AUTH_EVENTS, $q, LOGIN_VIEW_CONFIG, SECURITY_CONFIG, strataService, AlertService, RHAUtils) {
+    function($rootScope, $uibModal, AUTH_EVENTS, $q, LOGIN_VIEW_CONFIG, SECURITY_CONFIG, strataService, AlertService, RHAUtils) {
         var service = {
             loginStatus: {
                 isLoggedIn: false,
@@ -166,8 +166,8 @@ angular.module('RedhatAccess.security').factory('securityService', [
                 if (!tempModalDefaults.controller) {
                     tempModalDefaults.controller = [
                         '$scope',
-                        '$modalInstance',
-                        function($scope, $modalInstance) {
+                        '$uibModalInstance',
+                        function($scope, $uibModalInstance) {
                             $scope.user = {
                                 user: null,
                                 password: null
@@ -192,7 +192,7 @@ angular.module('RedhatAccess.security').factory('securityService', [
                                             $scope.user.password = '';
                                             $scope.authError = null;
                                             try {
-                                                $modalInstance.close(authedUser);
+                                                $uibModalInstance.close(authedUser);
                                             } catch (err) {}
                                             $scope.status.authenticating = false;
                                         },
@@ -214,12 +214,12 @@ angular.module('RedhatAccess.security').factory('securityService', [
                             };
                             $scope.modalOptions.close = function() {
                                 $scope.status.authenticating = false;
-                                $modalInstance.dismiss('User Canceled Login');
+                                $uibModalInstance.dismiss('User Canceled Login');
                             };
                         }
                     ];
                 }
-                return $modal.open(tempModalDefaults).result;
+                return $uibModal.open(tempModalDefaults).result;
             }
         };
         return service;

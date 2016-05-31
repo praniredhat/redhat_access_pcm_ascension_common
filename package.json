@@ -1,6 +1,6 @@
 {
     "name": "redhat_access_angular_ui_common",
-    "version": "1.1.41",
+    "version": "1.2.0",
     "dependencies": {},
     "devDependencies": {
         "grunt": "~0.4.1",
@@ -29,6 +29,6 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/redhataccess/redhat_access_angular_ui_common.git"
+        "url": "https://github.com/redhataccess/redhat_access_pcm_ascension_common.git"
     }
 }

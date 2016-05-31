@@ -1,7 +1,7 @@
 {
-	"name": "redhat-access-angular-ui-common",
+	"name": "redhat-access-pcm-ascension-common",
 	"version": "1.2.0",
-	"main": "dist/redhat_access_angular_ui_common.js",
+	"main": "dist/redhat_access_pcm_ascension_common.js",
 	"dependencies": {
 		"angular": "~1.5.6",
 		"angular-gettext": "~2.2.1"

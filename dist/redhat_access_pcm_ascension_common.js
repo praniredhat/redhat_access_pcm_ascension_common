@@ -1,4 +1,4 @@
-/*! redhat_access_pcm_ascension_common - v1.2.1 - 2016-06-02
+/*! redhat_access_pcm_ascension_common - v1.2.2 - 2016-06-02
  * Copyright (c) 2016 ;
  * Licensed 
  */
@@ -2072,6 +2072,14 @@ angular.module('RedhatAccess.common').factory('udsService', [
                     }
                 }
             },
+            // This is not to be confused with kase.comments.  This top level comments object allows you to query
+            // /case/comments with custom UQL
+            comments: {
+                get: function (uql) {
+                    return uds.fetchComments(uql);
+
+                }
+            },
             account:{
                 get:function(accountNumber){
                     return uds.fetchAccountDetails(accountNumber);
@@ -2509,7 +2517,7 @@ angular.module("common/views/404.html", []).run(["$templateCache", function($tem
 
 angular.module("common/views/alert.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("common/views/alert.html",
-    "<div ng-hide=\"HeaderService.pageLoadFailure || !securityService.loginStatus.userAllowedToManageCases\"><a style=\"float: right\" ng-show=\"AlertService.alerts.length &gt; 1\" ng-href=\"\" ng-click=\"dismissAlerts()\">{{'Close messages'|translate}}</a>{{AlertService.alerts}}<uib-alert ng-repeat=\"alert in AlertService.alerts\" type=\"{{alert.type}}\" close=\"closeAlert($index)\"><span ng-show=\"alert.type==='info' || alert.isHtml\" ng-bind-html=\"alert.message\" class=\"icon-innov-prev alert-icon\"></span><span ng-hide=\"alert.type==='info' || alert.isHtml\">{{alert.message}}</span></uib-alert></div>");
+    "<div ng-hide=\"HeaderService.pageLoadFailure || !securityService.loginStatus.userAllowedToManageCases\"><a style=\"float: right\" ng-show=\"AlertService.alerts.length &gt; 1\" ng-href=\"\" ng-click=\"dismissAlerts()\">{{'Close messages'|translate}}</a><uib-alert ng-repeat=\"alert in AlertService.alerts\" type=\"{{alert.type}}\" close=\"closeAlert($index)\"><span ng-show=\"alert.type==='info' || alert.isHtml\" ng-bind-html=\"alert.message\" class=\"icon-innov-prev alert-icon\"></span><span ng-hide=\"alert.type==='info' || alert.isHtml\">{{alert.message}}</span></uib-alert></div>");
 }]);
 
 angular.module("common/views/chatButton.html", []).run(["$templateCache", function($templateCache) {

@@ -3,9 +3,9 @@
 /*global $ */
 angular.module('RedhatAccess.common', [
 	'RedhatAccess.ui-utils',
-	'jmdobry.angular-cache',
+	'angular-cache',
 	'RedhatAccessCommon.template'
-]).config(function($angularCacheFactoryProvider) {
+]).config(function(CacheFactoryProvider) {
 
 }).constant('RESOURCE_TYPES', {
 	article: 'Article',

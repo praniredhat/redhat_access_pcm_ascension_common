@@ -3,8 +3,8 @@
 angular.module('RedhatAccess.common').factory('udsService', [
     '$q',
     'RHAUtils',
-    '$angularCacheFactory',
-    function ($q, RHAUtils, $angularCacheFactory) {
+    'CacheFactory',
+    function ($q, RHAUtils, CacheFactory) {
         var service = {
             cases: {
                 list: function(uql,resourceProjection,limit,sortOption,onlyStatus) {

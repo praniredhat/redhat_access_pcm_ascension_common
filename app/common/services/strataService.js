@@ -7,17 +7,16 @@ angular.module('RedhatAccess.common').factory('strataService', [
     '$q',
     'gettextCatalog',
     'RHAUtils',
-    '$angularCacheFactory',
+    'CacheFactory',
     'RESOURCE_TYPES',
-    function ($q, gettextCatalog, RHAUtils, $angularCacheFactory, RESOURCE_TYPES) {
-        $angularCacheFactory('strataCache', {
+    function ($q, gettextCatalog, RHAUtils, CacheFactory, RESOURCE_TYPES) {
+        CacheFactory('strataCache', {
             capacity: 1000,
             maxAge: 900000,
             deleteOnExpire: 'aggressive',
             recycleFreq: 60000,
             cacheFlushInterval: 3600000,
-            storageMode: 'sessionStorage',
-            verifyIntegrity: true
+            storageMode: 'sessionStorage'
         });
         var ie8 = false;
         if (navigator.appVersion.indexOf('MSIE 8.') !== -1) {
@@ -25,7 +24,7 @@ angular.module('RedhatAccess.common').factory('strataService', [
         }
         var strataCache;
         if (!ie8) {
-            strataCache = $angularCacheFactory.get('strataCache');
+            strataCache = CacheFactory.get('strataCache');
             $(window).unload(function () {
                 strataCache.destroy();
             });

@@ -1,4 +1,4 @@
-/*! redhat_access_pcm_ascension_common - v1.2.1 - 2016-05-31
+/*! redhat_access_pcm_ascension_common - v1.2.2 - 2016-06-02
  * Copyright (c) 2016 ;
  * Licensed 
  */
@@ -11,9 +11,9 @@ angular.module('gettext').run(['gettextCatalog', function (gettextCatalog) {
 /*global $ */
 angular.module('RedhatAccess.common', [
 	'RedhatAccess.ui-utils',
-	'jmdobry.angular-cache',
+	'angular-cache',
 	'RedhatAccessCommon.template'
-]).config(["$angularCacheFactoryProvider", function($angularCacheFactoryProvider) {
+]).config(["CacheFactoryProvider", function(CacheFactoryProvider) {
 
 }]).constant('RESOURCE_TYPES', {
 	article: 'Article',
@@ -990,17 +990,16 @@ angular.module('RedhatAccess.common').factory('strataService', [
     '$q',
     'gettextCatalog',
     'RHAUtils',
-    '$angularCacheFactory',
+    'CacheFactory',
     'RESOURCE_TYPES',
-    function ($q, gettextCatalog, RHAUtils, $angularCacheFactory, RESOURCE_TYPES) {
-        $angularCacheFactory('strataCache', {
+    function ($q, gettextCatalog, RHAUtils, CacheFactory, RESOURCE_TYPES) {
+        CacheFactory('strataCache', {
             capacity: 1000,
             maxAge: 900000,
             deleteOnExpire: 'aggressive',
             recycleFreq: 60000,
             cacheFlushInterval: 3600000,
-            storageMode: 'sessionStorage',
-            verifyIntegrity: true
+            storageMode: 'sessionStorage'
         });
         var ie8 = false;
         if (navigator.appVersion.indexOf('MSIE 8.') !== -1) {
@@ -1008,7 +1007,7 @@ angular.module('RedhatAccess.common').factory('strataService', [
         }
         var strataCache;
         if (!ie8) {
-            strataCache = $angularCacheFactory.get('strataCache');
+            strataCache = CacheFactory.get('strataCache');
             $(window).unload(function () {
                 strataCache.destroy();
             });
@@ -1895,8 +1894,8 @@ angular.module('RedhatAccess.common').factory('strataService', [
 angular.module('RedhatAccess.common').factory('udsService', [
     '$q',
     'RHAUtils',
-    '$angularCacheFactory',
-    function ($q, RHAUtils, $angularCacheFactory) {
+    'CacheFactory',
+    function ($q, RHAUtils, CacheFactory) {
         var service = {
             cases: {
                 list: function(uql,resourceProjection,limit,sortOption,onlyStatus) {
@@ -2071,6 +2070,14 @@ angular.module('RedhatAccess.common').factory('udsService', [
                     put: function(caseNumber,contacts){
                         return uds.addAdditionalContacts(caseNumber,contacts);
                     }
+                }
+            },
+            // This is not to be confused with kase.comments.  This top level comments object allows you to query
+            // /case/comments with custom UQL
+            comments: {
+                get: function (uql) {
+                    return uds.fetchComments(uql);
+
                 }
             },
             account:{
@@ -2510,7 +2517,7 @@ angular.module("common/views/404.html", []).run(["$templateCache", function($tem
 
 angular.module("common/views/alert.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("common/views/alert.html",
-    "<div ng-hide=\"HeaderService.pageLoadFailure || !securityService.loginStatus.userAllowedToManageCases\"><a style=\"float: right\" ng-show=\"AlertService.alerts.length &gt; 1\" ng-href=\"\" ng-click=\"dismissAlerts()\">{{'Close messages'|translate}}</a><div uib-alert=\"uib-alert\" ng-repeat=\"alert in AlertService.alerts\" type=\"alert.type\" close=\"closeAlert($index)\"><span ng-show=\"alert.type==='info' || alert.isHtml\" ng-bind-html=\"alert.message\" class=\"icon-innov-prev alert-icon\"></span><span ng-hide=\"alert.type==='info' || alert.isHtml\">{{alert.message}}</span></div></div>");
+    "<div ng-hide=\"HeaderService.pageLoadFailure || !securityService.loginStatus.userAllowedToManageCases\"><a style=\"float: right\" ng-show=\"AlertService.alerts.length &gt; 1\" ng-href=\"\" ng-click=\"dismissAlerts()\">{{'Close messages'|translate}}</a><uib-alert ng-repeat=\"alert in AlertService.alerts\" type=\"{{alert.type}}\" close=\"closeAlert($index)\"><span ng-show=\"alert.type==='info' || alert.isHtml\" ng-bind-html=\"alert.message\" class=\"icon-innov-prev alert-icon\"></span><span ng-hide=\"alert.type==='info' || alert.isHtml\">{{alert.message}}</span></uib-alert></div>");
 }]);
 
 angular.module("common/views/chatButton.html", []).run(["$templateCache", function($templateCache) {

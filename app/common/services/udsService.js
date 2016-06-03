@@ -3,8 +3,8 @@
 angular.module('RedhatAccess.common').factory('udsService', [
     '$q',
     'RHAUtils',
-    '$angularCacheFactory',
-    function ($q, RHAUtils, $angularCacheFactory) {
+    'CacheFactory',
+    function ($q, RHAUtils, CacheFactory) {
         var service = {
             cases: {
                 list: function(uql,resourceProjection,limit,sortOption,onlyStatus) {
@@ -179,6 +179,14 @@ angular.module('RedhatAccess.common').factory('udsService', [
                     put: function(caseNumber,contacts){
                         return uds.addAdditionalContacts(caseNumber,contacts);
                     }
+                }
+            },
+            // This is not to be confused with kase.comments.  This top level comments object allows you to query
+            // /case/comments with custom UQL
+            comments: {
+                get: function (uql) {
+                    return uds.fetchComments(uql);
+
                 }
             },
             account:{

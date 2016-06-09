@@ -1,24 +1,32 @@
 'use strict';
-/*jshint unused:vars */
-/*jshint camelcase: false */
-angular.module('RedhatAccess.security', [
+
+// Controllers
+import SecurityController from './controllers/securityController'
+
+// Directives
+import rhaLoginstatus from './directives/loginStatus'
+
+// Services
+import SecurityService from './services/securityService'
+
+// Constants
+import AuthEventConstants from './constants/authEvents'
+import LoginViewConfig from './constants/loginViewConfig'
+import SecurityConfig from './constants/securityConfig'
+
+const app = angular.module('RedhatAccess.security', [
     'ui.bootstrap',
-    'RedhatAccessCommon.template',
     'ui.router',
-    'RedhatAccess.common',
     'RedhatAccess.header'
-]).constant('AUTH_EVENTS', {
-    loginSuccess: 'auth-login-success',
-    loginFailed: 'auth-login-failed',
-    logoutSuccess: 'auth-logout-success',
-    sessionTimeout: 'auth-session-timeout',
-    notAuthenticated: 'auth-not-authenticated',
-    notAuthorized: 'auth-not-authorized',
-    sessionIdChanged: 'sid-changed'
-}).value('LOGIN_VIEW_CONFIG', { verbose: true }).value('SECURITY_CONFIG', {
-    displayLoginStatus: true,
-    autoCheckLogin: true,
-    loginURL: '',
-    logoutURL: '',
-    forceLogin: false
-});
+]).constant('AUTH_EVENTS', AuthEventConstants).value('LOGIN_VIEW_CONFIG', LoginViewConfig).value('SECURITY_CONFIG', SecurityConfig);
+
+// Controllers
+app.controller('SecurityController', SecurityController);
+
+// Directives
+app.directive('rhaLoginstatus', rhaLoginstatus);
+
+// Services
+app.service('securityService', SecurityService);
+
+export default app.name;

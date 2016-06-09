@@ -1,9 +1,9 @@
 'use strict';
-angular.module('RedhatAccess.common').service('ConstantsService', [
-    'securityService',
-    'gettextCatalog',
-    'STATUS',
-    function (securityService, gettextCatalog, STATUS) {
+
+export default class ConstantsService {
+    constructor(gettextCatalog, STATUS) {
+        'ngInject';
+
         this.sortByParams = [
             {
                 ///this refers  in context of "sorting on Newest Date Modified"
@@ -86,20 +86,18 @@ angular.module('RedhatAccess.common').service('ConstantsService', [
 
 
         this.wappsUrl = new Uri('https://ams-dev2.devlab.redhat.com/wapps');
-        if (window.location.hostname === 'access.redhat.com' || window.location.hostname === 'prod.foo.redhat.com' || window.location.hostname === 'fooprod.redhat.com'){
+        if (window.location.hostname === 'access.redhat.com' || window.location.hostname === 'prod.foo.redhat.com' || window.location.hostname === 'fooprod.redhat.com') {
             this.wappsUrl = new Uri('https://www.redhat.com/wapps');
         }
-        else
-        {
+        else {
             if (window.location.hostname === 'access.qa.redhat.com' || window.location.hostname === 'qa.foo.redhat.com' || window.location.hostname === 'fooqa.redhat.com') {
                 this.wappsUrl = new Uri('https://www.qa.redhat.com/wapps');
             }
-            else
-            {
+            else {
                 if (window.location.hostname === 'access.devgssci.devlab.phx1.redhat.com' || window.location.hostname === 'ci.foo.redhat.com' || window.location.hostname === 'fooci.redhat.com') {
                     this.wappsUrl = new Uri('https://ams-dev2.devlab.redhat.com/wapps');
                 }
             }
         }
     }
-]);
+}

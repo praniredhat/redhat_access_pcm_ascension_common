@@ -1,15 +1,13 @@
 'use strict';
-/*jshint unused:vars */
-angular.module('RedhatAccess.header').directive('rhaChatbutton', function () {
+
+export default function () {
     return {
         scope: {},
-        templateUrl: 'common/views/chatButton.html',
+        template: require('../views/chatButton.jade'),
         restrict: 'A',
         controller: 'ChatButton',
         link: function postLink(scope, element, attrs) {
-            scope.$on('$destroy', function () {
-                element.remove();
-            });
+            scope.$on('$destroy', () => element.remove() );
         }
     };
-});
+}

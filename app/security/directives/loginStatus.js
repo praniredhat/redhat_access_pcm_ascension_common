@@ -1,8 +1,9 @@
 'use strict';
-angular.module('RedhatAccess.security').directive('rhaLoginstatus', function () {
+
+export default function () {
     return {
         restrict: 'AE',
         scope: false,
-        templateUrl: 'security/views/login_status.html'
+        template: require('../views/login_status.jade')
     };
-});
+}

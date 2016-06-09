@@ -1,0 +1,19 @@
+div(ng-controller='SecurityController', ng-show='displayLoginStatus()')
+	.row
+		.col-sm-12
+			span.pull-right.rha-logged-in(ng-show='securityService.loginStatus.isLoggedIn')
+				| {{'Logged into the Red Hat Customer Portal as'|translate}} {{securityService.loginStatus.authedUser.loggedInUser}}  
+				span(ng-if='securityService.logoutURL.length === 0', ng-show='!securityService.loginStatus.verifying')
+					a(href='', ng-click='securityService.logout()')  {{'Log Out'|translate}}
+				span(ng-if='securityService.logoutURL.length > 0', ng-show='!securityService.loginStatus.verifying')
+					a(href='{{securityService.logoutURL}}')  {{'Log Out'|translate}}
+				span(ng-show='securityService.loginStatus.verifying')
+					| {{'Log Out'|translate}}
+			span.pull-right.rha-logged-out(ng-show='!securityService.loginStatus.isLoggedIn')
+				| {{'Not Logged into the Red Hat Customer Portal'|translate}} 
+				span(ng-if='securityService.loginURL.length === 0', ng-show='!securityService.loginStatus.verifying')
+					a(href='', ng-click='securityService.login()')  {{'Log In'|translate}}
+				span(ng-if='securityService.loginURL.length > 0', ng-show='!securityService.loginStatus.verifying')
+					a(href='{{securityService.loginURL}}')  {{'Log In'|translate}}
+				span(ng-show='securityService.loginStatus.verifying')
+					| {{'Log In'|translate}}

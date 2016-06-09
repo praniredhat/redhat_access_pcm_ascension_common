@@ -1,10 +1,9 @@
 'use strict';
-angular.module('RedhatAccess.header').controller('AlertController', [
-    '$scope',
-    'AlertService',
-    'HeaderService',
-    'securityService',
-    function ($scope, AlertService, HeaderService, securityService) {
+
+export default class AlertController {
+    constructor ($scope, AlertService, HeaderService, securityService) {
+        'ngInject';
+        
         $scope.AlertService = AlertService;
         $scope.HeaderService = HeaderService;
         $scope.securityService = securityService;
@@ -16,4 +15,4 @@ angular.module('RedhatAccess.header').controller('AlertController', [
             AlertService.clearAlerts();
         };
     }
-]);
+}

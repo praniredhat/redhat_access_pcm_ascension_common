@@ -1,0 +1,28 @@
+#rha-login-modal-header.modal-header
+    h3(translate='')
+        | Sign into the Red Hat Customer Portal
+.container-fluid
+    #rha-login-modal-body.modal-body.form-horizontal
+        // form ng-submit="modalOptions.ok()"  method="post"
+        .form-group(ng-show='useVerboseLoginView')
+            | {{'Red Hat Access makes it easy for you to self-solve issues, diagnose problems, and engage with us via the Red Hat Customer Portal. To access Red Hat Customer Portal resources, you must enter valid portal credentials.'|translate}}
+        .alert.alert-danger(ng-show='authError')
+            | {{authError}}
+        #rha-login-modal-user-id.form-group
+            label.control-label(for='rha-login-user-id', translate='') Red Hat Login
+            div
+                input#rha-login-user-id.form-control(type='text', placeholder="{{'Red Hat Login'|translate}}", ng-model='user.user', required='', autofocus='')
+        #rha-login-modal-user-pass.form-group
+            label.control-label(for='rha-login-password', translate='') Password
+            div
+                input#rha-login-password.form-control(type='password', placeholder="{{'Password'|translate}}", ng-model='user.password', required='')
+        .form-group(style='font-size:smaller', ng-show='useVerboseLoginView')
+            strong
+                | {{'Note:'|translate}}
+            | {{'Red Hat Customer Portal credentials differ from the credentials used to log into this product.'|translate}}
+        // /form
+    .modal-footer
+        #rha-login-modal-buttons.form-group
+            span.pull-right
+                button.btn.btn-md.cancel(ng-click='modalOptions.close()', type='submit', translate='') Cancel
+                button.btn.btn-primary.btn-md.login(ng-click='modalOptions.ok()', type='submit', translate='', ng-disabled='status.authenticating') Sign in

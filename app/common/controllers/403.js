@@ -1,12 +1,11 @@
 'use strict';
-angular.module('RedhatAccess.header').controller('403', [
-    '$scope',
-    'securityService',
-    'HeaderService',
-    'COMMON_CONFIG',
+
+export default class FourOhThree {
     function ($scope, securityService, HeaderService, COMMON_CONFIG) {
-		$scope.COMMON_CONFIG = COMMON_CONFIG;
+        'ngInject';
+        
+        $scope.COMMON_CONFIG = COMMON_CONFIG;
         $scope.securityService = securityService;
         $scope.HeaderService = HeaderService;
     }
-]);
+}

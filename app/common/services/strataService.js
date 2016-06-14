@@ -1,15 +1,9 @@
 'use strict';
-/*global navigator, strata, angular*/
-/*jshint camelcase: false */
-/*jshint bitwise: false */
-/*jshint unused:vars */
-angular.module('RedhatAccess.common').factory('strataService', [
-    '$q',
-    'gettextCatalog',
-    'RHAUtils',
-    'CacheFactory',
-    'RESOURCE_TYPES',
-    function ($q, gettextCatalog, RHAUtils, CacheFactory, RESOURCE_TYPES) {
+
+export default class StrataService {
+    constructor($q, gettextCatalog, RHAUtils, CacheFactory, RESOURCE_TYPES) {
+        'ngInject';
+
         CacheFactory('strataCache', {
             capacity: 1000,
             maxAge: 900000,
@@ -32,9 +26,9 @@ angular.module('RedhatAccess.common').factory('strataService', [
         var errorHandler = function (message, xhr, response, status) {
             var translatedMsg = message;
             switch (status) {
-            case 'Unauthorized':
-                translatedMsg = gettextCatalog.getString('Unauthorized.');
-                break; // case n:
+                case 'Unauthorized':
+                    translatedMsg = gettextCatalog.getString('Unauthorized.');
+                    break; // case n:
                 //   code block
                 //   break;
             }
@@ -93,7 +87,7 @@ angular.module('RedhatAccess.common').factory('strataService', [
                 }
             },
             cache: {
-                clr: function(key) {
+                clr: function (key) {
                     clearCache(key);
                 }
             },
@@ -135,7 +129,7 @@ angular.module('RedhatAccess.common').factory('strataService', [
                 return deferred.promise;
             },
             recommendationsForCase: function (data, limit, start, highlight, highlightTagPre, highlightTagPost) {
-              var deferred = $q.defer();
+                var deferred = $q.defer();
                 strata.recommendationsForCase(data, function (response) {
                     deferred.resolve(response);
                 }, angular.bind(deferred, errorHandler), limit, start, highlight, highlightTagPre, highlightTagPost);
@@ -167,7 +161,7 @@ angular.module('RedhatAccess.common').factory('strataService', [
                     }
                     return deferred.promise;
                 },
-                search: function(searchString, max){
+                search: function (searchString, max) {
                     var deferred = $q.defer();
                     strata.search(
                         searchString,
@@ -186,11 +180,11 @@ angular.module('RedhatAccess.common').factory('strataService', [
                 post: function (solution) {
                     var deferred = $q.defer();
                     strata.solutions.post(
-                      solution,
-                      function (solution) {
-                        deferred.resolve(solution);
-                      },
-                      angular.bind(deferred, errorHandler)
+                        solution,
+                        function (solution) {
+                            deferred.resolve(solution);
+                        },
+                        angular.bind(deferred, errorHandler)
                     );
 
                     return deferred.promise;
@@ -314,7 +308,7 @@ angular.module('RedhatAccess.common').factory('strataService', [
                 },
                 list: function (ssoUserName, flushCashe) {
                     var deferred = $q.defer();
-                    if(flushCashe){
+                    if (flushCashe) {
                         strataCache.remove('groups' + ssoUserName);
                     }
                     if (!ie8 && strataCache.get('groups' + ssoUserName)) {
@@ -345,7 +339,7 @@ angular.module('RedhatAccess.common').factory('strataService', [
                     }, angular.bind(deferred, errorHandler));
                     return deferred.promise;
                 },
-                update: function(group, ssoUserName){
+                update: function (group, ssoUserName) {
                     var deferred = $q.defer();
                     strata.groups.update(group, function (response) {
                         deferred.resolve(response);
@@ -354,7 +348,7 @@ angular.module('RedhatAccess.common').factory('strataService', [
                     }, angular.bind(deferred, errorHandler));
                     return deferred.promise;
                 },
-                createDefault: function(group){
+                createDefault: function (group) {
                     var deferred = $q.defer();
                     strata.groups.createDefault(group, function (response) {
                         deferred.resolve(response);
@@ -363,7 +357,7 @@ angular.module('RedhatAccess.common').factory('strataService', [
                 }
             },
             groupUsers: {
-                update: function(users, accountId, groupnum){
+                update: function (users, accountId, groupnum) {
                     var deferred = $q.defer();
                     strata.groupUsers.update(users, accountId, groupnum, function (response) {
                         deferred.resolve(response);
@@ -447,26 +441,26 @@ angular.module('RedhatAccess.common').factory('strataService', [
                         var deferred = $q.defer();
                         if (!ie8 && strataCache.get('attachments' + id)) {
                             //Changing cache response. Making sortModifiedDate as Date before sending
-                            var attachmentResponse=strataCache.get('attachments' + id);
+                            var attachmentResponse = strataCache.get('attachments' + id);
                             angular.forEach(attachmentResponse, angular.bind(this, function (attachment) {
-                                attachment.sortModifiedDate=new Date(attachment.sortModifiedDate);
+                                attachment.sortModifiedDate = new Date(attachment.sortModifiedDate);
                             }));
 
                             deferred.resolve(attachmentResponse);
                         } else {
                             strata.cases.attachments.list(id, function (response) {
-                                angular.forEach(response , angular.bind(this, function (element) {
-                                    var sortPublishedDate=element.last_modified_date;
-                                    element.sortModifiedDate=sortPublishedDate;
-                                    var lastModifiedDate=RHAUtils.convertToTimezone(element.last_modified_date);
-                                    element.last_modified_date=RHAUtils.formatDate(lastModifiedDate,'MMM DD YYYY');
-                                    element.last_modified_time=RHAUtils.formatDate(lastModifiedDate,'hh:mm A Z');
-                                    var createdDate=RHAUtils.convertToTimezone(element.created_date);
-                                    element.created_date=RHAUtils.formatDate(createdDate,'MMM DD YYYY');
-                                    element.created_time=RHAUtils.formatDate(createdDate,'hh:mm A Z');
+                                angular.forEach(response, angular.bind(this, function (element) {
+                                    var sortPublishedDate = element.last_modified_date;
+                                    element.sortModifiedDate = sortPublishedDate;
+                                    var lastModifiedDate = RHAUtils.convertToTimezone(element.last_modified_date);
+                                    element.last_modified_date = RHAUtils.formatDate(lastModifiedDate, 'MMM DD YYYY');
+                                    element.last_modified_time = RHAUtils.formatDate(lastModifiedDate, 'hh:mm A Z');
+                                    var createdDate = RHAUtils.convertToTimezone(element.created_date);
+                                    element.created_date = RHAUtils.formatDate(createdDate, 'MMM DD YYYY');
+                                    element.created_time = RHAUtils.formatDate(createdDate, 'hh:mm A Z');
                                     //for attachments the published date is the last modified date
-                                    element.published_date=element.last_modified_date;
-                                    element.published_time=element.last_modified_time;
+                                    element.published_date = element.last_modified_date;
+                                    element.published_time = element.last_modified_time;
 
                                 }));
                                 if (!ie8) {
@@ -503,21 +497,21 @@ angular.module('RedhatAccess.common').factory('strataService', [
                         var deferred = $q.defer();
                         if (!ie8 && strataCache.get('externalUpdates' + id)) {
                             //Changing cache response. Making sortModifiedDate as Date before sending
-                            var externalUpdates=strataCache.get('externalUpdates' + id);
+                            var externalUpdates = strataCache.get('externalUpdates' + id);
                             angular.forEach(externalUpdates, angular.bind(this, function (externalUpdates) {
-                                externalUpdates.sortModifiedDate=new Date(externalUpdates.sortModifiedDate);
+                                externalUpdates.sortModifiedDate = new Date(externalUpdates.sortModifiedDate);
                             }));
 
                             deferred.resolve(externalUpdates);
                         } else {
                             strata.cases.externalUpdates.list(id, function (response) {
-                                angular.forEach(response , angular.bind(this, function (externalUpdate) {
-                                    var sortPublishedDate=externalUpdate.created_date;
-                                    externalUpdate.sortModifiedDate=sortPublishedDate;
+                                angular.forEach(response, angular.bind(this, function (externalUpdate) {
+                                    var sortPublishedDate = externalUpdate.created_date;
+                                    externalUpdate.sortModifiedDate = sortPublishedDate;
 
-                                    var createdDate=RHAUtils.convertToTimezone(externalUpdate.created_date);
-                                    externalUpdate.created_date=RHAUtils.formatDate(createdDate,'MMM DD YYYY');
-                                    externalUpdate.created_time=RHAUtils.formatDate(createdDate,'hh:mm A Z');
+                                    var createdDate = RHAUtils.convertToTimezone(externalUpdate.created_date);
+                                    externalUpdate.created_date = RHAUtils.formatDate(createdDate, 'MMM DD YYYY');
+                                    externalUpdate.created_time = RHAUtils.formatDate(createdDate, 'hh:mm A Z');
 
                                 }));
                                 if (!ie8) {
@@ -534,17 +528,17 @@ angular.module('RedhatAccess.common').factory('strataService', [
                         var deferred = $q.defer();
                         if (!ie8 && strataCache.get('comments' + id)) {
                             //Changing cache response. Making sortModifiedDate as Date before sending
-                            var commentResponse=strataCache.get('comments' + id);
+                            var commentResponse = strataCache.get('comments' + id);
                             angular.forEach(commentResponse, angular.bind(this, function (comment) {
-                                comment.sortModifiedDate=new Date(comment.sortModifiedDate);
+                                comment.sortModifiedDate = new Date(comment.sortModifiedDate);
                             }));
 
                             deferred.resolve(commentResponse);
                         } else {
                             strata.cases.comments.get(id, function (response) {
                                 angular.forEach(response, angular.bind(this, function (comment) {
-                                    var sortPublishedDate=comment.published_date;
-                                    comment.sortModifiedDate=sortPublishedDate;
+                                    var sortPublishedDate = comment.published_date;
+                                    comment.sortModifiedDate = sortPublishedDate;
 
                                     var lastModifiedDate = RHAUtils.convertToTimezone(comment.last_modified_date);
                                     comment.last_modified_date = RHAUtils.formatDate(lastModifiedDate, 'MMM DD YYYY');
@@ -635,9 +629,9 @@ angular.module('RedhatAccess.common').factory('strataService', [
                     var deferred = $q.defer();
                     if (!ie8 && strataCache.get('case' + id)) {
                         //Changing cache response. Making sortModifiedDate as Date before sending
-                        var caseChatsResponse=strataCache.get('case' + id);
+                        var caseChatsResponse = strataCache.get('case' + id);
                         angular.forEach(caseChatsResponse.chats.chat, angular.bind(this, function (chat) {
-                            chat.sortModifiedDate=new Date(chat.sortModifiedDate);
+                            chat.sortModifiedDate = new Date(chat.sortModifiedDate);
                         }));
 
                         deferred.resolve([
@@ -646,14 +640,14 @@ angular.module('RedhatAccess.common').factory('strataService', [
                         ]);
                     } else {
                         strata.cases.get(id, function (response) {
-                            var kase=response;
-                            var tzDate=RHAUtils.convertToTimezone(response.created_date);
-                            response.created_date=RHAUtils.formatDate(tzDate,'MMM DD YYYY hh:mm:ss A Z');
+                            var kase = response;
+                            var tzDate = RHAUtils.convertToTimezone(response.created_date);
+                            response.created_date = RHAUtils.formatDate(tzDate, 'MMM DD YYYY hh:mm:ss A Z');
                             angular.forEach(response.chats.chat, angular.bind(this, function (chat) {
-                                chat.sortModifiedDate=chat.start_time;
-                                var lastModifiedDate=RHAUtils.convertToTimezone(chat.start_time);
-                                chat.start_date=RHAUtils.formatDate(lastModifiedDate,'MMM DD YYYY');
-                                chat.start_time=RHAUtils.formatDate(lastModifiedDate,'hh:mm:ss A Z');
+                                chat.sortModifiedDate = chat.start_time;
+                                var lastModifiedDate = RHAUtils.convertToTimezone(chat.start_time);
+                                chat.start_date = RHAUtils.formatDate(lastModifiedDate, 'MMM DD YYYY');
+                                chat.start_time = RHAUtils.formatDate(lastModifiedDate, 'hh:mm:ss A Z');
                             }));
                             if (!ie8) {
                                 strataCache.put('case' + id, response);
@@ -670,23 +664,23 @@ angular.module('RedhatAccess.common').factory('strataService', [
                     var deferred = $q.defer();
                     strata.cases.search(function (response) {
                         angular.forEach(response['case'], angular.bind(this, function (kase) {
-                           var createdDate=RHAUtils.convertToTimezone(kase.created_date);
-                           kase.created_date=RHAUtils.formatDate(createdDate,'MMM DD YYYY');
-                           var modifiedDate=RHAUtils.convertToTimezone(kase.last_modified_date);
-                           kase.last_modified_date=RHAUtils.formatDate(modifiedDate,'MMM DD YYYY');
+                            var createdDate = RHAUtils.convertToTimezone(kase.created_date);
+                            kase.created_date = RHAUtils.formatDate(createdDate, 'MMM DD YYYY');
+                            var modifiedDate = RHAUtils.convertToTimezone(kase.last_modified_date);
+                            kase.last_modified_date = RHAUtils.formatDate(modifiedDate, 'MMM DD YYYY');
                         }));
                         deferred.resolve(response);
                     }, angular.bind(deferred, errorHandler), caseStatus, caseOwner, caseGroup, accountNumber, searchString, sortField, sortOrder, offset, limit, queryParams);
                     return deferred.promise;
                 },
-                advancedSearch: function (query, order,  offset, limit) {
+                advancedSearch: function (query, order, offset, limit) {
                     var deferred = $q.defer();
                     strata.cases.advancedSearch(function (response) {
                         angular.forEach(response['case'], angular.bind(this, function (kase) {
-                           var createdDate=RHAUtils.convertToTimezone(kase.created_date);
-                           kase.created_date=RHAUtils.formatDate(createdDate,'MMM DD YYYY');
-                           var modifiedDate=RHAUtils.convertToTimezone(kase.last_modified_date);
-                           kase.last_modified_date=RHAUtils.formatDate(modifiedDate,'MMM DD YYYY');
+                            var createdDate = RHAUtils.convertToTimezone(kase.created_date);
+                            kase.created_date = RHAUtils.formatDate(createdDate, 'MMM DD YYYY');
+                            var modifiedDate = RHAUtils.convertToTimezone(kase.last_modified_date);
+                            kase.last_modified_date = RHAUtils.formatDate(modifiedDate, 'MMM DD YYYY');
                         }));
                         deferred.resolve(response);
                     }, angular.bind(deferred, errorHandler), query, order, offset, limit);
@@ -706,10 +700,10 @@ angular.module('RedhatAccess.common').factory('strataService', [
                     } else {
                         strata.cases.filter(params, function (response) {
                             angular.forEach(response['case'], angular.bind(this, function (kase) {
-                                var createdDate=RHAUtils.convertToTimezone(kase.created_date);
-                                kase.created_date=RHAUtils.formatDate(createdDate,'MMM DD YYYY');
-                                var modifiedDate=RHAUtils.convertToTimezone(kase.last_modified_date);
-                                kase.last_modified_date=RHAUtils.formatDate(modifiedDate,'MMM DD YYYY');
+                                var createdDate = RHAUtils.convertToTimezone(kase.created_date);
+                                kase.created_date = RHAUtils.formatDate(createdDate, 'MMM DD YYYY');
+                                var modifiedDate = RHAUtils.convertToTimezone(kase.last_modified_date);
+                                kase.last_modified_date = RHAUtils.formatDate(modifiedDate, 'MMM DD YYYY');
                             }));
                             if (!ie8) {
                                 strataCache.put('filter' + JSON.stringify(params), response);
@@ -820,12 +814,12 @@ angular.module('RedhatAccess.common').factory('strataService', [
                         }
                     }
                 },
-                businesshours: function(timezone){
+                businesshours: function (timezone) {
                     var deferred = $q.defer();
                     if (!ie8 && strataCache.get('businesshours')) {
                         deferred.resolve(strataCache.get('businesshours'));
                     } else {
-                        strata.values.businesshours(timezone,function (response) {
+                        strata.values.businesshours(timezone, function (response) {
                             if (!ie8) {
                                 strataCache.put('businesshours', response);
                             }
@@ -851,7 +845,7 @@ angular.module('RedhatAccess.common').factory('strataService', [
                     return deferred.promise;
                 },
                 chatSession: {
-                    post: function(){
+                    post: function () {
                         var deferred = $q.defer();
                         if (!ie8 && strataCache.get('chatSession')) {
                             deferred.resolve(strataCache.get('chatSession'));
@@ -904,4 +898,4 @@ angular.module('RedhatAccess.common').factory('strataService', [
         };
         return service;
     }
-]);
+}

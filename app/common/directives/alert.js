@@ -1,8 +1,9 @@
 'use strict';
-angular.module('RedhatAccess.header').directive('rhaAlert', function () {
+
+export default function () {
     return {
-        templateUrl: 'common/views/alert.html',
+        template: require('../views/alert.jade'),
         restrict: 'A',
         controller: 'AlertController'
     };
-});
+}

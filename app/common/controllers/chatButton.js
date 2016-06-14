@@ -8,21 +8,11 @@
 //chat availability without having to write a complete rest client.
 window.fakeOnlineButton = { style: { display: 'none' } };
 window.fakeOfflineButton = { style: { display: 'none' } };
-//
-angular.module('RedhatAccess.header').controller('ChatButton', [
-    '$scope',
-    'CaseService',
-    'securityService',
-    'strataService',
-    'AlertService',
-    'CHAT_SUPPORT',
-    'AUTH_EVENTS',
-    '$rootScope',
-    '$sce',
-    '$http',
-    '$interval',
-    'RHAUtils',
-    function ($scope, CaseService, securityService, strataService, AlertService, CHAT_SUPPORT, AUTH_EVENTS, $rootScope, $sce, $http, $interval,RHAUtils) {
+
+export default class ChatButton {
+    constructor($scope, securityService, strataService, AlertService, CHAT_SUPPORT, AUTH_EVENTS, $sce, $interval, RHAUtils) {
+        'ngInject';
+
         $scope.securityService = securityService;
         if (window.chatInitialized === undefined) {
             window.chatInitialized = false;
@@ -80,14 +70,12 @@ angular.module('RedhatAccess.header').controller('ChatButton', [
             //liveagent
             //  .addCustomDetail('Contact E-mail', email)
             //  .map('Contact', 'Email', false, false, false);
-             if(RHAUtils.isNotEmpty(accountNumber))
-             {
+            if (RHAUtils.isNotEmpty(accountNumber)) {
                 liveagent.addCustomDetail('Account Number', accountNumber).map('Account', 'AccountNumber', true, true, true);
-             }
-             if(RHAUtils.isNotEmpty(name))
-             {
+            }
+            if (RHAUtils.isNotEmpty(name)) {
                 liveagent.setName(name);
-             }
+            }
             liveagent.addCustomDetail('Name', name);
             liveagent.setChatWindowHeight('552');
             //liveagent.enableLogging();
@@ -98,7 +86,7 @@ angular.module('RedhatAccess.header').controller('ChatButton', [
             liveagent.startChat(CHAT_SUPPORT.chatButtonToken);
         };
         $scope.init = function () {
-            if ($scope.enableChat() && window.liveagent !== undefined){
+            if ($scope.enableChat() && window.liveagent !== undefined) {
                 $scope.setChatIframeHackUrl();
                 $scope.timer = $interval($scope.checkChatButtonStates, 5000);
                 $scope.initializeChat();
@@ -121,4 +109,4 @@ angular.module('RedhatAccess.header').controller('ChatButton', [
             window._laq = null;
         });
     }
-]);
+}

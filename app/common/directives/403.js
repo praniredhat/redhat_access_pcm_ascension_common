@@ -1,9 +1,9 @@
 'use strict';
-/*jshint unused:vars */
-angular.module('RedhatAccess.header').directive('rha403error', function () {
+
+export default function () {
     return {
-        templateUrl: 'common/views/403.html',
+        template: require('../views/403.jade'),
         restrict: 'A',
         controller: '403'
     };
-});
+}

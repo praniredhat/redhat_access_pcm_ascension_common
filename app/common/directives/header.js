@@ -1,9 +1,10 @@
 'use strict';
-angular.module('RedhatAccess.header').directive('rhaHeader', function () {
+
+export default function () {
     return {
-		templateUrl: 'common/views/header.html',
+        template: require('../views/header.jade'),
         restrict: 'A',
-        scope: { page: '@' },
+        scope: {page: '@'},
         controller: 'HeaderController'
     };
-});
+}

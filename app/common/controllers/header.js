@@ -1,18 +1,14 @@
 'use strict';
-angular.module('RedhatAccess.header').controller('HeaderController', [
-    '$scope',
-    'AlertService',
-    'HeaderService',
-    'COMMON_CONFIG',
-    'RHAUtils',
-    '$interval',
-    '$sce',
-    function ($scope, AlertService , HeaderService , COMMON_CONFIG , RHAUtils, $interval , $sce) {
+
+export default class HeaderController {
+    constructor($scope, AlertService, HeaderService, COMMON_CONFIG, RHAUtils, $interval, $sce) {
+        'ngInject';
+
         /**
-       * For some reason the rhaAlert directive's controller is not binding to the view.
-       * Hijacking rhaAlert's parent controller (HeaderController) works
-       * until a real solution is found.
-       */
+         * For some reason the rhaAlert directive's controller is not binding to the view.
+         * Hijacking rhaAlert's parent controller (HeaderController) works
+         * until a real solution is found.
+         */
         $scope.AlertService = AlertService;
         $scope.HeaderService = HeaderService;
         $scope.closeable = true;
@@ -42,13 +38,13 @@ angular.module('RedhatAccess.header').controller('HeaderController', [
         $scope.$on('$destroy', function () {
             $interval.cancel($scope.healthTimer);
         });
-        $scope.pageLoadFailureWatcher = $scope.$watch('HeaderService.pageLoadFailure', function() {
-            if(HeaderService.pageLoadFailure) {
+        $scope.pageLoadFailureWatcher = $scope.$watch('HeaderService.pageLoadFailure', function () {
+            if (HeaderService.pageLoadFailure) {
                 $scope.dismissAlerts();
             }
         });
-        $scope.$on('$locationChangeSuccess', function(event){
+        $scope.$on('$locationChangeSuccess', function (event) {
             $scope.dismissAlerts();
         });
     }
-]);
+}

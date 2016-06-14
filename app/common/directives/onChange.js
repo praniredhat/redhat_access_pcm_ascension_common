@@ -1,10 +1,10 @@
 'use strict';
-/*jshint unused:vars */
-angular.module('RedhatAccess.header').directive('rhaOnchange', function () {
+
+export default function () {
     return {
         restrict: 'A',
         link: function (scope, element, attrs) {
             element.bind('change', element.scope()[attrs.rhaOnchange]);
         }
     };
-});
+}

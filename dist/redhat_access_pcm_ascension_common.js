@@ -58,18 +58,18 @@
 
 	var _commonConfig2 = _interopRequireDefault(_commonConfig);
 
-	var _configurationService = __webpack_require__(28);
+	var _configurationService = __webpack_require__(36);
 
 	var _configurationService2 = _interopRequireDefault(_configurationService);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+	__webpack_require__(43);
 	__webpack_require__(34);
-	__webpack_require__(26);
 
 	var app = angular.module('RedhatAccess.common', ['RedhatAccess.ui-utils', 'angular-cache']).config(["CacheFactoryProvider", function (CacheFactoryProvider) {}]).constant('RESOURCE_TYPES', _resourceTypes2.default).value('COMMON_CONFIG', _commonConfig2.default).factory('configurationService', _configurationService2.default);
 
-	__webpack_require__(40);
+	__webpack_require__(49);
 
 	exports.default = app.name;
 
@@ -294,7 +294,7 @@
 	    throw err;
 	  }
 	  try {
-	    str = str || __webpack_require__(43).readFileSync(filename, 'utf8')
+	    str = str || __webpack_require__(53).readFileSync(filename, 'utf8')
 	  } catch (ex) {
 	    rethrow(err, null, lineno)
 	  }
@@ -938,6 +938,91 @@
 	    value: true
 	});
 
+	exports.default = ["$compile", function ($compile) {
+	    'ngInject';
+
+	    return {
+	        restrict: 'A',
+	        template: __webpack_require__(51),
+	        link: function link(scope, elm) {
+	            scope.choiceClicked = function (choice) {
+	                choice.checked = !choice.checked;
+	                function checkChildren(c) {
+	                    angular.forEach(c.children, function (c) {
+	                        c.checked = choice.checked;
+	                        checkChildren(c);
+	                    });
+	                }
+
+	                checkChildren(choice);
+	            };
+	            if (scope.choice.children.length > 0) {
+	                var childChoice = $compile('<div rha-choicetree ng-show="!choice.collapsed" ng-model="choice.children"></div>')(scope);
+	                elm.append(childChoice);
+	            }
+	        }
+	    };
+	}];
+
+/***/ },
+/* 24 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	exports.default = function () {
+	    return {
+	        template: '<ul><div rha-choice ng-repeat="choice in tree"></div></ul>',
+	        replace: true,
+	        transclude: true,
+	        restrict: 'A',
+	        scope: {
+	            tree: '=ngModel',
+	            rhaDisabled: '='
+	        }
+	    };
+	};
+
+/***/ },
+/* 25 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	exports.default = function () {
+	    return {
+	        restrict: 'A',
+	        link: function link(scope, element, attrs) {
+	            element.bind("keypress", function (event) {
+	                if (event.which === 13) {
+	                    scope.$apply(function () {
+	                        return scope.$eval(attrs.rhaEnter, { 'event': event });
+	                    });
+	                    event.preventDefault();
+	                }
+	            });
+	        }
+	    };
+	};
+
+/***/ },
+/* 26 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
 	exports.default = function () {
 	    return {
 	        template: __webpack_require__(6),
@@ -948,7 +1033,7 @@
 	};
 
 /***/ },
-/* 24 */
+/* 27 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -967,7 +1052,86 @@
 	};
 
 /***/ },
-/* 25 */
+/* 28 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	exports.default = ["$parse", function ($parse) {
+	    'ngInject';
+
+	    var disableOptions = function disableOptions(scope, attr, element, data, fnDisableIfTrue) {
+	        // refresh the disabled options in the select element.
+	        $('option[value!="?"]', element).each(function (i, e) {
+	            var locals = {};
+	            locals[attr] = data[i];
+	            $(this).attr('disabled', fnDisableIfTrue(scope, locals));
+	        });
+	    };
+	    return {
+	        priority: 0,
+	        link: function link(scope, element, attrs, ctrl) {
+	            // parse expression and build array of disabled options
+	            var expElements = attrs.optionsDisabled.match(/^\s*(.+)\s+for\s+(.+)\s+in\s+(.+)?\s*/);
+	            var fnDisableIfTrue = $parse(expElements[1]);
+	            var options = expElements[3];
+	            scope.$watch(options, function (newValue, oldValue) {
+	                if (newValue) {
+	                    disableOptions(scope, expElements[2], element, newValue, fnDisableIfTrue);
+	                }
+	            }, true);
+	        }
+	    };
+	}];
+
+/***/ },
+/* 29 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	exports.default = ["$window", function ($window) {
+	    'ngInject';
+
+	    var link = function link(scope, element, attrs) {
+	        scope.onResizeFunction = function () {
+	            var distanceToTop = element[0].getBoundingClientRect().top;
+	            var height = $window.innerHeight - distanceToTop;
+	            element.css('height', height);
+	        };
+	        angular.element($window).bind('resize', function () {
+	            return scope.onResizeFunction();
+	        });
+	        angular.element($window).bind('click', function () {
+	            return scope.onResizeFunction();
+	        });
+	        if (attrs.rhaDomReady !== undefined) {
+	            scope.$watch('rhaDomReady', function (newValue) {
+	                if (newValue) {
+	                    scope.onResizeFunction();
+	                }
+	            });
+	        } else {
+	            scope.onResizeFunction();
+	        }
+	    };
+	    return {
+	        restrict: 'A',
+	        scope: { rhaDomReady: '=' },
+	        link: link
+	    };
+	}];
+
+/***/ },
+/* 30 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -986,7 +1150,177 @@
 	};
 
 /***/ },
-/* 26 */
+/* 31 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	exports.default = ["$http", "$q", "TreeViewSelectorUtils", function ($http, $q, TreeViewSelectorUtils) {
+	    'ngInject';
+
+	    return {
+	        getTree: function getTree(dataUrl, sessionId) {
+	            var defer = $q.defer();
+	            var tmpUrl = dataUrl;
+	            if (sessionId) {
+	                tmpUrl = tmpUrl + '?sessionId=' + encodeURIComponent(sessionId);
+	            }
+	            $http({
+	                method: 'GET',
+	                url: tmpUrl
+	            }).success(function (data, status, headers, config) {
+	                var tree = [];
+	                TreeViewSelectorUtils.parseTreeList(tree, data);
+	                defer.resolve(tree);
+	            }).error(function (data, status, headers, config) {
+	                return defer.reject({});
+	            });
+	            return defer.promise;
+	        }
+	    };
+	}];
+
+/***/ },
+/* 32 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	exports.default = function () {
+	    var removeParams = function removeParams(path) {
+	        if (path) {
+	            var split = path.split('?');
+	            return split[0];
+	        }
+	        return path;
+	    };
+	    var isLeafChecked = function isLeafChecked(path) {
+	        if (path) {
+	            var split = path.split('?');
+	            if (split[1]) {
+	                var params = split[1].split('&');
+	                for (var i = 0; i < params.length; i++) {
+	                    if (params[i].indexOf('checked=true') !== -1) {
+	                        return true;
+	                    }
+	                }
+	            }
+	        }
+	        return false;
+	    };
+	    var parseTreeNode = function parseTreeNode(splitPath, tree, fullFilePath) {
+	        if (splitPath[0] !== undefined) {
+	            if (splitPath[0] !== '') {
+	                var node = splitPath[0];
+	                var match = false;
+	                var index = 0;
+	                for (var i = 0; i < tree.length; i++) {
+	                    if (tree[i].name === node) {
+	                        match = true;
+	                        index = i;
+	                        break;
+	                    }
+	                }
+	                if (!match) {
+	                    var nodeObj = {};
+	                    nodeObj.checked = isLeafChecked(node);
+	                    nodeObj.name = removeParams(node);
+	                    if (splitPath.length === 1) {
+	                        nodeObj.fullPath = removeParams(fullFilePath);
+	                    }
+	                    nodeObj.children = [];
+	                    tree.push(nodeObj);
+	                    index = tree.length - 1;
+	                }
+	                splitPath.shift();
+	                parseTreeNode(splitPath, tree[index].children, fullFilePath);
+	            } else {
+	                splitPath.shift();
+	                parseTreeNode(splitPath, tree, fullFilePath);
+	            }
+	        }
+	    };
+	    var hasSelectedLeaves = function hasSelectedLeaves(tree) {
+	        for (var i = 0; i < tree.length; i++) {
+	            if (tree[i] !== undefined) {
+	                if (tree[i].children.length === 0) {
+	                    //we only check leaf nodes
+	                    if (tree[i].checked === true) {
+	                        return true;
+	                    }
+	                } else {
+	                    if (hasSelectedLeaves(tree[i].children)) {
+	                        return true;
+	                    }
+	                }
+	            }
+	        }
+	        return false;
+	    };
+	    var getSelectedNames = function getSelectedNames(tree, container) {
+	        for (var i = 0; i < tree.length; i++) {
+	            if (tree[i] !== undefined) {
+	                if (tree[i].children.length === 0) {
+	                    if (tree[i].checked === true) {
+	                        container.push(tree[i].fullPath);
+	                    }
+	                } else {
+	                    getSelectedNames(tree[i].children, container);
+	                }
+	            }
+	        }
+	    };
+	    return {
+	        parseTreeList: function parseTreeList(tree, data) {
+	            var files = data.split('\n');
+	            for (var i = 0; i < files.length; i++) {
+	                var file = files[i];
+	                var splitPath = file.split('/');
+	                parseTreeNode(splitPath, tree, file);
+	            }
+	        },
+	        hasSelections: function hasSelections(tree) {
+	            return hasSelectedLeaves(tree);
+	        },
+	        getSelectedLeaves: function getSelectedLeaves(tree) {
+	            if (tree === undefined) {
+	                return [];
+	            }
+	            var container = [];
+	            getSelectedNames(tree, container);
+	            return container;
+	        }
+	    };
+	};
+
+/***/ },
+/* 33 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	exports.default = ["$sce", function ($sce) {
+	    'ngInject';
+
+	    return function (text) {
+	        return $sce.trustAsHtml(text);
+	    };
+	}];
+
+/***/ },
+/* 34 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1037,15 +1371,15 @@
 
 	var _chatButton4 = _interopRequireDefault(_chatButton3);
 
-	var _header3 = __webpack_require__(23);
+	var _header3 = __webpack_require__(26);
 
 	var _header4 = _interopRequireDefault(_header3);
 
-	var _onChange = __webpack_require__(24);
+	var _onChange = __webpack_require__(27);
 
 	var _onChange2 = _interopRequireDefault(_onChange);
 
-	var _titleTemplate = __webpack_require__(25);
+	var _titleTemplate = __webpack_require__(30);
 
 	var _titleTemplate2 = _interopRequireDefault(_titleTemplate);
 
@@ -1053,23 +1387,23 @@
 
 	var _autoFocus2 = _interopRequireDefault(_autoFocus);
 
-	var _alertService = __webpack_require__(27);
+	var _alertService = __webpack_require__(35);
 
 	var _alertService2 = _interopRequireDefault(_alertService);
 
-	var _constantsService = __webpack_require__(29);
+	var _constantsService = __webpack_require__(37);
 
 	var _constantsService2 = _interopRequireDefault(_constantsService);
 
-	var _headerService = __webpack_require__(30);
+	var _headerService = __webpack_require__(38);
 
 	var _headerService2 = _interopRequireDefault(_headerService);
 
-	var _strataService = __webpack_require__(32);
+	var _strataService = __webpack_require__(40);
 
 	var _strataService2 = _interopRequireDefault(_strataService);
 
-	var _udsService = __webpack_require__(33);
+	var _udsService = __webpack_require__(42);
 
 	var _udsService2 = _interopRequireDefault(_udsService);
 
@@ -1111,7 +1445,7 @@
 	exports.default = app.name;
 
 /***/ },
-/* 27 */
+/* 35 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -1209,7 +1543,7 @@
 	exports.default = AlertService;
 
 /***/ },
-/* 28 */
+/* 36 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -1233,7 +1567,7 @@
 	}];
 
 /***/ },
-/* 29 */
+/* 37 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -1332,7 +1666,7 @@
 	exports.default = ConstantsService;
 
 /***/ },
-/* 30 */
+/* 38 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -1387,7 +1721,7 @@
 	exports.default = HeaderService;
 
 /***/ },
-/* 31 */
+/* 39 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -1454,7 +1788,7 @@
 	exports.default = RHAUtils;
 
 /***/ },
-/* 32 */
+/* 40 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -2343,7 +2677,25 @@
 	exports.default = StrataService;
 
 /***/ },
-/* 33 */
+/* 41 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	exports.default = ["gettextCatalog", function (gettextCatalog) {
+	    'ngInject';
+
+	    return function (str) {
+	        return gettextCatalog.getString(str);
+	    };
+	}];
+
+/***/ },
+/* 42 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2354,7 +2706,7 @@
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	var uds = __webpack_require__(42);
+	var uds = __webpack_require__(52);
 
 	var UdsService = function UdsService() {
 	    'ngInject';
@@ -2649,284 +3001,93 @@
 	exports.default = UdsService;
 
 /***/ },
-/* 34 */
+/* 43 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
+	// Services
+
 	Object.defineProperty(exports, "__esModule", {
-	    value: true
+	  value: true
 	});
 
-	var _rhaUtils = __webpack_require__(31);
+	var _rhaUtils = __webpack_require__(39);
 
 	var _rhaUtils2 = _interopRequireDefault(_rhaUtils);
 
+	var _translate = __webpack_require__(41);
+
+	var _translate2 = _interopRequireDefault(_translate);
+
+	var _trust = __webpack_require__(33);
+
+	var _trust2 = _interopRequireDefault(_trust);
+
+	var _enter = __webpack_require__(25);
+
+	var _enter2 = _interopRequireDefault(_enter);
+
+	var _resizable = __webpack_require__(29);
+
+	var _resizable2 = _interopRequireDefault(_resizable);
+
+	var _choice = __webpack_require__(23);
+
+	var _choice2 = _interopRequireDefault(_choice);
+
+	var _optionsDisabled = __webpack_require__(28);
+
+	var _optionsDisabled2 = _interopRequireDefault(_optionsDisabled);
+
+	var _choicetree = __webpack_require__(24);
+
+	var _choicetree2 = _interopRequireDefault(_choicetree);
+
+	var _treeViewSelectorData = __webpack_require__(31);
+
+	var _treeViewSelectorData2 = _interopRequireDefault(_treeViewSelectorData);
+
+	var _treeViewSelectorUtils = __webpack_require__(32);
+
+	var _treeViewSelectorUtils2 = _interopRequireDefault(_treeViewSelectorUtils);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+	// Define the ui-utils module
+
+
+	// Factories
+
+
+	// Filters
 	var app = angular.module('RedhatAccess.ui-utils', ['gettext']);
 
+	// Services
+
+
+	// Directives
 	app.service('RHAUtils', _rhaUtils2.default);
+	app.service('translate', _translate2.default);
 
-	//Wrapper service for translations
-	app.service('translate', ["gettextCatalog", function (gettextCatalog) {
-	    'ngInject';
+	// Filters
+	app.filter('trust_html', _trust2.default);
 
-	    return function (str) {
-	        return gettextCatalog.getString(str);
-	    };
-	}]);
-	app.filter('trust_html', ["$sce", function ($sce) {
-	    'ngInject';
+	// Directives
+	app.directive('rhaChoicetree', _choicetree2.default);
+	app.directive('optionsDisabled', _optionsDisabled2.default);
+	app.directive('rhaChoice', _choice2.default);
+	app.directive('rhaResizable', _resizable2.default);
+	app.directive('rhaEnter', _enter2.default);
 
-	    return function (text) {
-	        return $sce.trustAsHtml(text);
-	    };
-	}]);
-	app.directive('rhaChoicetree', function () {
-	    return {
-	        template: '<ul><div rha-choice ng-repeat="choice in tree"></div></ul>',
-	        replace: true,
-	        transclude: true,
-	        restrict: 'A',
-	        scope: {
-	            tree: '=ngModel',
-	            rhaDisabled: '='
-	        }
-	    };
-	});
-	app.directive('optionsDisabled', ["$parse", function ($parse) {
-	    'ngInject';
-
-	    var disableOptions = function disableOptions(scope, attr, element, data, fnDisableIfTrue) {
-	        // refresh the disabled options in the select element.
-	        $('option[value!="?"]', element).each(function (i, e) {
-	            var locals = {};
-	            locals[attr] = data[i];
-	            $(this).attr('disabled', fnDisableIfTrue(scope, locals));
-	        });
-	    };
-	    return {
-	        priority: 0,
-	        link: function link(scope, element, attrs, ctrl) {
-	            // parse expression and build array of disabled options
-	            var expElements = attrs.optionsDisabled.match(/^\s*(.+)\s+for\s+(.+)\s+in\s+(.+)?\s*/);
-	            var fnDisableIfTrue = $parse(expElements[1]);
-	            var options = expElements[3];
-	            scope.$watch(options, function (newValue, oldValue) {
-	                if (newValue) {
-	                    disableOptions(scope, expElements[2], element, newValue, fnDisableIfTrue);
-	                }
-	            }, true);
-	        }
-	    };
-	}]);
-	app.directive('rhaChoice', ["$compile", function ($compile) {
-	    'ngInject';
-
-	    return {
-	        restrict: 'A',
-	        templateUrl: 'common/views/treenode.html',
-	        link: function link(scope, elm) {
-	            scope.choiceClicked = function (choice) {
-	                choice.checked = !choice.checked;
-	                function checkChildren(c) {
-	                    angular.forEach(c.children, function (c) {
-	                        c.checked = choice.checked;
-	                        checkChildren(c);
-	                    });
-	                }
-
-	                checkChildren(choice);
-	            };
-	            if (scope.choice.children.length > 0) {
-	                var childChoice = $compile('<div rha-choicetree ng-show="!choice.collapsed" ng-model="choice.children"></div>')(scope);
-	                elm.append(childChoice);
-	            }
-	        }
-	    };
-	}]);
-	app.factory('TreeViewSelectorData', ["$http", "$q", "TreeViewSelectorUtils", function ($http, $q, TreeViewSelectorUtils) {
-	    'ngInject';
-
-	    return {
-	        getTree: function getTree(dataUrl, sessionId) {
-	            var defer = $q.defer();
-	            var tmpUrl = dataUrl;
-	            if (sessionId) {
-	                tmpUrl = tmpUrl + '?sessionId=' + encodeURIComponent(sessionId);
-	            }
-	            $http({
-	                method: 'GET',
-	                url: tmpUrl
-	            }).success(function (data, status, headers, config) {
-	                var tree = [];
-	                TreeViewSelectorUtils.parseTreeList(tree, data);
-	                defer.resolve(tree);
-	            }).error(function (data, status, headers, config) {
-	                defer.reject({});
-	            });
-	            return defer.promise;
-	        }
-	    };
-	}]);
-	app.factory('TreeViewSelectorUtils', function () {
-	    var removeParams = function removeParams(path) {
-	        if (path) {
-	            var split = path.split('?');
-	            return split[0];
-	        }
-	        return path;
-	    };
-	    var isLeafChecked = function isLeafChecked(path) {
-	        if (path) {
-	            var split = path.split('?');
-	            if (split[1]) {
-	                var params = split[1].split('&');
-	                for (var i = 0; i < params.length; i++) {
-	                    if (params[i].indexOf('checked=true') !== -1) {
-	                        return true;
-	                    }
-	                }
-	            }
-	        }
-	        return false;
-	    };
-	    var parseTreeNode = function parseTreeNode(splitPath, tree, fullFilePath) {
-	        if (splitPath[0] !== undefined) {
-	            if (splitPath[0] !== '') {
-	                var node = splitPath[0];
-	                var match = false;
-	                var index = 0;
-	                for (var i = 0; i < tree.length; i++) {
-	                    if (tree[i].name === node) {
-	                        match = true;
-	                        index = i;
-	                        break;
-	                    }
-	                }
-	                if (!match) {
-	                    var nodeObj = {};
-	                    nodeObj.checked = isLeafChecked(node);
-	                    nodeObj.name = removeParams(node);
-	                    if (splitPath.length === 1) {
-	                        nodeObj.fullPath = removeParams(fullFilePath);
-	                    }
-	                    nodeObj.children = [];
-	                    tree.push(nodeObj);
-	                    index = tree.length - 1;
-	                }
-	                splitPath.shift();
-	                parseTreeNode(splitPath, tree[index].children, fullFilePath);
-	            } else {
-	                splitPath.shift();
-	                parseTreeNode(splitPath, tree, fullFilePath);
-	            }
-	        }
-	    };
-	    var hasSelectedLeaves = function hasSelectedLeaves(tree) {
-	        for (var i = 0; i < tree.length; i++) {
-	            if (tree[i] !== undefined) {
-	                if (tree[i].children.length === 0) {
-	                    //we only check leaf nodes
-	                    if (tree[i].checked === true) {
-	                        return true;
-	                    }
-	                } else {
-	                    if (hasSelectedLeaves(tree[i].children)) {
-	                        return true;
-	                    }
-	                }
-	            }
-	        }
-	        return false;
-	    };
-	    var getSelectedNames = function getSelectedNames(tree, container) {
-	        for (var i = 0; i < tree.length; i++) {
-	            if (tree[i] !== undefined) {
-	                if (tree[i].children.length === 0) {
-	                    if (tree[i].checked === true) {
-	                        container.push(tree[i].fullPath);
-	                    }
-	                } else {
-	                    getSelectedNames(tree[i].children, container);
-	                }
-	            }
-	        }
-	    };
-	    return {
-	        parseTreeList: function parseTreeList(tree, data) {
-	            var files = data.split('\n');
-	            for (var i = 0; i < files.length; i++) {
-	                var file = files[i];
-	                var splitPath = file.split('/');
-	                parseTreeNode(splitPath, tree, file);
-	            }
-	        },
-	        hasSelections: function hasSelections(tree) {
-	            return hasSelectedLeaves(tree);
-	        },
-	        getSelectedLeaves: function getSelectedLeaves(tree) {
-	            if (tree === undefined) {
-	                return [];
-	            }
-	            var container = [];
-	            getSelectedNames(tree, container);
-	            return container;
-	        }
-	    };
-	});
-	app.directive('rhaResizable', ["$window", function ($window) {
-	    'ngInject';
-
-	    var link = function link(scope, element, attrs) {
-	        scope.onResizeFunction = function () {
-	            var distanceToTop = element[0].getBoundingClientRect().top;
-	            var height = $window.innerHeight - distanceToTop;
-	            element.css('height', height);
-	        };
-	        angular.element($window).bind('resize', function () {
-	            scope.onResizeFunction(); //scope.$apply();
-	        });
-	        angular.element($window).bind('click', function () {
-	            scope.onResizeFunction(); //scope.$apply();
-	        });
-	        if (attrs.rhaDomReady !== undefined) {
-	            scope.$watch('rhaDomReady', function (newValue) {
-	                if (newValue) {
-	                    scope.onResizeFunction();
-	                }
-	            });
-	        } else {
-	            scope.onResizeFunction();
-	        }
-	    };
-	    return {
-	        restrict: 'A',
-	        scope: { rhaDomReady: '=' },
-	        link: link
-	    };
-	}]);
-	app.directive('rhaEnter', function () {
-	    return {
-	        restrict: 'A',
-	        link: function link(scope, element, attrs) {
-	            element.bind("keypress", function (event) {
-	                if (event.which === 13) {
-	                    scope.$apply(function () {
-	                        scope.$eval(attrs.rhaEnter, { 'event': event });
-	                    });
-	                    event.preventDefault();
-	                }
-	            });
-	        }
-	    };
-	});
+	// Factories
+	app.factory('TreeViewSelectorData', _treeViewSelectorData2.default);
+	app.factory('TreeViewSelectorUtils', _treeViewSelectorUtils2.default);
 
 	exports.default = app.name;
 
 /***/ },
-/* 35 */
+/* 44 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -2945,7 +3106,7 @@
 	};
 
 /***/ },
-/* 36 */
+/* 45 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -2956,7 +3117,7 @@
 	exports.default = { verbose: true };
 
 /***/ },
-/* 37 */
+/* 46 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -2973,7 +3134,7 @@
 	};
 
 /***/ },
-/* 38 */
+/* 47 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -3002,7 +3163,7 @@
 	exports.default = SecurityController;
 
 /***/ },
-/* 39 */
+/* 48 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -3020,7 +3181,7 @@
 	};
 
 /***/ },
-/* 40 */
+/* 49 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -3031,27 +3192,27 @@
 	    value: true
 	});
 
-	var _securityController = __webpack_require__(38);
+	var _securityController = __webpack_require__(47);
 
 	var _securityController2 = _interopRequireDefault(_securityController);
 
-	var _loginStatus = __webpack_require__(39);
+	var _loginStatus = __webpack_require__(48);
 
 	var _loginStatus2 = _interopRequireDefault(_loginStatus);
 
-	var _securityService = __webpack_require__(41);
+	var _securityService = __webpack_require__(50);
 
 	var _securityService2 = _interopRequireDefault(_securityService);
 
-	var _authEvents = __webpack_require__(35);
+	var _authEvents = __webpack_require__(44);
 
 	var _authEvents2 = _interopRequireDefault(_authEvents);
 
-	var _loginViewConfig = __webpack_require__(36);
+	var _loginViewConfig = __webpack_require__(45);
 
 	var _loginViewConfig2 = _interopRequireDefault(_loginViewConfig);
 
-	var _securityConfig = __webpack_require__(37);
+	var _securityConfig = __webpack_require__(46);
 
 	var _securityConfig2 = _interopRequireDefault(_securityConfig);
 
@@ -3080,7 +3241,7 @@
 	exports.default = app.name;
 
 /***/ },
-/* 41 */
+/* 50 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -3303,7 +3464,13 @@
 	exports.default = SecurityService;
 
 /***/ },
-/* 42 */
+/* 51 */
+/***/ function(module, exports) {
+
+	module.exports = "<li class=\"rha-treeselector-node\">\n    <div>\n        <span class=\"icon\" ng-class=\"{collapsed: choice.collapsed, expanded: !choice.collapsed}\" ng-show=\"choice.children.length > 0\" ng-click=\"choice.collapsed = !choice.collapsed\">\n        </span>\n        <span class=\"label\" ng-if=\"choice.children.length > 0\" ng-class=\"folder\">{{choice.name}}\n        </span>\n        <span class=\"label\" ng-if=\"choice.children.length === 0\"  ng-click=\"choiceClicked(choice)\">\n            <input type=\"checkbox\" ng-checked=\"choice.checked\">{{choice.name}}\n        </span>\n    </div>\n</li>"
+
+/***/ },
+/* 52 */
 /***/ function(module, exports, __webpack_require__) {
 
 	(function webpackUniversalModuleDefinition(root, factory) {
@@ -3872,7 +4039,7 @@
 	;
 
 /***/ },
-/* 43 */
+/* 53 */
 /***/ function(module, exports) {
 
 	/* (ignored) */

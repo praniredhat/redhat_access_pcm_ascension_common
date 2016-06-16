@@ -2720,13 +2720,13 @@
 	        sbrs: function sbrs() {
 	            return uds.fetchCaseSbrs();
 	        },
-	        brmsSolrQuery: {
-	            get: function get(jsonObject) {
-	                return uds.fetchBrmsSolrQuery(jsonObject);
-	            }
-	        },
 	        listTopCases: function listTopCases(queryString) {
 	            return uds.fetchTopCasesFromSolr(queryString);
+	        }
+	    };
+	    this.brms = {
+	        getResponse: function getResponse(jsonObject) {
+	            return uds.getBrmsResponse(jsonObject);
 	        }
 	    };
 	    this.bomgar = {

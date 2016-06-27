@@ -2903,6 +2903,10 @@
 	        }
 	    };
 	    this.cqi = {
+	        // Run UQL against the CQI endpoint
+	        get: function get(uql) {
+	            return uds.getCQIs(uql);
+	        },
 	        questions: {
 	            get: function get(caseNumber) {
 	                return uds.getCQIQuestions(caseNumber);
@@ -2937,6 +2941,10 @@
 	                put: function put(solutionNumber, reviewData) {
 	                    return uds.postSQIScore(solutionNumber, reviewData);
 	                }
+	            },
+	            // Run UQL against the SQI endpoint
+	            get: function get(uql) {
+	                return uds.getSQIs(uql);
 	            }
 	        },
 	        pinSolution: function pinSolution(caseNumber, solutionJson) {
@@ -3565,9 +3573,11 @@
 		    exports.fetchCaseHistory = fetchCaseHistory;
 		    exports.addAssociates = addAssociates;
 		    exports.getCQIQuestions = getCQIQuestions;
+		    exports.getCQIs = getCQIs;
 		    exports.postCQIScore = postCQIScore;
 		    exports.getSolutionDetails = getSolutionDetails;
 		    exports.getSQIQuestions = getSQIQuestions;
+		    exports.getSQIs = getSQIs;
 		    exports.postSQIScore = postSQIScore;
 		    exports.getSbrList = getSbrList;
 		    exports.fetchCaseSbrs = fetchCaseSbrs;
@@ -3604,7 +3614,7 @@
 		    exports.getAdditionalContacts = getAdditionalContacts;
 		    exports.removeAdditionalContacts = removeAdditionalContacts;
 		    exports.addAdditionalContacts = addAdditionalContacts;
-		    exports.fetchBrmsSolrQuery = fetchBrmsSolrQuery;
+		    exports.getBrmsResponse = getBrmsResponse;
 		    exports.fetchTopCasesFromSolr = fetchTopCasesFromSolr;
 		    var udsHostName = new Uri('https://unified-ds-ci.gsslab.brq.redhat.com/');
 
@@ -3792,6 +3802,12 @@
 		        return executeUdsAjaxCall(url, 'GET');
 		    }
 
+		    // Allows for UQL for fetching CQIs
+		    function getCQIs(uql) {
+		        var url = udsHostName.clone().setPath('/case/reviews').addQueryParam('where', uql);
+		        return executeUdsAjaxCall(url, 'GET');
+		    }
+
 		    function postCQIScore(caseNumber, reviewData) {
 		        var url = udsHostName.clone().setPath('/case/' + caseNumber + '/reviews');
 		        return executeUdsAjaxCallWithData(url, reviewData, 'POST');
@@ -3807,6 +3823,12 @@
 
 		    function getSQIQuestions(solutionNumber) {
 		        var url = udsHostName.clone().setPath('/documentation/solution/' + solutionNumber + '/reviews/questions');
+		        return executeUdsAjaxCall(url, 'GET');
+		    }
+
+		    // Allows for UQL for fetching SQIs
+		    function getSQIs(uql) {
+		        var url = udsHostName.clone().setPath('/documentation/solution/reviews').addQueryParam('where', uql);
 		        return executeUdsAjaxCall(url, 'GET');
 		    }
 
@@ -4022,7 +4044,7 @@
 		        return executeUdsAjaxCallWithData(url, contacts, 'PUT');
 		    }
 
-		    function fetchBrmsSolrQuery(jsonObject) {
+		    function getBrmsResponse(jsonObject) {
 		        var url = udsHostName.clone().setPath('/brms');
 		        return executeUdsAjaxCallWithData(url, jsonObject, 'POST');
 		    }

@@ -224,6 +224,11 @@ export default class UdsService {
             }
         };
         this.cqi = {
+            // Run UQL against the CQI endpoint
+            get: function (uql) {
+                return uds.getCQIs(uql);
+
+            },
             questions: {
                 get: function (caseNumber) {
                     return uds.getCQIQuestions(
@@ -268,6 +273,11 @@ export default class UdsService {
                             reviewData
                         );
                     }
+                },
+                // Run UQL against the SQI endpoint
+                get: function (uql) {
+                    return uds.getSQIs(uql);
+
                 }
             },
             pinSolution: function (caseNumber, solutionJson) {

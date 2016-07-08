@@ -3775,9 +3775,9 @@
 		    function postPrivateComments(caseNumber, caseComment, hoursWorked) {
 		        var url = udsHostName.clone().setPath('/case/' + caseNumber + "/comments/private");
 		        if (hoursWorked === undefined) {
-		            var _url = udsHostName.clone().setPath('/case/' + caseNumber + "/comments/private");
+		            url = udsHostName.clone().setPath('/case/' + caseNumber + "/comments/private");
 		        } else {
-		            var _url2 = udsHostName.clone().setPath('/case/' + caseNumber + "/comments/private/hoursWorked/" + hoursWorked);
+		            url = udsHostName.clone().setPath('/case/' + caseNumber + "/comments/private/hoursWorked/" + hoursWorked);
 		        }
 		        return executeUdsAjaxCallWithData(url, caseComment, 'POST');
 		    }

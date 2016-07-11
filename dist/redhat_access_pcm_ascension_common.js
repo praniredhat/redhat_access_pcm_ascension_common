@@ -2858,6 +2858,11 @@
 	            put: function put(caseNumber, contacts) {
 	                return uds.addAdditionalContacts(caseNumber, contacts);
 	            }
+	        },
+	        owner: {
+	            update: function update(caseNumber, ownerSSO) {
+	                return uds.updateCaseOwner(caseNumber, ownerSSO);
+	            }
 	        }
 	    };
 	    // This is not to be confused with kase.comments.  This top level comments object allows you to query
@@ -3570,6 +3575,7 @@
 		    exports.postPublicComments = postPublicComments;
 		    exports.postPrivateComments = postPrivateComments;
 		    exports.updateCaseDetails = updateCaseDetails;
+		    exports.updateCaseOwner = updateCaseOwner;
 		    exports.fetchCaseHistory = fetchCaseHistory;
 		    exports.addAssociates = addAssociates;
 		    exports.getCQIQuestions = getCQIQuestions;
@@ -3785,6 +3791,11 @@
 		    function updateCaseDetails(caseNumber, caseDetails) {
 		        var url = udsHostName.clone().setPath('/case/' + caseNumber);
 		        return executeUdsAjaxCallWithData(url, caseDetails, 'PUT');
+		    }
+
+		    function updateCaseOwner(caseNumber, ownerSSO) {
+		        var url = udsHostName.clone().setPath('/case/' + caseNumber + '/owner/' + ownerSSO);
+		        return executeUdsAjaxCall(url, 'PUT');
 		    }
 
 		    function fetchCaseHistory(caseNumber) {

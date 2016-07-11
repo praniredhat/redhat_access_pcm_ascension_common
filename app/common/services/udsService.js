@@ -176,6 +176,11 @@ export default class UdsService {
                 put: function (caseNumber, contacts) {
                     return uds.addAdditionalContacts(caseNumber, contacts);
                 }
+            },
+            owner: {
+                update: function(caseNumber, ownerSSO) {
+                    return uds.updateCaseOwner(caseNumber, ownerSSO);
+                }
             }
         };
         // This is not to be confused with kase.comments.  This top level comments object allows you to query

@@ -356,5 +356,17 @@ export default class UdsService {
                 });
             }
         };
+        this.sfdc = {
+            user: {
+                get: function (userID) {
+                    return uds.getUserDetailsFromSFDC(userID);
+                }
+            },
+            callCenter: {
+                get: function (callCenterId) {
+                    return uds.getCallCenterFromSFDC(callCenterId);
+                }
+            }
+        };
     }
 }

@@ -166,6 +166,17 @@ export default class UdsService {
                     return uds.removeCaseSbrs(caseNumber, sbrArray);
                 }
             },
+            tags: {
+                get: function () {
+                    return uds.getCaseTagsList();
+                },
+                add: function (caseNumber, tagsArray) {
+                    return uds.addCaseTags(caseNumber, tagsArray);
+                },
+                remove: function (caseNumber, tagsArray) {
+                    return uds.removeCaseTags(caseNumber, tagsArray);
+                }
+            },
             additionalContacts: {
                 get: function (caseNumber) {
                     return uds.getAdditionalContacts(caseNumber);

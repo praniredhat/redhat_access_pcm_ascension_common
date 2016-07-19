@@ -2848,6 +2848,17 @@
 	                return uds.removeCaseSbrs(caseNumber, sbrArray);
 	            }
 	        },
+	        tags: {
+	            get: function get() {
+	                return uds.getCaseTagsList();
+	            },
+	            add: function add(caseNumber, tagsArray) {
+	                return uds.addCaseTags(caseNumber, tagsArray);
+	            },
+	            remove: function remove(caseNumber, tagsArray) {
+	                return uds.removeCaseTags(caseNumber, tagsArray);
+	            }
+	        },
 	        additionalContacts: {
 	            get: function get(caseNumber) {
 	                return uds.getAdditionalContacts(caseNumber);
@@ -3636,6 +3647,9 @@
 		    exports.fetchTopCasesFromSolr = fetchTopCasesFromSolr;
 		    exports.getUserDetailsFromSFDC = getUserDetailsFromSFDC;
 		    exports.getCallCenterFromSFDC = getCallCenterFromSFDC;
+		    exports.getCaseTagsList = getCaseTagsList;
+		    exports.addCaseTags = addCaseTags;
+		    exports.removeCaseTags = removeCaseTags;
 		    var udsHostName = new Uri('https://unified-ds-ci.gsslab.brq.redhat.com/');
 
 		    if (window.location.hostname === 'access.redhat.com' || window.location.hostname === 'prod.foo.redhat.com' || window.location.hostname === 'fooprod.redhat.com') {
@@ -3680,22 +3694,39 @@
 		    };
 
 		    var executeUdsAjaxCall = function executeUdsAjaxCall(url, httpMethod) {
-		        return Promise.resolve($.ajax($.extend({}, baseAjaxParams, {
-		            url: url,
-		            type: httpMethod,
-		            method: httpMethod
-		        })));
+		        return new Promise(function (resolve, reject) {
+		            return $.ajax($.extend({}, baseAjaxParams, {
+		                url: url,
+		                type: httpMethod,
+		                method: httpMethod,
+		                success: function success(response, status, xhr) {
+		                    return resolve(xhr.status === 204 ? null : response);
+		                },
+		                error: function error(xhr, status) {
+		                    return reject(xhr);
+		                }
+		            }));
+		        });
+		        return Promise.resolve();
 		    };
 
-		    var executeUdsAjaxCallWithData = function executeUdsAjaxCallWithData(url, data, httpMethod) {
-		        return Promise.resolve($.ajax($.extend({}, baseAjaxParams, {
-		            url: url,
-		            data: JSON.stringify(data),
-		            contentType: 'application/json',
-		            type: httpMethod,
-		            method: httpMethod,
-		            dataType: ''
-		        })));
+		    var executeUdsAjaxCallWithData = function executeUdsAjaxCallWithData(url, data, httpMethod, dataType) {
+		        return new Promise(function (resolve, reject) {
+		            return $.ajax($.extend({}, baseAjaxParams, {
+		                url: url,
+		                data: JSON.stringify(data),
+		                contentType: 'application/json',
+		                type: httpMethod,
+		                method: httpMethod,
+		                dataType: dataType || '',
+		                success: function success(response, status, xhr) {
+		                    return resolve(xhr.status === 204 ? null : response);
+		                },
+		                error: function error(xhr, status) {
+		                    return reject(xhr);
+		                }
+		            }));
+		        });
 		    };
 
 		    function fetchCaseDetails(caseNumber) {
@@ -4071,7 +4102,7 @@
 
 		    function getBrmsResponse(jsonObject) {
 		        var url = udsHostName.clone().setPath('/brms');
-		        return executeUdsAjaxCallWithData(url, jsonObject, 'POST');
+		        return executeUdsAjaxCallWithData(url, jsonObject, 'POST', 'text');
 		    }
 
 		    function fetchTopCasesFromSolr(queryString) {
@@ -4087,6 +4118,21 @@
 		    function getCallCenterFromSFDC(callCenterId) {
 		        var url = udsHostName.clone().setPath('/callCenterId/' + callCenterId);
 		        return executeUdsAjaxCall(url, 'GET');
+		    }
+
+		    function getCaseTagsList() {
+		        var url = udsHostName.clone().setPath('/case/tags');
+		        return executeUdsAjaxCall(url, 'GET');
+		    }
+
+		    function addCaseTags(caseNumber, tagsArray) {
+		        var url = udsHostName.clone().setPath('/case/' + caseNumber + "/tags");
+		        return executeUdsAjaxCallWithData(url, tagsArray, 'PUT');
+		    }
+
+		    function removeCaseTags(caseNumber, tagsArray) {
+		        var url = udsHostName.clone().setPath('/case/' + caseNumber + "/tags");
+		        return executeUdsAjaxCallWithData(url, tagsArray, 'DELETE');
 		    }
 		});
 

@@ -779,51 +779,41 @@
 	    value: true
 	});
 
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	var TitleViewCtrl = function () {
-	    function TitleViewCtrl() {
-	        _classCallCheck(this, TitleViewCtrl);
-	    }
+	var TitleViewCtrl = function TitleViewCtrl(COMMON_CONFIG, $scope, gettextCatalog, CaseService) {
+	    'ngInject';
 
-	    _createClass(TitleViewCtrl, [{
-	        key: 'function',
-	        value: ["COMMON_CONFIG", "$scope", "gettextCatalog", "CaseService", function _function(COMMON_CONFIG, $scope, gettextCatalog, CaseService) {
-	            'ngInject';
+	    _classCallCheck(this, TitleViewCtrl);
 
-	            $scope.COMMON_CONFIG = COMMON_CONFIG;
-	            $scope.showTitle = COMMON_CONFIG.show;
-	            $scope.titlePrefix = COMMON_CONFIG.titlePrefix;
-	            $scope.CaseService = CaseService;
-	            $scope.getPageTitle = function () {
-	                switch ($scope.page) {
-	                    case 'search':
-	                        return gettextCatalog.getString('Search');
-	                    case 'caseList':
-	                        return gettextCatalog.getString('SUPPORT CASES');
-	                    case 'caseView':
-	                        return gettextCatalog.getString('CASE {{caseNumber}}', { caseNumber: CaseService.kase.case_number });
-	                    case 'newCase':
-	                        return gettextCatalog.getString('Open a Support Case');
-	                    case 'logViewer':
-	                        return gettextCatalog.getString('Logs');
-	                    case 'searchCase':
-	                        return gettextCatalog.getString('Search Support Case');
-	                    case 'manageGroups':
-	                        return gettextCatalog.getString('Manage Case Groups');
-	                    case 'editGroup':
-	                        return gettextCatalog.getString('Manage Default Case Groups');
-	                    default:
-	                        return '';
-	                }
-	            };
-	        }]
-	    }]);
-
-	    return TitleViewCtrl;
-	}();
+	    $scope.COMMON_CONFIG = COMMON_CONFIG;
+	    $scope.showTitle = COMMON_CONFIG.show;
+	    $scope.titlePrefix = COMMON_CONFIG.titlePrefix;
+	    $scope.CaseService = CaseService;
+	    $scope.getPageTitle = function () {
+	        switch ($scope.page) {
+	            case 'search':
+	                return gettextCatalog.getString('Search');
+	            case 'caseList':
+	                return gettextCatalog.getString('SUPPORT CASES');
+	            case 'caseView':
+	                return gettextCatalog.getString('CASE {{caseNumber}}', { caseNumber: CaseService.kase.case_number });
+	            case 'newCase':
+	                return gettextCatalog.getString('Open a Support Case');
+	            case 'logViewer':
+	                return gettextCatalog.getString('Logs');
+	            case 'searchCase':
+	                return gettextCatalog.getString('Search Support Case');
+	            case 'manageGroups':
+	                return gettextCatalog.getString('Manage Case Groups');
+	            case 'editGroup':
+	                return gettextCatalog.getString('Manage Default Case Groups');
+	            default:
+	                return '';
+	        }
+	    };
+	};
+	TitleViewCtrl.$inject = ["COMMON_CONFIG", "$scope", "gettextCatalog", "CaseService"];
 
 	exports.default = TitleViewCtrl;
 
@@ -3255,8 +3245,6 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	// Services
-
-
 	var app = angular.module('RedhatAccess.security', ['ui.bootstrap', 'ui.router', 'RedhatAccess.header']).constant('AUTH_EVENTS', _authEvents2.default).value('LOGIN_VIEW_CONFIG', _loginViewConfig2.default).value('SECURITY_CONFIG', _securityConfig2.default);
 
 	// Controllers

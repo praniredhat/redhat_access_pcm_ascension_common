@@ -1,7 +1,7 @@
 'use strict';
 
 export default class TitleViewCtrl {
-    function (COMMON_CONFIG, $scope, gettextCatalog, CaseService) {
+    constructor (COMMON_CONFIG, $scope, gettextCatalog, CaseService) {
         'ngInject';
 
         $scope.COMMON_CONFIG = COMMON_CONFIG;

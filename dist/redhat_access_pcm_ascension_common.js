@@ -779,51 +779,41 @@
 	    value: true
 	});
 
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	var TitleViewCtrl = function () {
-	    function TitleViewCtrl() {
-	        _classCallCheck(this, TitleViewCtrl);
-	    }
+	var TitleViewCtrl = function TitleViewCtrl(COMMON_CONFIG, $scope, gettextCatalog, CaseService) {
+	    'ngInject';
 
-	    _createClass(TitleViewCtrl, [{
-	        key: 'function',
-	        value: ["COMMON_CONFIG", "$scope", "gettextCatalog", "CaseService", function _function(COMMON_CONFIG, $scope, gettextCatalog, CaseService) {
-	            'ngInject';
+	    _classCallCheck(this, TitleViewCtrl);
 
-	            $scope.COMMON_CONFIG = COMMON_CONFIG;
-	            $scope.showTitle = COMMON_CONFIG.show;
-	            $scope.titlePrefix = COMMON_CONFIG.titlePrefix;
-	            $scope.CaseService = CaseService;
-	            $scope.getPageTitle = function () {
-	                switch ($scope.page) {
-	                    case 'search':
-	                        return gettextCatalog.getString('Search');
-	                    case 'caseList':
-	                        return gettextCatalog.getString('SUPPORT CASES');
-	                    case 'caseView':
-	                        return gettextCatalog.getString('CASE {{caseNumber}}', { caseNumber: CaseService.kase.case_number });
-	                    case 'newCase':
-	                        return gettextCatalog.getString('Open a Support Case');
-	                    case 'logViewer':
-	                        return gettextCatalog.getString('Logs');
-	                    case 'searchCase':
-	                        return gettextCatalog.getString('Search Support Case');
-	                    case 'manageGroups':
-	                        return gettextCatalog.getString('Manage Case Groups');
-	                    case 'editGroup':
-	                        return gettextCatalog.getString('Manage Default Case Groups');
-	                    default:
-	                        return '';
-	                }
-	            };
-	        }]
-	    }]);
-
-	    return TitleViewCtrl;
-	}();
+	    $scope.COMMON_CONFIG = COMMON_CONFIG;
+	    $scope.showTitle = COMMON_CONFIG.show;
+	    $scope.titlePrefix = COMMON_CONFIG.titlePrefix;
+	    $scope.CaseService = CaseService;
+	    $scope.getPageTitle = function () {
+	        switch ($scope.page) {
+	            case 'search':
+	                return gettextCatalog.getString('Search');
+	            case 'caseList':
+	                return gettextCatalog.getString('SUPPORT CASES');
+	            case 'caseView':
+	                return gettextCatalog.getString('CASE {{caseNumber}}', { caseNumber: CaseService.kase.case_number });
+	            case 'newCase':
+	                return gettextCatalog.getString('Open a Support Case');
+	            case 'logViewer':
+	                return gettextCatalog.getString('Logs');
+	            case 'searchCase':
+	                return gettextCatalog.getString('Search Support Case');
+	            case 'manageGroups':
+	                return gettextCatalog.getString('Manage Case Groups');
+	            case 'editGroup':
+	                return gettextCatalog.getString('Manage Default Case Groups');
+	            default:
+	                return '';
+	        }
+	    };
+	};
+	TitleViewCtrl.$inject = ["COMMON_CONFIG", "$scope", "gettextCatalog", "CaseService"];
 
 	exports.default = TitleViewCtrl;
 
@@ -3598,7 +3588,6 @@
 		    exports.postPublicComments = postPublicComments;
 		    exports.postPrivateComments = postPrivateComments;
 		    exports.updateCaseDetails = updateCaseDetails;
-		    exports.updateCaseOwner = updateCaseOwner;
 		    exports.fetchCaseHistory = fetchCaseHistory;
 		    exports.addAssociates = addAssociates;
 		    exports.getCQIQuestions = getCQIQuestions;
@@ -3645,11 +3634,6 @@
 		    exports.addAdditionalContacts = addAdditionalContacts;
 		    exports.getBrmsResponse = getBrmsResponse;
 		    exports.fetchTopCasesFromSolr = fetchTopCasesFromSolr;
-		    exports.getUserDetailsFromSFDC = getUserDetailsFromSFDC;
-		    exports.getCallCenterFromSFDC = getCallCenterFromSFDC;
-		    exports.getCaseTagsList = getCaseTagsList;
-		    exports.addCaseTags = addCaseTags;
-		    exports.removeCaseTags = removeCaseTags;
 		    var udsHostName = new Uri('https://unified-ds-ci.gsslab.brq.redhat.com/');
 
 		    if (window.location.hostname === 'access.redhat.com' || window.location.hostname === 'prod.foo.redhat.com' || window.location.hostname === 'fooprod.redhat.com') {
@@ -3694,39 +3678,22 @@
 		    };
 
 		    var executeUdsAjaxCall = function executeUdsAjaxCall(url, httpMethod) {
-		        return new Promise(function (resolve, reject) {
-		            return $.ajax($.extend({}, baseAjaxParams, {
-		                url: url,
-		                type: httpMethod,
-		                method: httpMethod,
-		                success: function success(response, status, xhr) {
-		                    return resolve(xhr.status === 204 ? null : response);
-		                },
-		                error: function error(xhr, status) {
-		                    return reject(xhr);
-		                }
-		            }));
-		        });
-		        return Promise.resolve();
+		        return Promise.resolve($.ajax($.extend({}, baseAjaxParams, {
+		            url: url,
+		            type: httpMethod,
+		            method: httpMethod
+		        })));
 		    };
 
-		    var executeUdsAjaxCallWithData = function executeUdsAjaxCallWithData(url, data, httpMethod, dataType) {
-		        return new Promise(function (resolve, reject) {
-		            return $.ajax($.extend({}, baseAjaxParams, {
-		                url: url,
-		                data: JSON.stringify(data),
-		                contentType: 'application/json',
-		                type: httpMethod,
-		                method: httpMethod,
-		                dataType: dataType || '',
-		                success: function success(response, status, xhr) {
-		                    return resolve(xhr.status === 204 ? null : response);
-		                },
-		                error: function error(xhr, status) {
-		                    return reject(xhr);
-		                }
-		            }));
-		        });
+		    var executeUdsAjaxCallWithData = function executeUdsAjaxCallWithData(url, data, httpMethod) {
+		        return Promise.resolve($.ajax($.extend({}, baseAjaxParams, {
+		            url: url,
+		            data: JSON.stringify(data),
+		            contentType: 'application/json',
+		            type: httpMethod,
+		            method: httpMethod,
+		            dataType: ''
+		        })));
 		    };
 
 		    function fetchCaseDetails(caseNumber) {
@@ -3826,9 +3793,9 @@
 		    function postPrivateComments(caseNumber, caseComment, hoursWorked) {
 		        var url = udsHostName.clone().setPath('/case/' + caseNumber + "/comments/private");
 		        if (hoursWorked === undefined) {
-		            url = udsHostName.clone().setPath('/case/' + caseNumber + "/comments/private");
+		            var _url = udsHostName.clone().setPath('/case/' + caseNumber + "/comments/private");
 		        } else {
-		            url = udsHostName.clone().setPath('/case/' + caseNumber + "/comments/private/hoursWorked/" + hoursWorked);
+		            var _url2 = udsHostName.clone().setPath('/case/' + caseNumber + "/comments/private/hoursWorked/" + hoursWorked);
 		        }
 		        return executeUdsAjaxCallWithData(url, caseComment, 'POST');
 		    }
@@ -3836,11 +3803,6 @@
 		    function updateCaseDetails(caseNumber, caseDetails) {
 		        var url = udsHostName.clone().setPath('/case/' + caseNumber);
 		        return executeUdsAjaxCallWithData(url, caseDetails, 'PUT');
-		    }
-
-		    function updateCaseOwner(caseNumber, ownerSSO) {
-		        var url = udsHostName.clone().setPath('/case/' + caseNumber + '/owner/' + ownerSSO);
-		        return executeUdsAjaxCall(url, 'PUT');
 		    }
 
 		    function fetchCaseHistory(caseNumber) {
@@ -4102,37 +4064,12 @@
 
 		    function getBrmsResponse(jsonObject) {
 		        var url = udsHostName.clone().setPath('/brms');
-		        return executeUdsAjaxCallWithData(url, jsonObject, 'POST', 'text');
+		        return executeUdsAjaxCallWithData(url, jsonObject, 'POST');
 		    }
 
 		    function fetchTopCasesFromSolr(queryString) {
 		        var url = udsHostName.clone().setPath('/solr?' + queryString);
 		        return executeUdsAjaxCall(url, 'GET');
-		    }
-
-		    function getUserDetailsFromSFDC(userID) {
-		        var url = udsHostName.clone().setPath('/salesforce/user/' + userID);
-		        return executeUdsAjaxCall(url, 'GET');
-		    }
-
-		    function getCallCenterFromSFDC(callCenterId) {
-		        var url = udsHostName.clone().setPath('/callCenterId/' + callCenterId);
-		        return executeUdsAjaxCall(url, 'GET');
-		    }
-
-		    function getCaseTagsList() {
-		        var url = udsHostName.clone().setPath('/case/tags');
-		        return executeUdsAjaxCall(url, 'GET');
-		    }
-
-		    function addCaseTags(caseNumber, tagsArray) {
-		        var url = udsHostName.clone().setPath('/case/' + caseNumber + "/tags");
-		        return executeUdsAjaxCallWithData(url, tagsArray, 'PUT');
-		    }
-
-		    function removeCaseTags(caseNumber, tagsArray) {
-		        var url = udsHostName.clone().setPath('/case/' + caseNumber + "/tags");
-		        return executeUdsAjaxCallWithData(url, tagsArray, 'DELETE');
 		    }
 		});
 

@@ -2798,8 +2798,10 @@
 	            put: {
 	                private: function _private(caseNumber, commentText, caseCommentId, draft) {
 	                    return uds.postEditPrivateComments(caseNumber, commentText, caseCommentId, draft);
+	                },
+	                public: function _public(caseNumber, commentText, caseCommentId, draft) {
+	                    return uds.postPvtToPubComments(caseNumber, commentText, caseCommentId, draft);
 	                }
-
 	            }
 	        },
 	        history: {
@@ -3245,6 +3247,8 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	// Services
+
+
 	var app = angular.module('RedhatAccess.security', ['ui.bootstrap', 'ui.router', 'RedhatAccess.header']).constant('AUTH_EVENTS', _authEvents2.default).value('LOGIN_VIEW_CONFIG', _loginViewConfig2.default).value('SECURITY_CONFIG', _securityConfig2.default);
 
 	// Controllers
@@ -3610,6 +3614,7 @@
 		    exports.getQuestionDependencies = getQuestionDependencies;
 		    exports.postRoleLevel = postRoleLevel;
 		    exports.postEditPrivateComments = postEditPrivateComments;
+		    exports.postPvtToPubComments = postPvtToPubComments;
 		    exports.createCaseNep = createCaseNep;
 		    exports.updateCaseNep = updateCaseNep;
 		    exports.removeCaseNep = removeCaseNep;
@@ -3964,6 +3969,12 @@
 		        return executeUdsAjaxCallWithData(url, caseComment, 'PUT');
 		    }
 
+		    function postPvtToPubComments(caseNumber, caseComment, caseCommentId, draft) {
+		        var url = udsHostName.clone().setPath('/case/' + caseNumber + "/comments/" + caseCommentId + "/public");
+		        url.addQueryParam('draft', draft);
+		        return executeUdsAjaxCallWithData(url, caseComment, 'PUT');
+		    }
+
 		    function createCaseNep(caseNumber, nep) {
 		        var url = udsHostName.clone().setPath('/case/' + caseNumber + "/nep");
 		        return executeUdsAjaxCallWithData(url, nep, 'POST');
@@ -4104,7 +4115,7 @@
 		    }
 
 		    function getCallCenterFromSFDC(callCenterId) {
-		        var url = udsHostName.clone().setPath('/callCenterId/' + callCenterId);
+		        var url = udsHostName.clone().setPath('/callcenter/' + callCenterId);
 		        return executeUdsAjaxCall(url, 'GET');
 		    }
 

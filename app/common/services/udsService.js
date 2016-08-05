@@ -124,8 +124,15 @@ export default class UdsService {
                             caseCommentId,
                             draft
                         );
+                    },
+                    public: function (caseNumber, commentText, caseCommentId, draft) {
+                        return uds.postPvtToPubComments(
+                            caseNumber,
+                            commentText,
+                            caseCommentId,
+                            draft
+                        );
                     }
-
                 }
             },
             history: {

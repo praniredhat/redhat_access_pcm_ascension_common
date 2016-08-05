@@ -2997,6 +2997,9 @@
 	        postRoleLevel: function postRoleLevel(userId, roleName, roleLevel) {
 	            return uds.postRoleLevel(userId, roleName, roleLevel);
 	        },
+	        updateUserRole: function updateUserRole(userId, role) {
+	            return uds.updateUserRole(userId, role);
+	        },
 	        user: {
 	            put: function put(userId, uql, data) {
 	                return uds.postAddUsersToRole(userId, uql, data);
@@ -3607,6 +3610,7 @@
 		    exports.getRoleList = getRoleList;
 		    exports.getRoleDetails = getRoleDetails;
 		    exports.removeUserRole = removeUserRole;
+		    exports.updateUserRole = updateUserRole;
 		    exports.postAddUsersToSBR = postAddUsersToSBR;
 		    exports.postAddUsersToRole = postAddUsersToRole;
 		    exports.getOpenCasesForAccount = getOpenCasesForAccount;
@@ -3922,6 +3926,11 @@
 		    function removeUserRole(userId, query) {
 		        var url = udsHostName.clone().setPath('/user/' + userId + '/role').addQueryParam('where', query);
 		        return executeUdsAjaxCall(url, 'DELETE');
+		    }
+
+		    function updateUserRole(userId, role) {
+		        var url = udsHostName.clone().setPath('/user/' + userId + '/role/' + role.externalModelId);
+		        return executeUdsAjaxCallWithData(url, role.resource, 'PUT');
 		    }
 
 		    function postAddUsersToSBR(userId, uql, data) {

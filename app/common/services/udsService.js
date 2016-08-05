@@ -355,6 +355,9 @@ export default class UdsService {
             postRoleLevel: function (userId, roleName, roleLevel) {
                 return uds.postRoleLevel(userId, roleName, roleLevel);
             },
+            updateUserRole: function (userId, role) {
+              return uds.updateUserRole(userId, role);
+            },
             user: {
                 put: function (userId, uql, data) {
                     return uds.postAddUsersToRole(

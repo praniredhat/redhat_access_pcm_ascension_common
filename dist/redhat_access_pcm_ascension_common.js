@@ -3000,6 +3000,14 @@
 	        user: {
 	            put: function put(userId, uql, data) {
 	                return uds.postAddUsersToRole(userId, uql, data);
+	            },
+	            update: function update(userId, role) {
+	                return uds.updateUserRole(userId, role);
+	            }
+	        },
+	        templates: {
+	            list: function list(query) {
+	                return uds.fetchPriorityTemplates(query);
 	            }
 	        }
 	    };
@@ -3607,6 +3615,7 @@
 		    exports.getRoleList = getRoleList;
 		    exports.getRoleDetails = getRoleDetails;
 		    exports.removeUserRole = removeUserRole;
+		    exports.updateUserRole = updateUserRole;
 		    exports.postAddUsersToSBR = postAddUsersToSBR;
 		    exports.postAddUsersToRole = postAddUsersToRole;
 		    exports.getOpenCasesForAccount = getOpenCasesForAccount;
@@ -3643,6 +3652,7 @@
 		    exports.getCaseTagsList = getCaseTagsList;
 		    exports.addCaseTags = addCaseTags;
 		    exports.removeCaseTags = removeCaseTags;
+		    exports.fetchPriorityTemplates = fetchPriorityTemplates;
 		    var udsHostName = new Uri('https://unified-ds-ci.gsslab.brq.redhat.com/');
 
 		    if (window.location.hostname === 'access.redhat.com' || window.location.hostname === 'prod.foo.redhat.com' || window.location.hostname === 'fooprod.redhat.com') {
@@ -3924,6 +3934,11 @@
 		        return executeUdsAjaxCall(url, 'DELETE');
 		    }
 
+		    function updateUserRole(userId, role) {
+		        var url = udsHostName.clone().setPath('/user/' + userId + '/role/' + role.externalModelId);
+		        return executeUdsAjaxCallWithData(url, role.resource, 'PUT');
+		    }
+
 		    function postAddUsersToSBR(userId, uql, data) {
 		        if (uql == null || uql == undefined || uql === '') {
 		            throw 'User Query is mandatory';
@@ -4132,6 +4147,12 @@
 		    function removeCaseTags(caseNumber, tagsArray) {
 		        var url = udsHostName.clone().setPath('/case/' + caseNumber + "/tags");
 		        return executeUdsAjaxCallWithData(url, tagsArray, 'DELETE');
+		    }
+
+		    function fetchPriorityTemplates(uql) {
+		        var url = udsHostName.clone().setPath('/user/metadata/templates');
+		        url.addQueryParam('where', uql);
+		        return executeUdsAjaxCall(url, 'GET');
 		    }
 		});
 

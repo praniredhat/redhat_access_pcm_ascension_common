@@ -362,6 +362,14 @@ export default class UdsService {
                         uql,
                         data
                     );
+                },
+                update: function (userId, role) {
+                    return uds.updateUserRole(userId, role);
+                }
+            },
+            templates: {
+                list: function(query) {
+                    return uds.fetchPriorityTemplates(query);
                 }
             }
         };

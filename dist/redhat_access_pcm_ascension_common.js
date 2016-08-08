@@ -2712,6 +2712,9 @@
 	        },
 	        listTopCases: function listTopCases(queryString) {
 	            return uds.fetchTopCasesFromSolr(queryString);
+	        },
+	        listLanguages: function listLanguages() {
+	            return uds.fetchCaseLanguages();
 	        }
 	    };
 	    this.brms = {
@@ -3255,8 +3258,6 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	// Services
-
-
 	var app = angular.module('RedhatAccess.security', ['ui.bootstrap', 'ui.router', 'RedhatAccess.header']).constant('AUTH_EVENTS', _authEvents2.default).value('LOGIN_VIEW_CONFIG', _loginViewConfig2.default).value('SECURITY_CONFIG', _securityConfig2.default);
 
 	// Controllers
@@ -3653,6 +3654,7 @@
 		    exports.addCaseTags = addCaseTags;
 		    exports.removeCaseTags = removeCaseTags;
 		    exports.fetchPriorityTemplates = fetchPriorityTemplates;
+		    exports.fetchCaseLanguages = fetchCaseLanguages;
 		    var udsHostName = new Uri('https://unified-ds-ci.gsslab.brq.redhat.com/');
 
 		    if (window.location.hostname === 'access.redhat.com' || window.location.hostname === 'prod.foo.redhat.com' || window.location.hostname === 'fooprod.redhat.com') {
@@ -4152,6 +4154,11 @@
 		    function fetchPriorityTemplates(uql) {
 		        var url = udsHostName.clone().setPath('/user/metadata/templates');
 		        url.addQueryParam('where', uql);
+		        return executeUdsAjaxCall(url, 'GET');
+		    }
+
+		    function fetchCaseLanguages() {
+		        var url = udsHostName.clone().setPath('/case/languages');
 		        return executeUdsAjaxCall(url, 'GET');
 		    }
 		});

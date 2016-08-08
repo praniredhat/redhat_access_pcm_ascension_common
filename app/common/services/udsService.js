@@ -20,6 +20,9 @@ export default class UdsService {
             },
             listTopCases: function (queryString) {
                 return uds.fetchTopCasesFromSolr(queryString);
+            },
+            listLanguages: function () {
+                return uds.fetchCaseLanguages();
             }
         };
         this.brms = {

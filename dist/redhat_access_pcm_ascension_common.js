@@ -2997,12 +2997,17 @@
 	        postRoleLevel: function postRoleLevel(userId, roleName, roleLevel) {
 	            return uds.postRoleLevel(userId, roleName, roleLevel);
 	        },
-	        updateUserRole: function updateUserRole(userId, role) {
-	            return uds.updateUserRole(userId, role);
-	        },
 	        user: {
 	            put: function put(userId, uql, data) {
 	                return uds.postAddUsersToRole(userId, uql, data);
+	            },
+	            update: function update(userId, role) {
+	                return uds.updateUserRole(userId, role);
+	            }
+	        },
+	        templates: {
+	            list: function list(query) {
+	                return uds.fetchPriorityTemplates(query);
 	            }
 	        }
 	    };
@@ -3647,6 +3652,7 @@
 		    exports.getCaseTagsList = getCaseTagsList;
 		    exports.addCaseTags = addCaseTags;
 		    exports.removeCaseTags = removeCaseTags;
+		    exports.fetchPriorityTemplates = fetchPriorityTemplates;
 		    var udsHostName = new Uri('https://unified-ds-ci.gsslab.brq.redhat.com/');
 
 		    if (window.location.hostname === 'access.redhat.com' || window.location.hostname === 'prod.foo.redhat.com' || window.location.hostname === 'fooprod.redhat.com') {
@@ -4141,6 +4147,12 @@
 		    function removeCaseTags(caseNumber, tagsArray) {
 		        var url = udsHostName.clone().setPath('/case/' + caseNumber + "/tags");
 		        return executeUdsAjaxCallWithData(url, tagsArray, 'DELETE');
+		    }
+
+		    function fetchPriorityTemplates(uql) {
+		        var url = udsHostName.clone().setPath('/user/metadata/templates');
+		        url.addQueryParam('where', uql);
+		        return executeUdsAjaxCall(url, 'GET');
 		    }
 		});
 

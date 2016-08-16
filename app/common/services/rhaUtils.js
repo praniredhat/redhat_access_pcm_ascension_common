@@ -1,6 +1,5 @@
 export default class RHAUtils {
     constructor() {
-        this.userTimeZone = null;
         this.isEmpty = function (object) {
             if (object === undefined || object === null || object === '' || object.length === 0 || object === {}) {
                 return true;
@@ -39,9 +38,10 @@ export default class RHAUtils {
         this.formatDate = function (date, formatter) {
             return date.format(formatter);
         };
-        this.isWeeekend = function () {
+        this.isWeeekend = function (userTimeZone) {
+            if(this.isEmpty(userTimeZone)) userTimeZone = null;
             var currentDate = window.moment(); //get current date
-            var timezoneDate = window.moment(currentDate).tz(this.userTimeZone); //change as per logged in user's timezone
+            var timezoneDate = window.moment(currentDate).tz(userTimeZone); //change as per logged in user's timezone
             //Sunday as 0 and Saturday as 6.
             if (timezoneDate.day() == 0 || timezoneDate.day() == 6) {
                 return true;

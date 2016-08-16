@@ -3601,12 +3601,15 @@
 		    exports.postPublicComments = postPublicComments;
 		    exports.postPrivateComments = postPrivateComments;
 		    exports.updateCaseDetails = updateCaseDetails;
+		    exports.updateCaseOwner = updateCaseOwner;
 		    exports.fetchCaseHistory = fetchCaseHistory;
 		    exports.addAssociates = addAssociates;
 		    exports.getCQIQuestions = getCQIQuestions;
+		    exports.getCQIs = getCQIs;
 		    exports.postCQIScore = postCQIScore;
 		    exports.getSolutionDetails = getSolutionDetails;
 		    exports.getSQIQuestions = getSQIQuestions;
+		    exports.getSQIs = getSQIs;
 		    exports.postSQIScore = postSQIScore;
 		    exports.getSbrList = getSbrList;
 		    exports.fetchCaseSbrs = fetchCaseSbrs;
@@ -3615,6 +3618,7 @@
 		    exports.getRoleList = getRoleList;
 		    exports.getRoleDetails = getRoleDetails;
 		    exports.removeUserRole = removeUserRole;
+		    exports.updateUserRole = updateUserRole;
 		    exports.postAddUsersToSBR = postAddUsersToSBR;
 		    exports.postAddUsersToRole = postAddUsersToRole;
 		    exports.getOpenCasesForAccount = getOpenCasesForAccount;
@@ -3622,6 +3626,7 @@
 		    exports.getQuestionDependencies = getQuestionDependencies;
 		    exports.postRoleLevel = postRoleLevel;
 		    exports.postEditPrivateComments = postEditPrivateComments;
+		    exports.postPvtToPubComments = postPvtToPubComments;
 		    exports.createCaseNep = createCaseNep;
 		    exports.updateCaseNep = updateCaseNep;
 		    exports.removeCaseNep = removeCaseNep;
@@ -3643,8 +3648,15 @@
 		    exports.getAdditionalContacts = getAdditionalContacts;
 		    exports.removeAdditionalContacts = removeAdditionalContacts;
 		    exports.addAdditionalContacts = addAdditionalContacts;
-		    exports.fetchBrmsSolrQuery = fetchBrmsSolrQuery;
+		    exports.getBrmsResponse = getBrmsResponse;
 		    exports.fetchTopCasesFromSolr = fetchTopCasesFromSolr;
+		    exports.getUserDetailsFromSFDC = getUserDetailsFromSFDC;
+		    exports.getCallCenterFromSFDC = getCallCenterFromSFDC;
+		    exports.getCaseTagsList = getCaseTagsList;
+		    exports.addCaseTags = addCaseTags;
+		    exports.removeCaseTags = removeCaseTags;
+		    exports.fetchPriorityTemplates = fetchPriorityTemplates;
+		    exports.fetchCaseLanguages = fetchCaseLanguages;
 		    var udsHostName = new Uri('https://unified-ds-ci.gsslab.brq.redhat.com/');
 
 		    if (window.location.hostname === 'access.redhat.com' || window.location.hostname === 'prod.foo.redhat.com' || window.location.hostname === 'fooprod.redhat.com') {
@@ -3689,22 +3701,39 @@
 		    };
 
 		    var executeUdsAjaxCall = function executeUdsAjaxCall(url, httpMethod) {
-		        return Promise.resolve($.ajax($.extend({}, baseAjaxParams, {
-		            url: url,
-		            type: httpMethod,
-		            method: httpMethod
-		        })));
+		        return new Promise(function (resolve, reject) {
+		            return $.ajax($.extend({}, baseAjaxParams, {
+		                url: url,
+		                type: httpMethod,
+		                method: httpMethod,
+		                success: function success(response, status, xhr) {
+		                    return resolve(xhr.status === 204 ? null : response);
+		                },
+		                error: function error(xhr, status) {
+		                    return reject(xhr);
+		                }
+		            }));
+		        });
+		        return Promise.resolve();
 		    };
 
-		    var executeUdsAjaxCallWithData = function executeUdsAjaxCallWithData(url, data, httpMethod) {
-		        return Promise.resolve($.ajax($.extend({}, baseAjaxParams, {
-		            url: url,
-		            data: JSON.stringify(data),
-		            contentType: 'application/json',
-		            type: httpMethod,
-		            method: httpMethod,
-		            dataType: ''
-		        })));
+		    var executeUdsAjaxCallWithData = function executeUdsAjaxCallWithData(url, data, httpMethod, dataType) {
+		        return new Promise(function (resolve, reject) {
+		            return $.ajax($.extend({}, baseAjaxParams, {
+		                url: url,
+		                data: JSON.stringify(data),
+		                contentType: 'application/json',
+		                type: httpMethod,
+		                method: httpMethod,
+		                dataType: dataType || '',
+		                success: function success(response, status, xhr) {
+		                    return resolve(xhr.status === 204 ? null : response);
+		                },
+		                error: function error(xhr, status) {
+		                    return reject(xhr);
+		                }
+		            }));
+		        });
 		    };
 
 		    function fetchCaseDetails(caseNumber) {
@@ -3804,9 +3833,9 @@
 		    function postPrivateComments(caseNumber, caseComment, hoursWorked) {
 		        var url = udsHostName.clone().setPath('/case/' + caseNumber + "/comments/private");
 		        if (hoursWorked === undefined) {
-		            var _url = udsHostName.clone().setPath('/case/' + caseNumber + "/comments/private");
+		            url = udsHostName.clone().setPath('/case/' + caseNumber + "/comments/private");
 		        } else {
-		            var _url2 = udsHostName.clone().setPath('/case/' + caseNumber + "/comments/private/hoursWorked/" + hoursWorked);
+		            url = udsHostName.clone().setPath('/case/' + caseNumber + "/comments/private/hoursWorked/" + hoursWorked);
 		        }
 		        return executeUdsAjaxCallWithData(url, caseComment, 'POST');
 		    }
@@ -3814,6 +3843,11 @@
 		    function updateCaseDetails(caseNumber, caseDetails) {
 		        var url = udsHostName.clone().setPath('/case/' + caseNumber);
 		        return executeUdsAjaxCallWithData(url, caseDetails, 'PUT');
+		    }
+
+		    function updateCaseOwner(caseNumber, ownerSSO) {
+		        var url = udsHostName.clone().setPath('/case/' + caseNumber + '/owner/' + ownerSSO);
+		        return executeUdsAjaxCall(url, 'PUT');
 		    }
 
 		    function fetchCaseHistory(caseNumber) {
@@ -3828,6 +3862,12 @@
 
 		    function getCQIQuestions(caseNumber) {
 		        var url = udsHostName.clone().setPath('/case/' + caseNumber + '/reviews/questions');
+		        return executeUdsAjaxCall(url, 'GET');
+		    }
+
+		    // Allows for UQL for fetching CQIs
+		    function getCQIs(uql) {
+		        var url = udsHostName.clone().setPath('/case/reviews').addQueryParam('where', uql);
 		        return executeUdsAjaxCall(url, 'GET');
 		    }
 
@@ -3846,6 +3886,12 @@
 
 		    function getSQIQuestions(solutionNumber) {
 		        var url = udsHostName.clone().setPath('/documentation/solution/' + solutionNumber + '/reviews/questions');
+		        return executeUdsAjaxCall(url, 'GET');
+		    }
+
+		    // Allows for UQL for fetching SQIs
+		    function getSQIs(uql) {
+		        var url = udsHostName.clone().setPath('/documentation/solution/reviews').addQueryParam('where', uql);
 		        return executeUdsAjaxCall(url, 'GET');
 		    }
 
@@ -3892,6 +3938,11 @@
 		        return executeUdsAjaxCall(url, 'DELETE');
 		    }
 
+		    function updateUserRole(userId, role) {
+		        var url = udsHostName.clone().setPath('/user/' + userId + '/role/' + role.externalModelId);
+		        return executeUdsAjaxCallWithData(url, role.resource, 'PUT');
+		    }
+
 		    function postAddUsersToSBR(userId, uql, data) {
 		        if (uql == null || uql == undefined || uql === '') {
 		            throw 'User Query is mandatory';
@@ -3933,6 +3984,12 @@
 
 		    function postEditPrivateComments(caseNumber, caseComment, caseCommentId, draft) {
 		        var url = udsHostName.clone().setPath('/case/' + caseNumber + "/comments/" + caseCommentId + "/private");
+		        url.addQueryParam('draft', draft);
+		        return executeUdsAjaxCallWithData(url, caseComment, 'PUT');
+		    }
+
+		    function postPvtToPubComments(caseNumber, caseComment, caseCommentId, draft) {
+		        var url = udsHostName.clone().setPath('/case/' + caseNumber + "/comments/" + caseCommentId + "/public");
 		        url.addQueryParam('draft', draft);
 		        return executeUdsAjaxCallWithData(url, caseComment, 'PUT');
 		    }
@@ -4061,13 +4118,49 @@
 		        return executeUdsAjaxCallWithData(url, contacts, 'PUT');
 		    }
 
-		    function fetchBrmsSolrQuery(jsonObject) {
+		    function getBrmsResponse(jsonObject) {
 		        var url = udsHostName.clone().setPath('/brms');
-		        return executeUdsAjaxCallWithData(url, jsonObject, 'POST');
+		        return executeUdsAjaxCallWithData(url, jsonObject, 'POST', 'text');
 		    }
 
 		    function fetchTopCasesFromSolr(queryString) {
 		        var url = udsHostName.clone().setPath('/solr?' + queryString);
+		        return executeUdsAjaxCall(url, 'GET');
+		    }
+
+		    function getUserDetailsFromSFDC(userID) {
+		        var url = udsHostName.clone().setPath('/salesforce/user/' + userID);
+		        return executeUdsAjaxCall(url, 'GET');
+		    }
+
+		    function getCallCenterFromSFDC(callCenterId) {
+		        var url = udsHostName.clone().setPath('/callcenter/' + callCenterId);
+		        return executeUdsAjaxCall(url, 'GET');
+		    }
+
+		    function getCaseTagsList() {
+		        var url = udsHostName.clone().setPath('/case/tags');
+		        return executeUdsAjaxCall(url, 'GET');
+		    }
+
+		    function addCaseTags(caseNumber, tagsArray) {
+		        var url = udsHostName.clone().setPath('/case/' + caseNumber + "/tags");
+		        return executeUdsAjaxCallWithData(url, tagsArray, 'PUT');
+		    }
+
+		    function removeCaseTags(caseNumber, tagsArray) {
+		        var url = udsHostName.clone().setPath('/case/' + caseNumber + "/tags");
+		        return executeUdsAjaxCallWithData(url, tagsArray, 'DELETE');
+		    }
+
+		    function fetchPriorityTemplates(uql) {
+		        var url = udsHostName.clone().setPath('/user/metadata/templates');
+		        url.addQueryParam('where', uql);
+		        return executeUdsAjaxCall(url, 'GET');
+		    }
+
+		    function fetchCaseLanguages() {
+		        var url = udsHostName.clone().setPath('/case/languages');
 		        return executeUdsAjaxCall(url, 'GET');
 		    }
 		});

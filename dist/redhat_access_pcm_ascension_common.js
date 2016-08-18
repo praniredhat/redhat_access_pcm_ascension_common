@@ -3290,8 +3290,6 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	// Services
-
-
 	var app = angular.module('RedhatAccess.security', ['ui.bootstrap', 'ui.router', 'RedhatAccess.header']).constant('AUTH_EVENTS', _authEvents2.default).value('LOGIN_VIEW_CONFIG', _loginViewConfig2.default).value('SECURITY_CONFIG', _securityConfig2.default);
 
 	// Controllers
@@ -3689,6 +3687,8 @@
 		    exports.removeCaseTags = removeCaseTags;
 		    exports.fetchPriorityTemplates = fetchPriorityTemplates;
 		    exports.fetchCaseLanguages = fetchCaseLanguages;
+		    exports.fetchBugzillas = fetchBugzillas;
+		    exports.fetchBugzillaComments = fetchBugzillaComments;
 		    exports.addLanguageToUser = addLanguageToUser;
 		    exports.removeLanguagesFromUser = removeLanguagesFromUser;
 		    exports.addTagToUser = addTagToUser;
@@ -4201,6 +4201,18 @@
 
 		    function fetchCaseLanguages() {
 		        var url = udsHostName.clone().setPath('/case/languages');
+		        return executeUdsAjaxCall(url, 'GET');
+		    }
+
+		    function fetchBugzillas(uql) {
+		        var url = udsHostName.clone().setPath('/bug');
+		        url.addQueryParam('where', uql);
+		        return executeUdsAjaxCall(url, 'GET');
+		    }
+
+		    function fetchBugzillaComments(uql) {
+		        var url = udsHostName.clone().setPath('/bug/comments');
+		        url.addQueryParam('where', uql);
 		        return executeUdsAjaxCall(url, 'GET');
 		    }
 

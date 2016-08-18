@@ -2911,6 +2911,38 @@
 	        },
 	        details: function details(ssoUsername) {
 	            return uds.fetchUserDetails(ssoUsername);
+	        },
+	        languages: {
+	            add: function add(userId, language, type) {
+	                return uds.addLanguageToUser(userId, language, type);
+	            },
+	            remove: function remove(userId, query) {
+	                return uds.removeLanguagesFromUser(userId, query);
+	            }
+	        },
+	        tags: {
+	            add: function add(userId, tagName) {
+	                return uds.addTagToUser(userId, tagName);
+	            },
+	            remove: function remove(userId, query) {
+	                return uds.removeTagsFromUser(userId, query);
+	            }
+	        },
+	        queueBuddies: {
+	            setAsQB: function setAsQB(qbUserId, userId) {
+	                return uds.addUserAsQB(qbUserId, userId);
+	            },
+	            remove: function remove(qbUserId, query) {
+	                return uds.removeUserQBs(qbUserId, query);
+	            }
+	        },
+	        nnoRegions: {
+	            add: function add(userId, nnoRegion) {
+	                return uds.addNNOToUser(userId, nnoRegion);
+	            },
+	            remove: function remove(userId, query) {
+	                return uds.removeNNOsFromUser(userId, query);
+	            }
 	        }
 	    };
 	    this.cqi = {
@@ -3657,6 +3689,14 @@
 		    exports.removeCaseTags = removeCaseTags;
 		    exports.fetchPriorityTemplates = fetchPriorityTemplates;
 		    exports.fetchCaseLanguages = fetchCaseLanguages;
+		    exports.addLanguageToUser = addLanguageToUser;
+		    exports.removeLanguagesFromUser = removeLanguagesFromUser;
+		    exports.addTagToUser = addTagToUser;
+		    exports.removeTagsFromUser = removeTagsFromUser;
+		    exports.addUserAsQB = addUserAsQB;
+		    exports.removeUserQBs = removeUserQBs;
+		    exports.addNNOToUser = addNNOToUser;
+		    exports.removeNNOsFromUser = removeNNOsFromUser;
 		    var udsHostName = new Uri('https://unified-ds-ci.gsslab.brq.redhat.com/');
 
 		    if (window.location.hostname === 'access.redhat.com' || window.location.hostname === 'prod.foo.redhat.com' || window.location.hostname === 'fooprod.redhat.com') {
@@ -4162,6 +4202,47 @@
 		    function fetchCaseLanguages() {
 		        var url = udsHostName.clone().setPath('/case/languages');
 		        return executeUdsAjaxCall(url, 'GET');
+		    }
+
+		    function addLanguageToUser(userId, language, type) {
+		        if (type !== "primary" && type !== "secondary") type = "primary";
+		        var url = udsHostName.clone().setPath('/user/' + userId + '/language/' + type + '/' + language);
+		        return executeUdsAjaxCall(url, 'POST');
+		    }
+
+		    function removeLanguagesFromUser(userId, query) {
+		        var url = udsHostName.clone().setPath('/user/' + userId + '/language').addQueryParam('where', query);
+		        return executeUdsAjaxCall(url, 'DELETE');
+		    }
+
+		    function addTagToUser(userId, tagName) {
+		        var url = udsHostName.clone().setPath('/user/' + userId + '/tag/' + tagName);
+		        return executeUdsAjaxCall(url, 'POST');
+		    }
+
+		    function removeTagsFromUser(userId, query) {
+		        var url = udsHostName.clone().setPath('/user/' + userId + '/tag').addQueryParam('where', query);
+		        return executeUdsAjaxCall(url, 'DELETE');
+		    }
+
+		    function addUserAsQB(qbUserId, userId) {
+		        var url = udsHostName.clone().setPath('/user/' + qbUserId + '/queuebuddy/' + userId);
+		        return executeUdsAjaxCall(url, 'POST');
+		    }
+
+		    function removeUserQBs(qbUserId, query) {
+		        var url = udsHostName.clone().setPath('/user/' + qbUserId + '/queuebuddy').addQueryParam('where', query);
+		        return executeUdsAjaxCall(url, 'DELETE');
+		    }
+
+		    function addNNOToUser(userId, nnoRegion) {
+		        var url = udsHostName.clone().setPath('/user/' + userId + '/nnoregion/' + nnoRegion);
+		        executeUdsAjaxCall(url, 'POST');
+		    }
+
+		    function removeNNOsFromUser(userId, query) {
+		        var url = udsHostName.clone().setPath('/user/' + userId + '/nnoregion').addQueryParam('where', query);
+		        return executeUdsAjaxCall(url, 'DELETE');
 		    }
 		});
 

@@ -844,6 +844,18 @@ export default class StrataService {
                     }
                     return deferred.promise;
                 },
+                getBySSO: function(userSSO) {
+                    var deferred = $q.defer();
+                    if(strataCache.get('userSSO' + userSSO)) {
+                        deferred.resolve(strataCache.get('userSSO' + userSSO));
+                    } else {
+                        strata.users.getBySSO(function(response) {
+                            strataCache.put('userSSO' + userSSO, response);
+                            deferred.resolve(response);
+                        }, angular.bind(deferred, errorHandler), userSSO);
+                    }
+                    return deferred.promise;
+                },
                 chatSession: {
                     post: function () {
                         var deferred = $q.defer();

@@ -247,6 +247,38 @@ export default class UdsService {
             },
             details: function (ssoUsername) {
                 return uds.fetchUserDetails(ssoUsername);
+            },
+            languages: {
+                add: function(userId, language, type) {
+                    return uds.addLanguageToUser(userId, language, type);
+                },
+                remove: function(userId, query) {
+                    return uds.removeLanguagesFromUser(userId, query);
+                }
+            },
+            tags: {
+                add: function(userId, tagName) {
+                    return uds.addTagToUser(userId, tagName);
+                },
+                remove: function(userId, query) {
+                    return uds.removeTagsFromUser(userId, query);
+                }
+            },
+            queueBuddies: {
+                setAsQB: function(qbUserId, userId) {
+                    return uds.addUserAsQB(qbUserId, userId);
+                },
+                remove: function (qbUserId, query) {
+                    return uds.removeUserQBs(qbUserId, query);
+                }
+            },
+            nnoRegions: {
+                add: function(userId, nnoRegion) {
+                    return uds.addNNOToUser(userId, nnoRegion);
+                },
+                remove: function(userId, query) {
+                    return uds.removeNNOsFromUser(userId, query);
+                }
             }
         };
         this.cqi = {

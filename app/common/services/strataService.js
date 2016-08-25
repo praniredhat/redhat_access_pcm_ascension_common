@@ -423,7 +423,7 @@ export default class StrataService {
                     var deferred = $q.defer();
                     strata.accounts.removeBookmark(accountNumber, ssoName, function () {
                         deferred.resolve();
-                    }, angular.bind(this, errorHandler));
+                    }, angular.bind(deferred, errorHandler));
 
                     return deferred.promise;
                 }

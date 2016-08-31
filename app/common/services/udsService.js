@@ -112,9 +112,10 @@ export default class UdsService {
                             hoursWorked
                         );
                     },
-                    public: function (caseNumber, commentText, hoursWorked) {
+                    public: function (caseNumber, commentText, doNotChangeSbt, hoursWorked) {
                         return uds.postPublicComments(caseNumber,
                             commentText,
+                            doNotChangeSbt,
                             hoursWorked
                         );
                     }

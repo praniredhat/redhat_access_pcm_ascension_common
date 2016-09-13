@@ -6,12 +6,13 @@ Fork the main repo and work in your forked repo only.  It is best to create a ne
 
 This project currently requires building the distribution locally and pushing that as well
 
-    npm run build
+    grunt build
 
 In your current branch go ahead and commit your changes and verify the changes you are committing/pushing are only the ones you want
 
     git status / git diff
     git commit -a -m "message"
+
 
 Then before pushing your remote branch always rebase to upstream master
 
@@ -20,6 +21,7 @@ Then before pushing your remote branch always rebase to upstream master
     git rebase upstream/master
     git checkout <branch>
     git rebase master
+
 
 Then verify that everything is still working as you expect it to, test in the browser, then push your remote branch
 

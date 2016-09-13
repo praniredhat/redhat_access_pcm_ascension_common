@@ -613,7 +613,7 @@ export default class StrataService {
                 },
                 search: function (caseStatus, caseOwner, caseGroup, accountNumber, searchString, sortField, sortOrder, offset, limit, queryParams) {
                     const deferred = $q.defer(),
-                          key = `search${JSON.stringify(arguments)}`;
+                          key = `search${Array.prototype.join.call(arguments, '-')}`;
 
                     if (strataCache.get(key)) {
                         deferred.resolve(strataCache.get(key));
@@ -633,7 +633,7 @@ export default class StrataService {
                 },
                 advancedSearch: function (query, order, offset, limit) {
                     const deferred = $q.defer(),
-                          key = `advancedSearch${JSON.stringify(arguments)}`;
+                          key = `advancedSearch-${Array.prototype.join.call(arguments, '-')}`;
 
                     if (strataCache.get(key)) {
                         deferred.resolve(strataCache.get(key));

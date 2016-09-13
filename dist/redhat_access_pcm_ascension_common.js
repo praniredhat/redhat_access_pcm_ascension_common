@@ -2377,7 +2377,7 @@
 	            },
 	            search: function search(caseStatus, caseOwner, caseGroup, accountNumber, searchString, sortField, sortOrder, offset, limit, queryParams) {
 	                var deferred = $q.defer(),
-	                    key = 'search' + JSON.stringify(arguments);
+	                    key = 'search' + Array.prototype.join.call(arguments, '-');
 
 	                if (strataCache.get(key)) {
 	                    deferred.resolve(strataCache.get(key));
@@ -2397,7 +2397,7 @@
 	            },
 	            advancedSearch: function advancedSearch(query, order, offset, limit) {
 	                var deferred = $q.defer(),
-	                    key = 'advancedSearch' + JSON.stringify(arguments);
+	                    key = 'advancedSearch-' + Array.prototype.join.call(arguments, '-');
 
 	                if (strataCache.get(key)) {
 	                    deferred.resolve(strataCache.get(key));

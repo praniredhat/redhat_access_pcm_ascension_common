@@ -12,10 +12,17 @@ export default class StrataService {
             cacheFlushInterval: 3600000,
             storageMode: 'sessionStorage'
         });
-        var strataCache = CacheFactory.get('strataCache');
-        $(window).unload(function () {
-            strataCache.destroy();
-        });
+        var ie8 = false;
+        if (navigator.appVersion.indexOf('MSIE 8.') !== -1) {
+            ie8 = true;
+        }
+        var strataCache;
+        if (!ie8) {
+            strataCache = CacheFactory.get('strataCache');
+            $(window).unload(function () {
+                strataCache.destroy();
+            });
+        }
         var errorHandler = function (message, xhr, response, status) {
             var translatedMsg = message;
             switch (status) {
@@ -33,13 +40,15 @@ export default class StrataService {
             });
         };
         var clearCache = function (key) {
-            strataCache.remove(key);
+            if (!ie8) {
+                strataCache.remove(key);
+            }
         };
         var service = {
             authentication: {
                 checkLogin: function () {
                     var deferred = $q.defer();
-                    if (strataCache.get('auth')) {
+                    if (!ie8 && strataCache.get('auth')) {
                         strata.addAccountNumber(strataCache.get('auth').account_number);
                         deferred.resolve(strataCache.get('auth'));
                     } else {
@@ -49,7 +58,9 @@ export default class StrataService {
                                     service.accounts.get(accountNumber).then(function (account) {
                                         authedUser.account = account;
                                         strata.addAccountNumber(account.number);
-                                        strataCache.put('auth', authedUser);
+                                        if (!ie8) {
+                                            strataCache.put('auth', authedUser);
+                                        }
                                         deferred.resolve(authedUser);
                                     });
                                 }, function (error) {
@@ -69,7 +80,9 @@ export default class StrataService {
                     return strata.setCredentials(username, password);
                 },
                 logout: function () {
-                    strataCache.removeAll();
+                    if (!ie8) {
+                        strataCache.removeAll();
+                    }
                     strata.clearCredentials();
                 }
             },
@@ -81,11 +94,13 @@ export default class StrataService {
             entitlements: {
                 get: function (showAll, ssoUserName) {
                     var deferred = $q.defer();
-                    if (strataCache.get('entitlements' + ssoUserName)) {
+                    if (!ie8 && strataCache.get('entitlements' + ssoUserName)) {
                         deferred.resolve(strataCache.get('entitlements' + ssoUserName));
                     } else {
                         strata.entitlements.get(showAll, function (entitlements) {
-                            strataCache.put('entitlements' + ssoUserName, entitlements);
+                            if (!ie8) {
+                                strataCache.put('entitlements' + ssoUserName, entitlements);
+                            }
                             deferred.resolve(entitlements);
                         }, angular.bind(deferred, errorHandler), ssoUserName);
                     }
@@ -126,12 +141,14 @@ export default class StrataService {
                     var deferred = $q.defer();
                     var splitUri = uri.split('/');
                     uri = splitUri[splitUri.length - 1];
-                    if (strataCache.get('solution' + uri)) {
+                    if (!ie8 && strataCache.get('solution' + uri)) {
                         deferred.resolve(strataCache.get('solution' + uri));
                     } else {
                         strata.solutions.get(uri, function (solution) {
                             solution.resource_type = RESOURCE_TYPES.solution; //Needed upstream
-                            strataCache.put('solution' + uri, solution);
+                            if (!ie8) {
+                                strataCache.put('solution' + uri, solution);
+                            }
                             deferred.resolve(solution);
                         }, function () {
                             //workaround for 502 from strata
@@ -229,11 +246,13 @@ export default class StrataService {
             products: {
                 list: function (ssoUserName) {
                     var deferred = $q.defer();
-                    if (strataCache.get('products' + ssoUserName)) {
+                    if (!ie8 && strataCache.get('products' + ssoUserName)) {
                         deferred.resolve(strataCache.get('products' + ssoUserName));
                     } else {
                         strata.products.list(function (response) {
-                            strataCache.put('products' + ssoUserName, response);
+                            if (!ie8) {
+                                strataCache.put('products' + ssoUserName, response);
+                            }
                             deferred.resolve(response);
                         }, angular.bind(deferred, errorHandler), ssoUserName);
                     }
@@ -241,13 +260,15 @@ export default class StrataService {
                 },
                 versions: function (productCode) {
                     var deferred = $q.defer();
-                    if (strataCache.get('versions-' + productCode)) {
+                    if (!ie8 && strataCache.get('versions-' + productCode)) {
                         var responseCopy = [];
                         angular.copy(strataCache.get('versions-' + productCode), responseCopy);
                         deferred.resolve(responseCopy);
                     } else {
                         strata.products.versions(productCode, function (response) {
-                            strataCache.put('versions-' + productCode, response);
+                            if (!ie8) {
+                                strataCache.put('versions-' + productCode, response);
+                            }
                             var responseCopy = [];
                             angular.copy(response, responseCopy);
                             deferred.resolve(responseCopy);
@@ -257,11 +278,13 @@ export default class StrataService {
                 },
                 get: function (productCode) {
                     var deferred = $q.defer();
-                    if (strataCache.get('product' + productCode)) {
+                    if (!ie8 && strataCache.get('product' + productCode)) {
                         deferred.resolve(strataCache.get('product' + productCode));
                     } else {
                         strata.products.get(productCode, function (response) {
-                            strataCache.put('product' + productCode, response);
+                            if (!ie8) {
+                                strataCache.put('product' + productCode, response);
+                            }
                             deferred.resolve(response);
                         }, angular.bind(deferred, errorHandler));
                     }
@@ -271,11 +294,13 @@ export default class StrataService {
             groups: {
                 get: function (groupNum, ssoUserName) {
                     var deferred = $q.defer();
-                    if (strataCache.get('groups' + groupNum + ssoUserName)) {
+                    if (!ie8 && strataCache.get('groups' + groupNum + ssoUserName)) {
                         deferred.resolve(strataCache.get('groups' + groupNum + ssoUserName));
                     } else {
                         strata.groups.get(groupNum, function (response) {
-                            strataCache.put('groups' + groupNum + ssoUserName, response);
+                            if (!ie8) {
+                                strataCache.put('groups' + groupNum + ssoUserName, response);
+                            }
                             deferred.resolve(response);
                         }, angular.bind(deferred, errorHandler), ssoUserName);
                     }
@@ -286,11 +311,13 @@ export default class StrataService {
                     if (flushCashe) {
                         strataCache.remove('groups' + ssoUserName);
                     }
-                    if (strataCache.get('groups' + ssoUserName)) {
+                    if (!ie8 && strataCache.get('groups' + ssoUserName)) {
                         deferred.resolve(strataCache.get('groups' + ssoUserName));
                     } else {
                         strata.groups.list(function (response) {
-                            strataCache.put('groups' + ssoUserName, response);
+                            if (!ie8) {
+                                strataCache.put('groups' + ssoUserName, response);
+                            }
                             deferred.resolve(response);
                         }, angular.bind(deferred, errorHandler), ssoUserName);
                     }
@@ -334,7 +361,7 @@ export default class StrataService {
                     var deferred = $q.defer();
                     strata.groupUsers.update(users, accountId, groupnum, function (response) {
                         deferred.resolve(response);
-                        if (strataCache.get('users' + accountId + groupnum)) {
+                        if (!ie8 && strataCache.get('users' + accountId + groupnum)) {
                             clearCache('users' + accountId + groupnum);
                         }
                     }, angular.bind(deferred, errorHandler));
@@ -344,11 +371,13 @@ export default class StrataService {
             accounts: {
                 get: function (accountNumber) {
                     var deferred = $q.defer();
-                    if (strataCache.get('account' + accountNumber)) {
+                    if (!ie8 && strataCache.get('account' + accountNumber)) {
                         deferred.resolve(strataCache.get('account' + accountNumber));
                     } else {
                         strata.accounts.get(accountNumber, function (response) {
-                            strataCache.put('account' + accountNumber, response);
+                            if (!ie8) {
+                                strataCache.put('account' + accountNumber, response);
+                            }
                             deferred.resolve(response);
                         }, angular.bind(deferred, errorHandler));
                     }
@@ -356,11 +385,13 @@ export default class StrataService {
                 },
                 users: function (accountNumber, group) {
                     var deferred = $q.defer();
-                    if (strataCache.get('users' + accountNumber + group)) {
+                    if (!ie8 && strataCache.get('users' + accountNumber + group)) {
                         deferred.resolve(strataCache.get('users' + accountNumber + group));
                     } else {
                         strata.accounts.users(accountNumber, function (response) {
-                            strataCache.put('users' + accountNumber + group, response);
+                            if (!ie8) {
+                                strataCache.put('users' + accountNumber + group, response);
+                            }
                             deferred.resolve(response);
                         }, angular.bind(deferred, errorHandler), group);
                     }
@@ -368,11 +399,13 @@ export default class StrataService {
                 },
                 list: function () {
                     var deferred = $q.defer();
-                    if (strataCache.get('account')) {
+                    if (!ie8 && strataCache.get('account')) {
                         deferred.resolve(strataCache.get('account'));
                     } else {
                         strata.accounts.list(function (response) {
-                            strataCache.put('account', response);
+                            if (!ie8) {
+                                strataCache.put('account', response);
+                            }
                             deferred.resolve(response);
                         }, angular.bind(deferred, errorHandler));
                     }
@@ -406,7 +439,7 @@ export default class StrataService {
                 attachments: {
                     list: function (id) {
                         var deferred = $q.defer();
-                        if (strataCache.get('attachments' + id)) {
+                        if (!ie8 && strataCache.get('attachments' + id)) {
                             //Changing cache response. Making sortModifiedDate as Date before sending
                             var attachmentResponse = strataCache.get('attachments' + id);
                             angular.forEach(attachmentResponse, angular.bind(this, function (attachment) {
@@ -430,7 +463,9 @@ export default class StrataService {
                                     element.published_time = element.last_modified_time;
 
                                 }));
-                                strataCache.put('attachments' + id, response);
+                                if (!ie8) {
+                                    strataCache.put('attachments' + id, response);
+                                }
                                 deferred.resolve(response);
                             }, angular.bind(deferred, errorHandler));
                         }
@@ -439,7 +474,9 @@ export default class StrataService {
                     post: function (attachment, caseNumber) {
                         var deferred = $q.defer();
                         strata.cases.attachments.post(attachment, caseNumber, function (response, code, xhr) {
-                            strataCache.remove('attachments' + caseNumber);
+                            if (!ie8) {
+                                strataCache.remove('attachments' + caseNumber);
+                            }
                             deferred.resolve(xhr.getResponseHeader('Location'));
                         }, angular.bind(deferred, errorHandler));
                         return deferred.promise;
@@ -447,7 +484,9 @@ export default class StrataService {
                     remove: function (id, caseNumber) {
                         var deferred = $q.defer();
                         strata.cases.attachments.remove(id, caseNumber, function (response) {
-                            strataCache.remove('attachments' + caseNumber);
+                            if (!ie8) {
+                                strataCache.remove('attachments' + caseNumber);
+                            }
                             deferred.resolve(response);
                         }, angular.bind(deferred, errorHandler));
                         return deferred.promise;
@@ -456,7 +495,7 @@ export default class StrataService {
                 externalUpdates: {
                     list: function (id) {
                         var deferred = $q.defer();
-                        if (strataCache.get('externalUpdates' + id)) {
+                        if (!ie8 && strataCache.get('externalUpdates' + id)) {
                             //Changing cache response. Making sortModifiedDate as Date before sending
                             var externalUpdates = strataCache.get('externalUpdates' + id);
                             angular.forEach(externalUpdates, angular.bind(this, function (externalUpdates) {
@@ -475,7 +514,9 @@ export default class StrataService {
                                     externalUpdate.created_time = RHAUtils.formatDate(createdDate, 'hh:mm A Z');
 
                                 }));
-                                strataCache.put('externalUpdates' + id, response);
+                                if (!ie8) {
+                                    strataCache.put('externalUpdates' + id, response);
+                                }
                                 deferred.resolve(response);
                             }, angular.bind(deferred, errorHandler));
                         }
@@ -485,7 +526,7 @@ export default class StrataService {
                 comments: {
                     get: function (id) {
                         var deferred = $q.defer();
-                        if (strataCache.get('comments' + id)) {
+                        if (!ie8 && strataCache.get('comments' + id)) {
                             //Changing cache response. Making sortModifiedDate as Date before sending
                             var commentResponse = strataCache.get('comments' + id);
                             angular.forEach(commentResponse, angular.bind(this, function (comment) {
@@ -511,7 +552,9 @@ export default class StrataService {
                                     comment.published_date = RHAUtils.formatDate(publishedDate, 'MMM DD YYYY');
                                     comment.published_time = RHAUtils.formatDate(publishedDate, 'hh:mm A Z');
                                 }));
-                                strataCache.put('comments' + id, response);
+                                if (!ie8) {
+                                    strataCache.put('comments' + id, response);
+                                }
                                 deferred.resolve(response);
                             }, angular.bind(deferred, errorHandler));
                         }
@@ -524,7 +567,9 @@ export default class StrataService {
                             'draft': isDraft === true ? 'true' : 'false',
                             'public': isPublic === true ? 'true' : 'false'
                         }, function (response) {
-                            strataCache.remove('comments' + caseNumber);
+                            if (!ie8) {
+                                strataCache.remove('comments' + caseNumber);
+                            }
                             deferred.resolve(response);
                         }, angular.bind(deferred, errorHandler));
                         return deferred.promise;
@@ -538,7 +583,9 @@ export default class StrataService {
                             'caseNumber': caseNumber,
                             'id': comment_id
                         }, comment_id, function (response) {
-                            strataCache.remove('comments' + caseNumber);
+                            if (!ie8) {
+                                strataCache.remove('comments' + caseNumber);
+                            }
                             deferred.resolve(response);
                         }, angular.bind(deferred, errorHandler));
                         return deferred.promise;
@@ -580,7 +627,7 @@ export default class StrataService {
                 },
                 get: function (id) {
                     var deferred = $q.defer();
-                    if (strataCache.get('case' + id)) {
+                    if (!ie8 && strataCache.get('case' + id)) {
                         //Changing cache response. Making sortModifiedDate as Date before sending
                         var caseChatsResponse = strataCache.get('case' + id);
                         angular.forEach(caseChatsResponse.chats.chat, angular.bind(this, function (chat) {
@@ -602,7 +649,9 @@ export default class StrataService {
                                 chat.start_date = RHAUtils.formatDate(lastModifiedDate, 'MMM DD YYYY');
                                 chat.start_time = RHAUtils.formatDate(lastModifiedDate, 'hh:mm:ss A Z');
                             }));
-                            strataCache.put('case' + id, response);
+                            if (!ie8) {
+                                strataCache.put('case' + id, response);
+                            }
                             deferred.resolve([
                                 response,
                                 false
@@ -612,67 +661,53 @@ export default class StrataService {
                     return deferred.promise;
                 },
                 search: function (caseStatus, caseOwner, caseGroup, accountNumber, searchString, sortField, sortOrder, offset, limit, queryParams) {
-                    const deferred = $q.defer(),
-                          key = `search${JSON.stringify(arguments)}`;
-
-                    if (strataCache.get(key)) {
-                        deferred.resolve(strataCache.get(key));
-                    } else {
-                        strata.cases.search((response) => {
-                            angular.forEach(response['case'], (kase) => {
-                                const createdDate = RHAUtils.convertToTimezone(kase.created_date);
-                                kase.created_date = RHAUtils.formatDate(createdDate, 'MMM DD YYYY');
-                                const modifiedDate = RHAUtils.convertToTimezone(kase.last_modified_date);
-                                kase.last_modified_date = RHAUtils.formatDate(modifiedDate, 'MMM DD YYYY');
-                            });
-                            strataCache.put(key, response);
-                            deferred.resolve(response);
-                        }, angular.bind(deferred, errorHandler), caseStatus, caseOwner, caseGroup, accountNumber, searchString, sortField, sortOrder, offset, limit, queryParams);
-                    }
+                    var deferred = $q.defer();
+                    strata.cases.search(function (response) {
+                        angular.forEach(response['case'], angular.bind(this, function (kase) {
+                            var createdDate = RHAUtils.convertToTimezone(kase.created_date);
+                            kase.created_date = RHAUtils.formatDate(createdDate, 'MMM DD YYYY');
+                            var modifiedDate = RHAUtils.convertToTimezone(kase.last_modified_date);
+                            kase.last_modified_date = RHAUtils.formatDate(modifiedDate, 'MMM DD YYYY');
+                        }));
+                        deferred.resolve(response);
+                    }, angular.bind(deferred, errorHandler), caseStatus, caseOwner, caseGroup, accountNumber, searchString, sortField, sortOrder, offset, limit, queryParams);
                     return deferred.promise;
                 },
                 advancedSearch: function (query, order, offset, limit) {
-                    const deferred = $q.defer(),
-                          key = `advancedSearch${JSON.stringify(arguments)}`;
-
-                    if (strataCache.get(key)) {
-                        deferred.resolve(strataCache.get(key));
-                    } else {
-                        strata.cases.advancedSearch((response) => {
-                            angular.forEach(response['case'], (kase) => {
-                                const createdDate = RHAUtils.convertToTimezone(kase.created_date);
-                                kase.created_date = RHAUtils.formatDate(createdDate, 'MMM DD YYYY');
-                                const modifiedDate = RHAUtils.convertToTimezone(kase.last_modified_date);
-                                kase.last_modified_date = RHAUtils.formatDate(modifiedDate, 'MMM DD YYYY');
-                            });
-                            strataCache.put(key, response);
-                            deferred.resolve(response);
-                        }, angular.bind(deferred, errorHandler), query, order, offset, limit);
-                    }
+                    var deferred = $q.defer();
+                    strata.cases.advancedSearch(function (response) {
+                        angular.forEach(response['case'], angular.bind(this, function (kase) {
+                            var createdDate = RHAUtils.convertToTimezone(kase.created_date);
+                            kase.created_date = RHAUtils.formatDate(createdDate, 'MMM DD YYYY');
+                            var modifiedDate = RHAUtils.convertToTimezone(kase.last_modified_date);
+                            kase.last_modified_date = RHAUtils.formatDate(modifiedDate, 'MMM DD YYYY');
+                        }));
+                        deferred.resolve(response);
+                    }, angular.bind(deferred, errorHandler), query, order, offset, limit);
 
                     return deferred.promise;
                 },
                 filter: function (params) {
-                    const deferred = $q.defer(),
-                          key = `filter${JSON.stringify(params)}`;
-
+                    var deferred = $q.defer();
                     if (RHAUtils.isEmpty(params)) {
                         params = {};
                     }
                     if (RHAUtils.isEmpty(params.count)) {
                         params.count = 50;
                     }
-                    if (strataCache.get(key)) {
-                        deferred.resolve(strataCache.get(key));
+                    if (!ie8 && strataCache.get('filter' + JSON.stringify(params))) {
+                        deferred.resolve(strataCache.get('filter' + JSON.stringify(params)));
                     } else {
-                        strata.cases.filter(params, (response) => {
-                            angular.forEach(response['case'], (kase) => {
-                                const createdDate = RHAUtils.convertToTimezone(kase.created_date);
+                        strata.cases.filter(params, function (response) {
+                            angular.forEach(response['case'], angular.bind(this, function (kase) {
+                                var createdDate = RHAUtils.convertToTimezone(kase.created_date);
                                 kase.created_date = RHAUtils.formatDate(createdDate, 'MMM DD YYYY');
-                                const modifiedDate = RHAUtils.convertToTimezone(kase.last_modified_date);
+                                var modifiedDate = RHAUtils.convertToTimezone(kase.last_modified_date);
                                 kase.last_modified_date = RHAUtils.formatDate(modifiedDate, 'MMM DD YYYY');
-                            });
-                            strataCache.put(key, response);
+                            }));
+                            if (!ie8) {
+                                strataCache.put('filter' + JSON.stringify(params), response);
+                            }
                             deferred.resolve(response);
                         }, angular.bind(deferred, errorHandler));
                     }
@@ -682,9 +717,11 @@ export default class StrataService {
                     var deferred = $q.defer();
                     strata.cases.post(caseJSON, function (caseNumber) {
                         //Remove any case filters that are cached
-                        for (var k in strataCache.keySet()) {
-                            if (~k.indexOf('filter')) {
-                                strataCache.remove(k);
+                        if (!ie8) {
+                            for (var k in strataCache.keySet()) {
+                                if (~k.indexOf('filter')) {
+                                    strataCache.remove(k);
+                                }
                             }
                         }
                         deferred.resolve(caseNumber);
@@ -694,10 +731,12 @@ export default class StrataService {
                 put: function (caseNumber, caseJSON) {
                     var deferred = $q.defer();
                     strata.cases.put(caseNumber, caseJSON, function (response) {
-                        strataCache.remove('case' + caseNumber);
-                        for (var k in strataCache.keySet()) {
-                            if (~k.indexOf('filter')) {
-                                strataCache.remove(k);
+                        if (!ie8) {
+                            strataCache.remove('case' + caseNumber);
+                            for (var k in strataCache.keySet()) {
+                                if (~k.indexOf('filter')) {
+                                    strataCache.remove(k);
+                                }
                             }
                         }
                         deferred.resolve(response);
@@ -718,11 +757,13 @@ export default class StrataService {
                 cases: {
                     severity: function () {
                         var deferred = $q.defer();
-                        if (strataCache.get('severities')) {
+                        if (!ie8 && strataCache.get('severities')) {
                             deferred.resolve(strataCache.get('severities'));
                         } else {
                             strata.values.cases.severity(function (response) {
-                                strataCache.put('severities', response);
+                                if (!ie8) {
+                                    strataCache.put('severities', response);
+                                }
                                 deferred.resolve(response);
                             }, angular.bind(deferred, errorHandler));
                         }
@@ -730,11 +771,13 @@ export default class StrataService {
                     },
                     status: function () {
                         var deferred = $q.defer();
-                        if (strataCache.get('statuses')) {
+                        if (!ie8 && strataCache.get('statuses')) {
                             deferred.resolve(strataCache.get('statuses'));
                         } else {
                             strata.values.cases.status(function (response) {
-                                strataCache.put('statuses', response);
+                                if (!ie8) {
+                                    strataCache.put('statuses', response);
+                                }
                                 deferred.resolve(response);
                             }, angular.bind(deferred, errorHandler));
                         }
@@ -742,11 +785,13 @@ export default class StrataService {
                     },
                     types: function () {
                         var deferred = $q.defer();
-                        if (strataCache.get('types')) {
+                        if (!ie8 && strataCache.get('types')) {
                             deferred.resolve(strataCache.get('types'));
                         } else {
                             strata.values.cases.types(function (response) {
-                                strataCache.put('types', response);
+                                if (!ie8) {
+                                    strataCache.put('types', response);
+                                }
                                 deferred.resolve(response);
                             }, angular.bind(deferred, errorHandler));
                         }
@@ -755,11 +800,13 @@ export default class StrataService {
                     attachment: {
                         size: function () {
                             var deferred = $q.defer();
-                            if (strataCache.get('attachmentMaxSize')) {
+                            if (!ie8 && strataCache.get('attachmentMaxSize')) {
                                 deferred.resolve(strataCache.get('attachmentMaxSize'));
                             } else {
                                 strata.values.cases.attachment.size(function (response) {
-                                    strataCache.put('attachmentMaxSize', response);
+                                    if (!ie8) {
+                                        strataCache.put('attachmentMaxSize', response);
+                                    }
                                     deferred.resolve(response);
                                 }, angular.bind(deferred, errorHandler));
                             }
@@ -769,11 +816,13 @@ export default class StrataService {
                 },
                 businesshours: function (timezone) {
                     var deferred = $q.defer();
-                    if (strataCache.get('businesshours')) {
+                    if (!ie8 && strataCache.get('businesshours')) {
                         deferred.resolve(strataCache.get('businesshours'));
                     } else {
                         strata.values.businesshours(timezone, function (response) {
-                            strataCache.put('businesshours', response);
+                            if (!ie8) {
+                                strataCache.put('businesshours', response);
+                            }
                             deferred.resolve(response);
                         }, angular.bind(deferred, errorHandler));
                     }
@@ -783,11 +832,13 @@ export default class StrataService {
             users: {
                 get: function (userId) {
                     var deferred = $q.defer();
-                    if (strataCache.get('userId' + userId)) {
+                    if (!ie8 && strataCache.get('userId' + userId)) {
                         deferred.resolve(strataCache.get('userId' + userId));
                     } else {
                         strata.users.get(function (response) {
-                            strataCache.put('userId' + userId, response);
+                            if (!ie8) {
+                                strataCache.put('userId' + userId, response);
+                            }
                             deferred.resolve(response);
                         }, angular.bind(deferred, errorHandler), userId);
                     }
@@ -808,11 +859,13 @@ export default class StrataService {
                 chatSession: {
                     post: function () {
                         var deferred = $q.defer();
-                        if (strataCache.get('chatSession')) {
+                        if (!ie8 && strataCache.get('chatSession')) {
                             deferred.resolve(strataCache.get('chatSession'));
                         } else {
                             strata.users.chatSession.get(function (response) {
-                                strataCache.put('chatSession', response);
+                                if (!ie8) {
+                                    strataCache.put('chatSession', response);
+                                }
                                 deferred.resolve(response);
                             }, angular.bind(deferred, errorHandler));
                         }

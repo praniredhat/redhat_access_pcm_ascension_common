@@ -410,13 +410,25 @@ export default class UdsService {
             }
         };
         this.solr = {
-            get: function (query) {
-                return uds.fetchSolr(query).then(function (response) {
-                    if (typeof response === 'string') return JSON.parse(response);
+            access: {
+                get: function (query) {
+                    return uds.fetchSolr(query).then(function (response) {
+                        if (typeof response === 'string') return JSON.parse(response);
 
-                    return response;
-                });
+                        return response;
+                    });
+                }
+            },
+            cases: {
+                get: function (query) {
+                    return uds.fetchCaseSolr(query).then(function (response) {
+                        if (typeof response === 'string') return JSON.parse(response);
+
+                        return response;
+                    });
+                }
             }
+
         };
         this.sfdc = {
             user: {

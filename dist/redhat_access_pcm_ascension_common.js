@@ -3006,13 +3006,25 @@
 	        }
 	    };
 	    this.solr = {
-	        get: function get(query) {
-	            return uds.fetchSolr(query).then(function (response) {
-	                if (typeof response === 'string') return JSON.parse(response);
+	        access: {
+	            get: function get(query) {
+	                return uds.fetchSolr(query).then(function (response) {
+	                    if (typeof response === 'string') return JSON.parse(response);
 
-	                return response;
-	            });
+	                    return response;
+	                });
+	            }
+	        },
+	        cases: {
+	            get: function get(query) {
+	                return uds.fetchCaseSolr(query).then(function (response) {
+	                    if (typeof response === 'string') return JSON.parse(response);
+
+	                    return response;
+	                });
+	            }
 	        }
+
 	    };
 	    this.sfdc = {
 	        user: {
@@ -3821,13 +3833,10 @@
 		        return executeUdsAjaxCall(url, 'GET');
 		    }
 
-		    function postPublicComments(caseNumber, caseComment, doNotChangeSbt, hoursWorked) {
+		    function postPublicComments(caseNumber, caseComment, hoursWorked) {
 		        var url = udsHostName.clone().setPath('/case/' + caseNumber + "/comments/public");
 		        if (hoursWorked !== undefined) {
 		            url = udsHostName.clone().setPath('/case/' + caseNumber + "/comments/public/hoursWorked/" + hoursWorked);
-		        }
-		        if (doNotChangeSbt) {
-		            url.addQueryParam('doNotChangeSbt', doNotChangeSbt);
 		        }
 		        return executeUdsAjaxCallWithData(url, caseComment, 'POST');
 		    }

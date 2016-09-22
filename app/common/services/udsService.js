@@ -434,6 +434,12 @@ export default class UdsService {
             user: {
                 get: function (userID) {
                     return uds.getUserDetailsFromSFDC(userID);
+                },
+                put: function (ssoUsername,data) {
+                    return uds.updateUserDetailsInSFDC(
+                        ssoUsername,
+                        data
+                    );
                 }
             },
             callCenter: {

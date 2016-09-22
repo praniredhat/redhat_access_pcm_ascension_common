@@ -3030,6 +3030,9 @@
 	        user: {
 	            get: function get(userID) {
 	                return uds.getUserDetailsFromSFDC(userID);
+	            },
+	            put: function put(ssoUsername, data) {
+	                return uds.updateUserDetailsInSFDC(ssoUsername, data);
 	            }
 	        },
 	        callCenter: {
@@ -3261,6 +3264,8 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	// Services
+
+
 	var app = angular.module('RedhatAccess.security', ['ui.bootstrap', 'ui.router', 'RedhatAccess.header']).constant('AUTH_EVENTS', _authEvents2.default).value('LOGIN_VIEW_CONFIG', _loginViewConfig2.default).value('SECURITY_CONFIG', _securityConfig2.default);
 
 	// Controllers
@@ -3833,10 +3838,13 @@
 		        return executeUdsAjaxCall(url, 'GET');
 		    }
 
-		    function postPublicComments(caseNumber, caseComment, hoursWorked) {
+		    function postPublicComments(caseNumber, caseComment, doNotChangeSbt, hoursWorked) {
 		        var url = udsHostName.clone().setPath('/case/' + caseNumber + "/comments/public");
 		        if (hoursWorked !== undefined) {
 		            url = udsHostName.clone().setPath('/case/' + caseNumber + "/comments/public/hoursWorked/" + hoursWorked);
+		        }
+		        if (doNotChangeSbt) {
+		            url.addQueryParam('doNotChangeSbt', doNotChangeSbt);
 		        }
 		        return executeUdsAjaxCallWithData(url, caseComment, 'POST');
 		    }

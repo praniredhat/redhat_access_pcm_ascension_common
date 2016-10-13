@@ -1665,7 +1665,7 @@
 	    value: true
 	});
 
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -2395,7 +2395,7 @@
 	                }
 	                return deferred.promise;
 	            },
-	            advancedSearch: function advancedSearch(query, order, offset, limit) {
+	            advancedSearch: function advancedSearch(query, order, offset, limit, format) {
 	                var deferred = $q.defer(),
 	                    key = 'advancedSearch-' + Array.prototype.join.call(arguments, '-');
 
@@ -2411,7 +2411,7 @@
 	                        });
 	                        strataCache.put(key, response);
 	                        deferred.resolve(response);
-	                    }, angular.bind(deferred, errorHandler), query, order, offset, limit);
+	                    }, angular.bind(deferred, errorHandler), query, order, offset, limit, format);
 	                }
 
 	                return deferred.promise;
@@ -3264,8 +3264,6 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	// Services
-
-
 	var app = angular.module('RedhatAccess.security', ['ui.bootstrap', 'ui.router', 'RedhatAccess.header']).constant('AUTH_EVENTS', _authEvents2.default).value('LOGIN_VIEW_CONFIG', _loginViewConfig2.default).value('SECURITY_CONFIG', _securityConfig2.default);
 
 	// Controllers
@@ -3645,6 +3643,7 @@
 		    exports.fetchSolutionDetails = fetchSolutionDetails;
 		    exports.setHandlingSystem = setHandlingSystem;
 		    exports.fetchSolr = fetchSolr;
+		    exports.fetchCaseSolr = fetchCaseSolr;
 		    exports.addCaseSbrs = addCaseSbrs;
 		    exports.removeCaseSbrs = removeCaseSbrs;
 		    exports.getAllRolesList = getAllRolesList;
@@ -3657,6 +3656,7 @@
 		    exports.getBrmsResponse = getBrmsResponse;
 		    exports.fetchTopCasesFromSolr = fetchTopCasesFromSolr;
 		    exports.getUserDetailsFromSFDC = getUserDetailsFromSFDC;
+		    exports.updateUserDetailsInSFDC = updateUserDetailsInSFDC;
 		    exports.getCallCenterFromSFDC = getCallCenterFromSFDC;
 		    exports.getCaseTagsList = getCaseTagsList;
 		    exports.addCaseTags = addCaseTags;
@@ -4070,22 +4070,50 @@
 		    }
 
 		    function fetchSolr(query) {
-		        if (query.q === undefined || query.q === null || query.q === '') throw 'SOLR Query is mandatory';
+		        if (query.q == null || query.q === '') throw 'SOLR Query is mandatory';
 
 		        var url = udsHostName.clone().setPath('/solr');
 		        url.addQueryParam('wt', 'json');
 		        url.addQueryParam('q', query.q);
-		        if (query.fq !== undefined && query.fq !== '') {
+		        if (query.fq != null && query.fq !== '') {
 		            url.addQueryParam('fq', query.fq);
 		        }
-		        if (query.start !== undefined) {
+		        if (query.start != null) {
 		            url.addQueryParam('start', query.start);
 		        }
-		        if (query.rows !== undefined) {
+		        if (query.rows != null) {
 		            url.addQueryParam('rows', query.rows);
 		        }
-		        if (query.sort !== undefined && query.sort !== '') {
+		        if (query.sort != null && query.sort !== '') {
 		            url.addQueryParam('sort', query.sort);
+		        }
+		        if (query.fl != null && query.fl !== '') {
+		            url.addQueryParam('fl', query.fl);
+		        }
+
+		        return executeUdsAjaxCall(url, 'GET');
+		    }
+
+		    function fetchCaseSolr(query) {
+		        if (query.q == null || query.q === '') throw 'SOLR Query is mandatory';
+
+		        var url = udsHostName.clone().setPath('/solr/cases');
+		        url.addQueryParam('wt', 'json');
+		        url.addQueryParam('q', query.q);
+		        if (query.fq != null && query.fq !== '') {
+		            url.addQueryParam('fq', query.fq);
+		        }
+		        if (query.start != null) {
+		            url.addQueryParam('start', query.start);
+		        }
+		        if (query.rows != null) {
+		            url.addQueryParam('rows', query.rows);
+		        }
+		        if (query.sort != null && query.sort !== '') {
+		            url.addQueryParam('sort', query.sort);
+		        }
+		        if (query.fl != null && query.fl !== '') {
+		            url.addQueryParam('fl', query.fl);
 		        }
 
 		        return executeUdsAjaxCall(url, 'GET');
@@ -4150,6 +4178,11 @@
 		    function getUserDetailsFromSFDC(userID) {
 		        var url = udsHostName.clone().setPath('/salesforce/user/' + userID);
 		        return executeUdsAjaxCall(url, 'GET');
+		    }
+
+		    function updateUserDetailsInSFDC(ssoUsername, data) {
+		        var url = udsHostName.clone().setPath('/user/salesforce/' + ssoUsername);
+		        return executeUdsAjaxCallWithData(url, data, 'PUT');
 		    }
 
 		    function getCallCenterFromSFDC(callCenterId) {

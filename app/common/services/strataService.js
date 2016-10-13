@@ -631,7 +631,7 @@ export default class StrataService {
                     }
                     return deferred.promise;
                 },
-                advancedSearch: function (query, order, offset, limit) {
+                advancedSearch: function (query, order, offset, limit, format) {
                     const deferred = $q.defer(),
                           key = `advancedSearch-${Array.prototype.join.call(arguments, '-')}`;
 
@@ -647,7 +647,7 @@ export default class StrataService {
                             });
                             strataCache.put(key, response);
                             deferred.resolve(response);
-                        }, angular.bind(deferred, errorHandler), query, order, offset, limit);
+                        }, angular.bind(deferred, errorHandler), query, order, offset, limit, format);
                     }
 
                     return deferred.promise;

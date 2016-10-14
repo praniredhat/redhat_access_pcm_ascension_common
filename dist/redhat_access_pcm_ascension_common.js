@@ -1637,6 +1637,49 @@
 	        name: gettextCatalog.getString('Closed'),
 	        value: STATUS.closed
 	    }];
+	    this.advancedCaseListColumns = [{
+	        id: 'severity',
+	        name: gettextCatalog.getString('Severity'),
+	        description: gettextCatalog.getString('Severity of the case.'),
+	        default: true
+	    }, {
+	        id: 'number-status',
+	        name: gettextCatalog.getString('Number & Status'),
+	        description: gettextCatalog.getString('Number and Status of the case.'),
+	        required: true,
+	        default: true
+	    }, {
+	        id: 'summary',
+	        name: gettextCatalog.getString('Summary'),
+	        description: gettextCatalog.getString('Summary of the case.'),
+	        default: true
+	    }, {
+	        id: 'product',
+	        name: gettextCatalog.getString('Product Name and Version'),
+	        description: gettextCatalog.getString('Product and Version assigned to the case.'),
+	        default: true
+	    }, {
+	        id: 'created',
+	        name: gettextCatalog.getString('Created User and Date'),
+	        description: gettextCatalog.getString('Name of the person who created the case and date it was created.'),
+	        default: true
+	    }, {
+	        id: 'modified',
+	        name: gettextCatalog.getString('Last Modified User and Date'),
+	        description: gettextCatalog.getString('Name of the person who modified the case last and the date the action was performed.')
+	    }, {
+	        id: 'contact',
+	        name: gettextCatalog.getString('Contact Name'),
+	        description: gettextCatalog.getString('Name of the customer contact.')
+	    }, {
+	        id: 'account',
+	        name: gettextCatalog.getString('Account Number'),
+	        description: gettextCatalog.getString('Number of the account the case was created under.')
+	    }, {
+	        id: 'owner',
+	        name: gettextCatalog.getString('Owner Name'),
+	        description: gettextCatalog.getString('Name of the Red Hat Associate\'s who owns the case.')
+	    }];
 
 	    this.wappsUrl = new Uri('https://ams-dev2.devlab.redhat.com/wapps');
 	    if (window.location.hostname === 'access.redhat.com' || window.location.hostname === 'prod.foo.redhat.com' || window.location.hostname === 'fooprod.redhat.com') {

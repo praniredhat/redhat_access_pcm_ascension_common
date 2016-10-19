@@ -280,6 +280,11 @@ export default class UdsService {
                 remove: function(userId, query) {
                     return uds.removeNNOsFromUser(userId, query);
                 }
+            },
+            virtualOffice: {
+                setGbdSuperRegion: function (userId, value) {
+                    return uds.setGbdSuperRegion(userId, value);
+                }
             }
         };
         this.cqi = {

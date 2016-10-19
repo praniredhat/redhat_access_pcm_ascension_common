@@ -1708,7 +1708,7 @@
 	    value: true
 	});
 
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -2945,6 +2945,11 @@
 	            remove: function remove(userId, query) {
 	                return uds.removeNNOsFromUser(userId, query);
 	            }
+	        },
+	        virtualOffice: {
+	            setGbdSuperRegion: function setGbdSuperRegion(userId, value) {
+	                return uds.setGbdSuperRegion(userId, value);
+	            }
 	        }
 	    };
 	    this.cqi = {
@@ -3307,6 +3312,8 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	// Services
+
+
 	var app = angular.module('RedhatAccess.security', ['ui.bootstrap', 'ui.router', 'RedhatAccess.header']).constant('AUTH_EVENTS', _authEvents2.default).value('LOGIN_VIEW_CONFIG', _loginViewConfig2.default).value('SECURITY_CONFIG', _securityConfig2.default);
 
 	// Controllers
@@ -3716,6 +3723,7 @@
 		    exports.removeUserQBs = removeUserQBs;
 		    exports.addNNOToUser = addNNOToUser;
 		    exports.removeNNOsFromUser = removeNNOsFromUser;
+		    exports.setGbdSuperRegion = setGbdSuperRegion;
 		    var udsHostName = new Uri('https://unified-ds-ci.gsslab.brq.redhat.com/');
 
 		    if (window.location.hostname === 'access.redhat.com' || window.location.hostname === 'prod.foo.redhat.com' || window.location.hostname === 'fooprod.redhat.com') {
@@ -4310,6 +4318,11 @@
 		    function removeNNOsFromUser(userId, query) {
 		        var url = udsHostName.clone().setPath('/user/' + userId + '/nnoregion').addQueryParam('where', query);
 		        return executeUdsAjaxCall(url, 'DELETE');
+		    }
+
+		    function setGbdSuperRegion(userId, value) {
+		        var url = udsHostName.clone().setPath('/user/' + userId + '/virtualoffice/' + value);
+		        return executeUdsAjaxCall(url, 'PUT');
 		    }
 		});
 

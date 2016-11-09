@@ -2706,8 +2706,8 @@
 	    _classCallCheck(this, UdsService);
 
 	    this.cases = {
-	        list: function list(uql, resourceProjection, limit, sortOption, onlyStatus) {
-	            return uds.fetchCases(uql, resourceProjection, limit, sortOption, onlyStatus);
+	        list: function list(uql, resourceProjection, limit, sortOption, onlyStatus, nepUql) {
+	            return uds.fetchCases(uql, resourceProjection, limit, sortOption, onlyStatus, nepUql);
 	        },
 	        sbrs: function sbrs() {
 	            return uds.fetchCaseSbrs();

@@ -7,12 +7,13 @@ export default class UdsService {
         'ngInject';
 
         this.cases = {
-            list: function (uql, resourceProjection, limit, sortOption, onlyStatus) {
+            list: function (uql, resourceProjection, limit, sortOption, onlyStatus, nepUql) {
                 return uds.fetchCases(uql,
                     resourceProjection,
                     limit,
                     sortOption,
-                    onlyStatus
+                    onlyStatus,
+                    nepUql
                 );
             },
             sbrs: function () {

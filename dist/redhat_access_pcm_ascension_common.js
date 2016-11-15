@@ -1708,7 +1708,7 @@
 	    value: true
 	});
 
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -2250,12 +2250,12 @@
 	                    }
 	                    return deferred.promise;
 	                },
-	                post: function post(attachment, caseNumber) {
+	                post: function post(attachment, caseNumber, onProgress) {
 	                    var deferred = $q.defer();
 	                    strata.cases.attachments.post(attachment, caseNumber, function (response, code, xhr) {
 	                        strataCache.remove('attachments' + caseNumber);
 	                        deferred.resolve(xhr.getResponseHeader('Location'));
-	                    }, angular.bind(deferred, errorHandler));
+	                    }, angular.bind(deferred, errorHandler), onProgress);
 	                    return deferred.promise;
 	                },
 	                remove: function remove(id, caseNumber) {
@@ -3312,8 +3312,6 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	// Services
-
-
 	var app = angular.module('RedhatAccess.security', ['ui.bootstrap', 'ui.router', 'RedhatAccess.header']).constant('AUTH_EVENTS', _authEvents2.default).value('LOGIN_VIEW_CONFIG', _loginViewConfig2.default).value('SECURITY_CONFIG', _securityConfig2.default);
 
 	// Controllers
@@ -3864,12 +3862,15 @@
 		        return executeUdsAjaxCall(url, 'GET');
 		    }
 
-		    function fetchCases(uql, resourceProjection, limit, sortOption, statusOnly) {
+		    function fetchCases(uql, resourceProjection, limit, sortOption, statusOnly, nepUql) {
 		        var path = '/case';
 		        if (statusOnly) {
 		            path = '/case/list-status-only';
 		        }
 		        var url = udsHostName.clone().setPath(path).addQueryParam('where', uql);
+		        if (nepUql != null) {
+		            url.addQueryParam('nepWhere', nepUql);
+		        }
 		        if (resourceProjection != null) {
 		            url.addQueryParam('resourceProjection', resourceProjection);
 		        } else {

@@ -2950,6 +2950,11 @@
 	            setGbdSuperRegion: function setGbdSuperRegion(userId, value) {
 	                return uds.setGbdSuperRegion(userId, value);
 	            }
+	        },
+	        outOfOffice: {
+	            set: function set(userId, value) {
+	                return uds.setOutOfOfficeflag(userId, value);
+	            }
 	        }
 	    };
 	    this.cqi = {

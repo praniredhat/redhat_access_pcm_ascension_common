@@ -286,6 +286,11 @@ export default class UdsService {
                 setGbdSuperRegion: function (userId, value) {
                     return uds.setGbdSuperRegion(userId, value);
                 }
+            },
+            outOfOffice: {
+                set: function (userId, value) {
+                    return uds.setOutOfOfficeflag(userId, value);
+                }
             }
         };
         this.cqi = {

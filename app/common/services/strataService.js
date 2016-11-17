@@ -436,12 +436,12 @@ export default class StrataService {
                         }
                         return deferred.promise;
                     },
-                    post: function (attachment, caseNumber) {
+                    post: function (attachment, caseNumber, onProgress) {
                         var deferred = $q.defer();
                         strata.cases.attachments.post(attachment, caseNumber, function (response, code, xhr) {
                             strataCache.remove('attachments' + caseNumber);
                             deferred.resolve(xhr.getResponseHeader('Location'));
-                        }, angular.bind(deferred, errorHandler));
+                        }, angular.bind(deferred, errorHandler), onProgress);
                         return deferred.promise;
                     },
                     remove: function (id, caseNumber) {

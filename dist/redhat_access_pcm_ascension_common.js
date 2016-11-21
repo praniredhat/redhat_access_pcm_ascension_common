@@ -3442,25 +3442,56 @@
 	        }
 	    };
 	    this.initLoginStatus = function () {
+	        var _this = this;
+
 	        this.loggingIn = true;
 	        var defer = $q.defer();
 	        var wasLoggedIn = this.loginStatus.isLoggedIn;
 	        this.loginStatus.verifying = true;
-	        strataService.authentication.checkLogin().then(angular.bind(this, function (authedUser) {
-	            this.setAccount(authedUser.account);
-	            this.setLoginStatus(true, false, authedUser);
-	            this.loggingIn = false;
-	            //We don't want to resend the AUTH_EVENTS.loginSuccess if we are already logged in
-	            if (wasLoggedIn === false) {
-	                $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
+	        if (window.sessionjs != null) {
+	            // JWT specific auth
+	            if (window.sessionjs.isAuthenticated()) {
+	                var user = window.sessionjs.getUserInfo();
+	                //load account
+	                strata.addAccountNumber(user.account_number);
+	                var accountPromise = strataService.accounts.get(user.account_number).then(function (account) {
+	                    _this.loginStatus.account = account;
+	                }).catch(function () {
+	                    _this.loginStatus.account = null;
+	                });
+
+	                var userPromise = strataService.users.get(user.user_id).then(function (authedUser) {
+	                    _this.setLoginStatus(true, false, authedUser);
+	                });
+
+	                Promise.all([accountPromise, userPromise]).then(function () {
+	                    _this.loginStatus.authedUser.account = _this.loginStatus.account;
+	                    if (wasLoggedIn === false) {
+	                        $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
+	                    }
+	                });
+	            } else {
+	                this.clearLoginStatus();
+	                this.loggingIn = false;
+	                defer.reject();
 	            }
-	            defer.resolve(authedUser.loggedInUser);
-	        }), angular.bind(this, function (error) {
-	            this.clearLoginStatus();
-	            AlertService.addStrataErrorMessage(error);
-	            this.loggingIn = false;
-	            defer.reject(error);
-	        }));
+	        } else {
+	            strataService.authentication.checkLogin().then(angular.bind(this, function (authedUser) {
+	                this.setAccount(authedUser.account);
+	                this.setLoginStatus(true, false, authedUser);
+	                this.loggingIn = false;
+	                //We don't want to resend the AUTH_EVENTS.loginSuccess if we are already logged in
+	                if (wasLoggedIn === false) {
+	                    $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
+	                }
+	                defer.resolve(authedUser.loggedInUser);
+	            }), angular.bind(this, function (error) {
+	                this.clearLoginStatus();
+	                AlertService.addStrataErrorMessage(error);
+	                this.loggingIn = false;
+	                defer.reject(error);
+	            }));
+	        }
 	        return defer.promise;
 	    };
 	    this.validateLogin = function (forceLogin) {

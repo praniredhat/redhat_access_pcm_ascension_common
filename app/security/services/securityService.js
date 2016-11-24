@@ -17,6 +17,7 @@ export default class SecurityService {
             this.loginStatus.isLoggedIn = isLoggedIn;
             this.loginStatus.verifying = verifying;
             this.loginStatus.authedUser = authedUser;
+            this.loginStatus.authedUser.loggedInUser = `${authedUser.first_name} ${authedUser.last_name}`;
             RHAUtils.userTimeZone=authedUser.timezone;
             this.userAllowedToManageCases();
         };
@@ -114,6 +115,7 @@ export default class SecurityService {
 
                     Promise.all([accountPromise, userPromise]).then(() => {
                         this.loginStatus.authedUser.account = this.loginStatus.account;
+                        this.loggingIn = false;
                         if (wasLoggedIn === false) {
                             $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
                         }

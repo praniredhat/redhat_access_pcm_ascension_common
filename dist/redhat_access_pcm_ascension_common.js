@@ -3366,6 +3366,7 @@
 	        this.loginStatus.isLoggedIn = isLoggedIn;
 	        this.loginStatus.verifying = verifying;
 	        this.loginStatus.authedUser = authedUser;
+	        this.loginStatus.authedUser.loggedInUser = authedUser.first_name + ' ' + authedUser.last_name;
 	        RHAUtils.userTimeZone = authedUser.timezone;
 	        this.userAllowedToManageCases();
 	    };
@@ -3466,6 +3467,7 @@
 
 	                Promise.all([accountPromise, userPromise]).then(function () {
 	                    _this.loginStatus.authedUser.account = _this.loginStatus.account;
+	                    _this.loggingIn = false;
 	                    if (wasLoggedIn === false) {
 	                        $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
 	                    }

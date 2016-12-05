@@ -3471,6 +3471,7 @@
 	                    if (wasLoggedIn === false) {
 	                        $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
 	                    }
+	                    defer.resolve(_this.loginStatus.authedUser.loggedInUser);
 	                });
 	            } else {
 	                this.clearLoginStatus();

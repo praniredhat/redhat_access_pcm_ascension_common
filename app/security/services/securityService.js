@@ -119,6 +119,7 @@ export default class SecurityService {
                         if (wasLoggedIn === false) {
                             $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
                         }
+                        defer.resolve(this.loginStatus.authedUser.loggedInUser);
                     });
                 } else {
                     this.clearLoginStatus();

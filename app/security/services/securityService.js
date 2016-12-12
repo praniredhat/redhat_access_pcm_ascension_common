@@ -119,6 +119,10 @@ export default class SecurityService {
                             $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
                         }
                         defer.resolve(this.loginStatus.authedUser.loggedInUser);
+                    }).catch(() => {
+                       this.clearLoginStatus();
+                        this.loggingIn = false;
+                        defer.reject();
                     });
                 } else {
                     this.clearLoginStatus();

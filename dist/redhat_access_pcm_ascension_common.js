@@ -3477,6 +3477,10 @@
 	                        $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
 	                    }
 	                    defer.resolve(_this.loginStatus.authedUser.loggedInUser);
+	                }).catch(function () {
+	                    _this.clearLoginStatus();
+	                    _this.loggingIn = false;
+	                    defer.reject();
 	                });
 	            } else {
 	                this.clearLoginStatus();

@@ -109,11 +109,10 @@ export default class SecurityService {
                         this.loginStatus.account = null;
                     });
 
-                    const userPromise = strataService.users.get(user.user_id).then((authedUser) => {
-                        this.setLoginStatus(true, false, authedUser);
-                    });
+                    const userPromise = strataService.users.get(user.user_id);
 
-                    Promise.all([accountPromise, userPromise]).then(() => {
+                    Promise.all([accountPromise, userPromise]).then(([account, authedUser]) => {
+                        this.setLoginStatus(true, false, authedUser);
                         this.loginStatus.authedUser.account = this.loginStatus.account;
                         this.loggingIn = false;
                         if (wasLoggedIn === false) {

@@ -3346,6 +3346,8 @@
 	    value: true
 	});
 
+	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	var SecurityService = function SecurityService($rootScope, $uibModal, AUTH_EVENTS, $q, LOGIN_VIEW_CONFIG, SECURITY_CONFIG, strataService, AlertService, RHAUtils) {
@@ -3461,16 +3463,20 @@
 	                    _this.loginStatus.account = null;
 	                });
 
-	                var userPromise = strataService.users.get(user.user_id).then(function (authedUser) {
-	                    _this.setLoginStatus(true, false, authedUser);
-	                });
+	                var userPromise = strataService.users.get(user.user_id);
 
-	                Promise.all([accountPromise, userPromise]).then(function () {
+	                Promise.all([accountPromise, userPromise]).then(function (_ref) {
+	                    var _ref2 = _slicedToArray(_ref, 2),
+	                        account = _ref2[0],
+	                        authedUser = _ref2[1];
+
+	                    _this.setLoginStatus(true, false, authedUser);
 	                    _this.loginStatus.authedUser.account = _this.loginStatus.account;
 	                    _this.loggingIn = false;
 	                    if (wasLoggedIn === false) {
 	                        $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
 	                    }
+	                    defer.resolve(_this.loginStatus.authedUser.loggedInUser);
 	                });
 	            } else {
 	                this.clearLoginStatus();

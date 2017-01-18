@@ -149,6 +149,9 @@ export default class UdsService {
             resourceLinks: {
                 get: function (solutionIdQuery) {
                     return uds.fetchSolutionDetails(solutionIdQuery);
+                },
+                update: function (caseNumber, resourceLink) {
+                    return uds.updateResourceLink(caseNumber, resourceLink);
                 }
             },
             lock: {

@@ -2817,6 +2817,9 @@
 	        resourceLinks: {
 	            get: function get(solutionIdQuery) {
 	                return uds.fetchSolutionDetails(solutionIdQuery);
+	            },
+	            update: function update(caseNumber, resourceLink) {
+	                return uds.updateResourceLink(caseNumber, resourceLink);
 	            }
 	        },
 	        lock: {

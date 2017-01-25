@@ -66,25 +66,26 @@ export default class UdsService {
                 get: function (uqlContributors) {
                     return uds.fetchCaseAssociateDetails(uqlContributors);
                 },
-                post: function (caseId, userId, roleName) {
-                    var jsonAssociates =
-                    {
+                post: function (caseNumber, sso, roleName) {
+                    var jsonAssociates = {
                         "resource": {
-                            "associate": {
-                                "externalModelId": userId
-
-                            },
+                            "sso": sso,
                             "role": roleName
                         }
 
                     };
-                    return uds.addAssociates(caseId,
-                        jsonAssociates
-                    );
+                    return uds.addAssociates(caseNumber, jsonAssociates);
 
                 },
-                remove: function (caseId, associateId) {
-                    return uds.deleteAssociates(caseId, associateId);
+                remove: function (caseNumber, sso, roleName) {
+                    var jsonAssociates = {
+                        "resource": {
+                            "sso": sso,
+                            "role": roleName
+                        }
+
+                    };
+                    return uds.deleteAssociates(caseNumber, jsonAssociates);
                 },
                 update: function (caseId, userId, roleName, associateId) {
                     var jsonAssociates =

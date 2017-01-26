@@ -27,7 +27,7 @@
     "raw-loader": "~0.5.1",
     "style-loader": "~0.13.1",
     "time-grunt": "~1.3.0",
-    "udsjs": "~1.1.52",
+    "udsjs": "~1.1.53",
     "url-loader": "~0.5.7",
     "webpack": "~1.13.1"
   },

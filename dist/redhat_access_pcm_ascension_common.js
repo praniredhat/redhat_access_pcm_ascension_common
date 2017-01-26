@@ -2777,19 +2777,6 @@
 
 	                };
 	                return uds.deleteAssociates(caseNumber, jsonAssociates);
-	            },
-	            update: function update(caseId, userId, roleName, associateId) {
-	                var jsonAssociates = {
-	                    "resource": {
-	                        "associate": {
-	                            "externalModelId": userId
-
-	                        },
-	                        "role": roleName
-	                    },
-	                    "externalModelId": associateId
-	                };
-	                return uds.updateCaseAssociate(caseId, jsonAssociates);
 	            }
 	        },
 	        comments: {

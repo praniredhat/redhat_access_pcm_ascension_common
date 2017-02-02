@@ -81,14 +81,9 @@ export default class StrataService {
             entitlements: {
                 get: function (showAll, ssoUserName) {
                     var deferred = $q.defer();
-                    if (strataCache.get('entitlements' + ssoUserName)) {
-                        deferred.resolve(strataCache.get('entitlements' + ssoUserName));
-                    } else {
-                        strata.entitlements.get(showAll, function (entitlements) {
-                            strataCache.put('entitlements' + ssoUserName, entitlements);
-                            deferred.resolve(entitlements);
-                        }, angular.bind(deferred, errorHandler), ssoUserName);
-                    }
+                    strata.entitlements.get(showAll, function (entitlements) {
+                        deferred.resolve(entitlements);
+                    }, angular.bind(deferred, errorHandler), ssoUserName);
                     return deferred.promise;
                 }
             },

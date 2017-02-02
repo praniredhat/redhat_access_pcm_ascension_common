@@ -1708,7 +1708,7 @@
 	    value: true
 	});
 
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -1914,14 +1914,9 @@
 	        entitlements: {
 	            get: function get(showAll, ssoUserName) {
 	                var deferred = $q.defer();
-	                if (strataCache.get('entitlements' + ssoUserName)) {
-	                    deferred.resolve(strataCache.get('entitlements' + ssoUserName));
-	                } else {
-	                    strata.entitlements.get(showAll, function (entitlements) {
-	                        strataCache.put('entitlements' + ssoUserName, entitlements);
-	                        deferred.resolve(entitlements);
-	                    }, angular.bind(deferred, errorHandler), ssoUserName);
-	                }
+	                strata.entitlements.get(showAll, function (entitlements) {
+	                    deferred.resolve(entitlements);
+	                }, angular.bind(deferred, errorHandler), ssoUserName);
 	                return deferred.promise;
 	            }
 	        },
@@ -3460,10 +3455,9 @@
 	                var userPromise = strataService.users.get(user.user_id);
 
 	                Promise.all([accountPromise, userPromise]).then(function (_ref) {
-	                    var _ref2 = _slicedToArray(_ref, 2);
-
-	                    var account = _ref2[0];
-	                    var authedUser = _ref2[1];
+	                    var _ref2 = _slicedToArray(_ref, 2),
+	                        account = _ref2[0],
+	                        authedUser = _ref2[1];
 
 	                    _this.setLoginStatus(true, false, authedUser);
 	                    _this.loginStatus.authedUser.account = _this.loginStatus.account;
@@ -3734,6 +3728,7 @@
 		    exports.fetchSolutionDetails = fetchSolutionDetails;
 		    exports.setHandlingSystem = setHandlingSystem;
 		    exports.fetchSolr = fetchSolr;
+		    exports.fetchCaseSolr = fetchCaseSolr;
 		    exports.addCaseSbrs = addCaseSbrs;
 		    exports.removeCaseSbrs = removeCaseSbrs;
 		    exports.getAllRolesList = getAllRolesList;
@@ -3746,6 +3741,7 @@
 		    exports.getBrmsResponse = getBrmsResponse;
 		    exports.fetchTopCasesFromSolr = fetchTopCasesFromSolr;
 		    exports.getUserDetailsFromSFDC = getUserDetailsFromSFDC;
+		    exports.updateUserDetailsInSFDC = updateUserDetailsInSFDC;
 		    exports.getCallCenterFromSFDC = getCallCenterFromSFDC;
 		    exports.getCaseTagsList = getCaseTagsList;
 		    exports.addCaseTags = addCaseTags;
@@ -3762,6 +3758,7 @@
 		    exports.removeUserQBs = removeUserQBs;
 		    exports.addNNOToUser = addNNOToUser;
 		    exports.removeNNOsFromUser = removeNNOsFromUser;
+		    exports.setGbdSuperRegion = setGbdSuperRegion;
 		    var udsHostName = new Uri('https://unified-ds-ci.gsslab.brq.redhat.com/');
 
 		    if (window.location.hostname === 'access.redhat.com' || window.location.hostname === 'prod.foo.redhat.com' || window.location.hostname === 'fooprod.redhat.com') {
@@ -3902,12 +3899,15 @@
 		        return executeUdsAjaxCall(url, 'GET');
 		    }
 
-		    function fetchCases(uql, resourceProjection, limit, sortOption, statusOnly) {
+		    function fetchCases(uql, resourceProjection, limit, sortOption, statusOnly, nepUql) {
 		        var path = '/case';
 		        if (statusOnly) {
 		            path = '/case/list-status-only';
 		        }
 		        var url = udsHostName.clone().setPath(path).addQueryParam('where', uql);
+		        if (nepUql != null) {
+		            url.addQueryParam('nepWhere', nepUql);
+		        }
 		        if (resourceProjection != null) {
 		            url.addQueryParam('resourceProjection', resourceProjection);
 		        } else {
@@ -4159,22 +4159,50 @@
 		    }
 
 		    function fetchSolr(query) {
-		        if (query.q === undefined || query.q === null || query.q === '') throw 'SOLR Query is mandatory';
+		        if (query.q == null || query.q === '') throw 'SOLR Query is mandatory';
 
 		        var url = udsHostName.clone().setPath('/solr');
 		        url.addQueryParam('wt', 'json');
 		        url.addQueryParam('q', query.q);
-		        if (query.fq !== undefined && query.fq !== '') {
+		        if (query.fq != null && query.fq !== '') {
 		            url.addQueryParam('fq', query.fq);
 		        }
-		        if (query.start !== undefined) {
+		        if (query.start != null) {
 		            url.addQueryParam('start', query.start);
 		        }
-		        if (query.rows !== undefined) {
+		        if (query.rows != null) {
 		            url.addQueryParam('rows', query.rows);
 		        }
-		        if (query.sort !== undefined && query.sort !== '') {
+		        if (query.sort != null && query.sort !== '') {
 		            url.addQueryParam('sort', query.sort);
+		        }
+		        if (query.fl != null && query.fl !== '') {
+		            url.addQueryParam('fl', query.fl);
+		        }
+
+		        return executeUdsAjaxCall(url, 'GET');
+		    }
+
+		    function fetchCaseSolr(query) {
+		        if (query.q == null || query.q === '') throw 'SOLR Query is mandatory';
+
+		        var url = udsHostName.clone().setPath('/solr/cases');
+		        url.addQueryParam('wt', 'json');
+		        url.addQueryParam('q', query.q);
+		        if (query.fq != null && query.fq !== '') {
+		            url.addQueryParam('fq', query.fq);
+		        }
+		        if (query.start != null) {
+		            url.addQueryParam('start', query.start);
+		        }
+		        if (query.rows != null) {
+		            url.addQueryParam('rows', query.rows);
+		        }
+		        if (query.sort != null && query.sort !== '') {
+		            url.addQueryParam('sort', query.sort);
+		        }
+		        if (query.fl != null && query.fl !== '') {
+		            url.addQueryParam('fl', query.fl);
 		        }
 
 		        return executeUdsAjaxCall(url, 'GET');
@@ -4239,6 +4267,11 @@
 		    function getUserDetailsFromSFDC(userID) {
 		        var url = udsHostName.clone().setPath('/salesforce/user/' + userID);
 		        return executeUdsAjaxCall(url, 'GET');
+		    }
+
+		    function updateUserDetailsInSFDC(ssoUsername, data) {
+		        var url = udsHostName.clone().setPath('/user/salesforce/' + ssoUsername);
+		        return executeUdsAjaxCallWithData(url, data, 'PUT');
 		    }
 
 		    function getCallCenterFromSFDC(callCenterId) {
@@ -4323,6 +4356,11 @@
 		    function removeNNOsFromUser(userId, query) {
 		        var url = udsHostName.clone().setPath('/user/' + userId + '/nnoregion').addQueryParam('where', query);
 		        return executeUdsAjaxCall(url, 'DELETE');
+		    }
+
+		    function setGbdSuperRegion(userId, value) {
+		        var url = udsHostName.clone().setPath('/user/' + userId + '/virtualoffice/' + value);
+		        return executeUdsAjaxCall(url, 'PUT');
 		    }
 		});
 

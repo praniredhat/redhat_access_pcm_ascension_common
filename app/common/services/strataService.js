@@ -431,12 +431,12 @@ export default class StrataService {
                         }
                         return deferred.promise;
                     },
-                    post: function (attachment, caseNumber, onProgress) {
+                    post: function (attachment, caseNumber, onProgress, isPrivate) {
                         var deferred = $q.defer();
                         strata.cases.attachments.post(attachment, caseNumber, function (response, code, xhr) {
                             strataCache.remove('attachments' + caseNumber);
                             deferred.resolve(xhr.getResponseHeader('Location'));
-                        }, angular.bind(deferred, errorHandler), onProgress);
+                        }, angular.bind(deferred, errorHandler), onProgress, isPrivate);
                         return deferred.promise;
                     },
                     remove: function (id, caseNumber) {

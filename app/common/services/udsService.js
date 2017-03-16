@@ -194,6 +194,11 @@ export default class UdsService {
                 update: function(caseNumber, ownerSSO) {
                     return uds.updateCaseOwner(caseNumber, ownerSSO);
                 }
+            },
+            attachments: {
+                update: function (caseNumber,attachmentId,attachmentDetails) {
+                    return uds.updateCaseAttachment(caseNumber,attachmentId,attachmentDetails);
+                }
             }
         };
         // This is not to be confused with kase.comments.  This top level comments object allows you to query

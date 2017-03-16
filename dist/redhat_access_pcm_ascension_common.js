@@ -1708,8 +1708,6 @@
 	    value: true
 	});
 
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	var HeaderService = function HeaderService(COMMON_CONFIG, strataService, securityService, AlertService, $q) {
@@ -1723,29 +1721,21 @@
 	    this.showSurvey = true;
 	    this.showPartnerEscalationError = false;
 	    this.checkSfdcHealth = function () {
-	        var _this = this;
-
 	        if (securityService.loginStatus.isLoggedIn) {
-	            var _ret = function () {
-	                var deferred = $q.defer();
-	                strataService.health.sfdc().then(angular.bind(_this, function (response) {
-	                    if (response.name === 'SFDC' && response.status === true) {
-	                        service.sfdcIsHealthy = true;
-	                    }
-	                    deferred.resolve(response);
-	                }), angular.bind(_this, function (error) {
-	                    if (error.xhr.status === 502) {
-	                        service.sfdcIsHealthy = false;
-	                    }
-	                    AlertService.addStrataErrorMessage(error);
-	                    deferred.reject();
-	                }));
-	                return {
-	                    v: deferred.promise
-	                };
-	            }();
-
-	            if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
+	            var deferred = $q.defer();
+	            strataService.health.sfdc().then(angular.bind(this, function (response) {
+	                if (response.name === 'SFDC' && response.status === true) {
+	                    service.sfdcIsHealthy = true;
+	                }
+	                deferred.resolve(response);
+	            }), angular.bind(this, function (error) {
+	                if (error.xhr.status === 502) {
+	                    service.sfdcIsHealthy = false;
+	                }
+	                AlertService.addStrataErrorMessage(error);
+	                deferred.reject();
+	            }));
+	            return deferred.promise;
 	        }
 	    };
 	};
@@ -2245,12 +2235,12 @@
 	                    }
 	                    return deferred.promise;
 	                },
-	                post: function post(attachment, caseNumber, onProgress) {
+	                post: function post(attachment, caseNumber, onProgress, isPrivate) {
 	                    var deferred = $q.defer();
 	                    strata.cases.attachments.post(attachment, caseNumber, function (response, code, xhr) {
 	                        strataCache.remove('attachments' + caseNumber);
 	                        deferred.resolve(xhr.getResponseHeader('Location'));
-	                    }, angular.bind(deferred, errorHandler), onProgress);
+	                    }, angular.bind(deferred, errorHandler), onProgress, isPrivate);
 	                    return deferred.promise;
 	                },
 	                remove: function remove(id, caseNumber) {
@@ -2859,6 +2849,11 @@
 	        owner: {
 	            update: function update(caseNumber, ownerSSO) {
 	                return uds.updateCaseOwner(caseNumber, ownerSSO);
+	            }
+	        },
+	        attachments: {
+	            update: function update(caseNumber, attachmentId, attachmentDetails) {
+	                return uds.updateCaseAttachment(caseNumber, attachmentId, attachmentDetails);
 	            }
 	        }
 	    };
@@ -3692,7 +3687,6 @@
 		    exports.updateCaseDetails = updateCaseDetails;
 		    exports.updateCaseOwner = updateCaseOwner;
 		    exports.fetchCaseHistory = fetchCaseHistory;
-		    exports.addAssociates = addAssociates;
 		    exports.getCQIQuestions = getCQIQuestions;
 		    exports.getCQIs = getCQIs;
 		    exports.postCQIScore = postCQIScore;
@@ -3723,10 +3717,11 @@
 		    exports.getCaseContactsForAccount = getCaseContactsForAccount;
 		    exports.getCaseGroupsForContact = getCaseGroupsForContact;
 		    exports.getRMECountForAccount = getRMECountForAccount;
+		    exports.addAssociates = addAssociates;
 		    exports.deleteAssociates = deleteAssociates;
-		    exports.updateCaseAssociate = updateCaseAssociate;
 		    exports.fetchSolutionDetails = fetchSolutionDetails;
 		    exports.setHandlingSystem = setHandlingSystem;
+		    exports.fetchKCSFromDrupal = fetchKCSFromDrupal;
 		    exports.fetchSolr = fetchSolr;
 		    exports.fetchCaseSolr = fetchCaseSolr;
 		    exports.addCaseSbrs = addCaseSbrs;
@@ -3759,18 +3754,21 @@
 		    exports.addNNOToUser = addNNOToUser;
 		    exports.removeNNOsFromUser = removeNNOsFromUser;
 		    exports.setGbdSuperRegion = setGbdSuperRegion;
+		    exports.setOutOfOfficeflag = setOutOfOfficeflag;
+		    exports.updateResourceLink = updateResourceLink;
+		    exports.updateNightShiftForUser = updateNightShiftForUser;
 		    var udsHostName = new Uri('https://unified-ds-ci.gsslab.brq.redhat.com/');
 
-		    if (window.location.hostname === 'access.redhat.com' || window.location.hostname === 'prod.foo.redhat.com' || window.location.hostname === 'fooprod.redhat.com') {
+		    if (window.location.hostname === 'access.redhat.com' || window.location.hostname === 'prod.foo.redhat.com' || window.location.hostname === 'fooprod.redhat.com' || window.location.hostname === 'skedge.redhat.com') {
 		        udsHostName = new Uri('https://unified-ds.gsslab.rdu2.redhat.com/');
 		    } else {
-		        if (window.location.hostname === 'access.qa.redhat.com' || window.location.hostname === 'qa.foo.redhat.com' || window.location.hostname === 'fooqa.redhat.com') {
+		        if (window.location.hostname === 'access.qa.redhat.com' || window.location.hostname === 'qa.foo.redhat.com' || window.location.hostname === 'fooqa.redhat.com' || window.location.hostname === 'skedge.qa.redhat.com') {
 		            udsHostName = new Uri('https://unified-ds-qa.gsslab.pnq2.redhat.com/');
 		        } else {
-		            if (window.location.hostname === 'access.devgssci.devlab.phx1.redhat.com' || window.location.hostname === 'ci.foo.redhat.com' || window.location.hostname === 'fooci.redhat.com') {
+		            if (window.location.hostname === 'access.devgssci.devlab.phx1.redhat.com' || window.location.hostname === 'ci.foo.redhat.com' || window.location.hostname === 'fooci.redhat.com' || window.location.hostname === 'skedge.ci.redhat.com') {
 		                udsHostName = new Uri('https://unified-ds-ci.gsslab.brq.redhat.com/');
 		            } else {
-		                if (window.location.hostname === 'access.stage.redhat.com' || window.location.hostname === 'stage.foo.redhat.com' || window.location.hostname === 'foostage.redhat.com') {
+		                if (window.location.hostname === 'access.stage.redhat.com' || window.location.hostname === 'stage.foo.redhat.com' || window.location.hostname === 'foostage.redhat.com' || window.location.hostname === 'skedge.stage.redhat.com') {
 		                    udsHostName = new Uri('https://unified-ds-stage.gsslab.pnq2.redhat.com/');
 		                }
 		            }
@@ -3963,11 +3961,6 @@
 		        return executeUdsAjaxCall(url, 'GET');
 		    }
 
-		    function addAssociates(caseId, jsonAssociates) {
-		        var url = udsHostName.clone().setPath('/case/' + caseId + "/associate");
-		        return executeUdsAjaxCallWithData(url, jsonAssociates, 'POST');
-		    }
-
 		    function getCQIQuestions(caseNumber) {
 		        var url = udsHostName.clone().setPath('/case/' + caseNumber + '/reviews/questions');
 		        return executeUdsAjaxCall(url, 'GET');
@@ -4137,14 +4130,14 @@
 		        return executeUdsAjaxCall(url, 'GET');
 		    }
 
-		    function deleteAssociates(caseId, associateId) {
-		        var url = udsHostName.clone().setPath('/case/' + caseId + '/associate/' + associateId);
-		        return executeUdsAjaxCall(url, 'DELETE');
+		    function addAssociates(caseNumber, jsonAssociates) {
+		        var url = udsHostName.clone().setPath('/case/' + caseNumber + "/associate");
+		        return executeUdsAjaxCallWithData(url, jsonAssociates, 'POST');
 		    }
 
-		    function updateCaseAssociate(caseId, jsonAssociates) {
-		        var url = udsHostName.clone().setPath('/case/' + caseId + "/associate");
-		        return executeUdsAjaxCallWithData(url, jsonAssociates, 'PUT');
+		    function deleteAssociates(caseNumber, jsonAssociates) {
+		        var url = udsHostName.clone().setPath('/case/' + caseNumber + "/associate");
+		        return executeUdsAjaxCallWithData(url, jsonAssociates, 'DELETE');
 		    }
 
 		    function fetchSolutionDetails(solutionIdQuery) {
@@ -4156,6 +4149,11 @@
 		    function setHandlingSystem(caseNumber, handlingSystemArray) {
 		        var url = udsHostName.clone().setPath('/case/' + caseNumber + "/handlingsystems");
 		        return executeUdsAjaxCallWithData(url, handlingSystemArray, 'PUT');
+		    }
+
+		    function fetchKCSFromDrupal(id) {
+		        var url = udsHostName.clone().setPath('/documentation/drupalapi/' + id);
+		        return executeUdsAjaxCall(url, 'GET');
 		    }
 
 		    function fetchSolr(query) {
@@ -4350,7 +4348,7 @@
 
 		    function addNNOToUser(userId, nnoRegion) {
 		        var url = udsHostName.clone().setPath('/user/' + userId + '/nnoregion/' + nnoRegion);
-		        executeUdsAjaxCall(url, 'POST');
+		        return executeUdsAjaxCall(url, 'POST');
 		    }
 
 		    function removeNNOsFromUser(userId, query) {
@@ -4360,6 +4358,21 @@
 
 		    function setGbdSuperRegion(userId, value) {
 		        var url = udsHostName.clone().setPath('/user/' + userId + '/virtualoffice/' + value);
+		        return executeUdsAjaxCall(url, 'PUT');
+		    }
+
+		    function setOutOfOfficeflag(userId, value) {
+		        var url = udsHostName.clone().setPath('/user/' + userId + '/out-of-office');
+		        return executeUdsAjaxCallWithData(url, value, 'POST');
+		    }
+
+		    function updateResourceLink(caseNumber, resourceLink) {
+		        var url = udsHostName.clone().setPath('/case/' + caseNumber + '/resourcelink');
+		        return executeUdsAjaxCallWithData(url, resourceLink, 'PUT');
+		    }
+
+		    function updateNightShiftForUser(userId, value) {
+		        var url = udsHostName.clone().setPath('/user/' + userId + '/nightshift/' + value);
 		        return executeUdsAjaxCall(url, 'PUT');
 		    }
 		});

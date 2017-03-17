@@ -19,7 +19,6 @@ export default class SecurityService {
             this.loginStatus.authedUser = authedUser;
             this.loginStatus.authedUser.loggedInUser = `${authedUser.first_name} ${authedUser.last_name}`;
             RHAUtils.userTimeZone=authedUser.timezone;
-            this.userAllowedToManageCases();
         };
         this.clearLoginStatus = function() {
             this.loginStatus.isLoggedIn = false;
@@ -47,7 +46,7 @@ export default class SecurityService {
         };
         this.userAllowedToManageCases = function() {
             var canManage = false;
-            if(this.loginStatus.authedUser.rights !== undefined && (this.loginStatus.authedUser.is_entitled || RHAUtils.isNotEmpty(this.loginStatus.authedUser.account))){
+            if( RHAUtils.isNotEmpty(this.loginStatus.authedUser.rights) && (this.loginStatus.authedUser.is_entitled || RHAUtils.isNotEmpty(this.loginStatus.authedUser.account))){
                 for(var i = 0; i < this.loginStatus.authedUser.rights.right.length; i++){
                     if(this.loginStatus.authedUser.rights.right[i].name === 'portal_manage_cases' && this.loginStatus.authedUser.rights.right[i].has_access === true){
                         canManage = true;
@@ -114,6 +113,7 @@ export default class SecurityService {
                     Promise.all([accountPromise, userPromise]).then(([account, authedUser]) => {
                         this.setLoginStatus(true, false, authedUser);
                         this.loginStatus.authedUser.account = this.loginStatus.account;
+                        this.userAllowedToManageCases();
                         this.loggingIn = false;
                         if (wasLoggedIn === false) {
                             $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
@@ -133,6 +133,7 @@ export default class SecurityService {
                 strataService.authentication.checkLogin().then(angular.bind(this, function(authedUser) {
                     this.setAccount(authedUser.account);
                     this.setLoginStatus(true, false, authedUser);
+                    this.userAllowedToManageCases();
                     this.loggingIn = false;
                     //We don't want to resend the AUTH_EVENTS.loginSuccess if we are already logged in
                     if (wasLoggedIn === false) {

@@ -388,6 +388,34 @@ export default class StrataService {
                     }, angular.bind(deferred, errorHandler));
 
                     return deferred.promise;
+                },
+                managedAccounts : {
+                    get: function (accountNumber) {
+                        var deferred = $q.defer();
+                        if (strataCache.get('managedAccounts' + accountNumber)) {
+                            deferred.resolve(strataCache.get('managedAccounts' + accountNumber));
+                        } else {
+                            strata.accounts.getManagedAccounts(accountNumber, function (response) {
+                                strataCache.put('managedAccounts' + accountNumber, response);
+                                deferred.resolve(response);
+                            }, angular.bind(deferred, errorHandler));
+                        }
+                        return deferred.promise;
+                    }
+                },
+                accountManagers : {
+                    get: function (accountNumber) {
+                        var deferred = $q.defer();
+                        if (strataCache.get('accountManagers' + accountNumber)) {
+                            deferred.resolve(strataCache.get('accountManagers' + accountNumber));
+                        } else {
+                            strata.accounts.getManagersForAccount(accountNumber, function (response) {
+                                strataCache.put('accountManagers' + accountNumber, response);
+                                deferred.resolve(response);
+                            }, angular.bind(deferred, errorHandler));
+                        }
+                        return deferred.promise;
+                    }
                 }
             },
             cases: {

@@ -110,9 +110,14 @@ export default class SecurityService {
 
                     const userPromise = strataService.users.get(user.user_id);
 
-                    Promise.all([accountPromise, userPromise]).then(([account, authedUser]) => {
+                    const managedAccountsPromise = strataService.accounts.managedAccounts.get(user.account_number);
+                    const managersForAccountPromise = strataService.accounts.accountManagers.get(user.account_number);
+
+                    Promise.all([accountPromise, userPromise, managedAccountsPromise, managersForAccountPromise]).then(([account, authedUser, managedAccounts, accountManagers]) => {
                         this.setLoginStatus(true, false, authedUser);
                         this.loginStatus.authedUser.account = this.loginStatus.account;
+                        this.loginStatus.authedUser.managedAccounts = managedAccounts;
+                        this.loginStatus.authedUser.accountManagers = accountManagers;
                         this.userAllowedToManageCases();
                         this.loggingIn = false;
                         if (wasLoggedIn === false) {
@@ -120,7 +125,7 @@ export default class SecurityService {
                         }
                         defer.resolve(this.loginStatus.authedUser.loggedInUser);
                     }).catch(() => {
-                       this.clearLoginStatus();
+                        this.clearLoginStatus();
                         this.loggingIn = false;
                         defer.reject();
                     });
@@ -134,12 +139,24 @@ export default class SecurityService {
                     this.setAccount(authedUser.account);
                     this.setLoginStatus(true, false, authedUser);
                     this.userAllowedToManageCases();
-                    this.loggingIn = false;
-                    //We don't want to resend the AUTH_EVENTS.loginSuccess if we are already logged in
-                    if (wasLoggedIn === false) {
-                        $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
-                    }
-                    defer.resolve(authedUser.loggedInUser);
+
+                    const managedAccountsPromise = strataService.accounts.managedAccounts.get(authedUser.account.number);
+                    const managersForAccountPromise = strataService.accounts.accountManagers.get(authedUser.account.number);
+                    Promise.all([managedAccountsPromise, managersForAccountPromise]).then(([managedAccounts, accountManagers]) => {
+                        this.loginStatus.authedUser.managedAccounts = managedAccounts;
+                        this.loginStatus.authedUser.accountManagers = accountManagers;
+                        this.loggingIn = false;
+                        //We don't want to resend the AUTH_EVENTS.loginSuccess if we are already logged in
+                        if (wasLoggedIn === false) {
+                            $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
+                        }
+                        defer.resolve(authedUser.loggedInUser);
+                    }).catch(() => {
+                        this.clearLoginStatus();
+                        AlertService.addStrataErrorMessage(error);
+                        this.loggingIn = false;
+                        defer.reject(error);
+                    });
                 }), angular.bind(this, function(error) {
                     this.clearLoginStatus();
                     AlertService.addStrataErrorMessage(error);

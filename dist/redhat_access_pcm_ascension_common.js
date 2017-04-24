@@ -1708,6 +1708,8 @@
 	    value: true
 	});
 
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	var HeaderService = function HeaderService(COMMON_CONFIG, strataService, securityService, AlertService, $q) {
@@ -1721,21 +1723,29 @@
 	    this.showSurvey = true;
 	    this.showPartnerEscalationError = false;
 	    this.checkSfdcHealth = function () {
+	        var _this = this;
+
 	        if (securityService.loginStatus.isLoggedIn) {
-	            var deferred = $q.defer();
-	            strataService.health.sfdc().then(angular.bind(this, function (response) {
-	                if (response.name === 'SFDC' && response.status === true) {
-	                    service.sfdcIsHealthy = true;
-	                }
-	                deferred.resolve(response);
-	            }), angular.bind(this, function (error) {
-	                if (error.xhr.status === 502) {
-	                    service.sfdcIsHealthy = false;
-	                }
-	                AlertService.addStrataErrorMessage(error);
-	                deferred.reject();
-	            }));
-	            return deferred.promise;
+	            var _ret = function () {
+	                var deferred = $q.defer();
+	                strataService.health.sfdc().then(angular.bind(_this, function (response) {
+	                    if (response.name === 'SFDC' && response.status === true) {
+	                        service.sfdcIsHealthy = true;
+	                    }
+	                    deferred.resolve(response);
+	                }), angular.bind(_this, function (error) {
+	                    if (error.xhr.status === 502) {
+	                        service.sfdcIsHealthy = false;
+	                    }
+	                    AlertService.addStrataErrorMessage(error);
+	                    deferred.reject();
+	                }));
+	                return {
+	                    v: deferred.promise
+	                };
+	            }();
+
+	            if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
 	        }
 	    };
 	};
@@ -1855,9 +1865,19 @@
 	            status: status
 	        });
 	    };
-	    var clearCache = function clearCache(key) {
+	    function clearCache(key) {
 	        strataCache.remove(key);
-	    };
+	    }
+	    function clearAllCaseSearch() {
+	        var allKeys = strataCache.keys();
+	        if (allKeys) {
+	            allKeys.forEach(function (key) {
+	                if (key.startsWith('filter') || key.startsWith('search') || key.startsWith('advancedSearch')) {
+	                    clearCache(key);
+	                }
+	            });
+	        }
+	    }
 	    var service = {
 	        authentication: {
 	            checkLogin: function checkLogin() {
@@ -2193,6 +2213,34 @@
 	                }, angular.bind(deferred, errorHandler));
 
 	                return deferred.promise;
+	            },
+	            managedAccounts: {
+	                get: function get(accountNumber) {
+	                    var deferred = $q.defer();
+	                    if (strataCache.get('managedAccounts' + accountNumber)) {
+	                        deferred.resolve(strataCache.get('managedAccounts' + accountNumber));
+	                    } else {
+	                        strata.accounts.getManagedAccounts(accountNumber, function (response) {
+	                            strataCache.put('managedAccounts' + accountNumber, response);
+	                            deferred.resolve(response);
+	                        }, angular.bind(deferred, errorHandler));
+	                    }
+	                    return deferred.promise;
+	                }
+	            },
+	            accountManagers: {
+	                get: function get(accountNumber) {
+	                    var deferred = $q.defer();
+	                    if (strataCache.get('accountManagers' + accountNumber)) {
+	                        deferred.resolve(strataCache.get('accountManagers' + accountNumber));
+	                    } else {
+	                        strata.accounts.getManagersForAccount(accountNumber, function (response) {
+	                            strataCache.put('accountManagers' + accountNumber, response);
+	                            deferred.resolve(response);
+	                        }, angular.bind(deferred, errorHandler));
+	                    }
+	                    return deferred.promise;
+	                }
 	            }
 	        },
 	        cases: {
@@ -2474,11 +2522,7 @@
 	                var deferred = $q.defer();
 	                strata.cases.post(caseJSON, function (caseNumber) {
 	                    //Remove any case filters that are cached
-	                    for (var k in strataCache.keySet()) {
-	                        if (~k.indexOf('filter')) {
-	                            strataCache.remove(k);
-	                        }
-	                    }
+	                    clearAllCaseSearch();
 	                    deferred.resolve(caseNumber);
 	                }, angular.bind(deferred, errorHandler));
 	                return deferred.promise;
@@ -2486,12 +2530,9 @@
 	            put: function put(caseNumber, caseJSON) {
 	                var deferred = $q.defer();
 	                strata.cases.put(caseNumber, caseJSON, function (response) {
+	                    // Remove all case caches that could have been affected
 	                    strataCache.remove('case' + caseNumber);
-	                    for (var k in strataCache.keySet()) {
-	                        if (~k.indexOf('filter')) {
-	                            strataCache.remove(k);
-	                        }
-	                    }
+	                    clearAllCaseSearch();
 	                    deferred.resolve(response);
 	                }, angular.bind(deferred, errorHandler));
 	                return deferred.promise;
@@ -3354,7 +3395,6 @@
 	        this.loginStatus.authedUser = authedUser;
 	        this.loginStatus.authedUser.loggedInUser = authedUser.first_name + ' ' + authedUser.last_name;
 	        RHAUtils.userTimeZone = authedUser.timezone;
-	        this.userAllowedToManageCases();
 	    };
 	    this.clearLoginStatus = function () {
 	        this.loginStatus.isLoggedIn = false;
@@ -3382,7 +3422,7 @@
 	    };
 	    this.userAllowedToManageCases = function () {
 	        var canManage = false;
-	        if (this.loginStatus.authedUser.rights !== undefined && (this.loginStatus.authedUser.is_entitled || RHAUtils.isNotEmpty(this.loginStatus.authedUser.account))) {
+	        if (RHAUtils.isNotEmpty(this.loginStatus.authedUser.rights) && (this.loginStatus.authedUser.is_entitled || RHAUtils.isNotEmpty(this.loginStatus.authedUser.account))) {
 	            for (var i = 0; i < this.loginStatus.authedUser.rights.right.length; i++) {
 	                if (this.loginStatus.authedUser.rights.right[i].name === 'portal_manage_cases' && this.loginStatus.authedUser.rights.right[i].has_access === true) {
 	                    canManage = true;
@@ -3449,13 +3489,21 @@
 
 	                var userPromise = strataService.users.get(user.user_id);
 
-	                Promise.all([accountPromise, userPromise]).then(function (_ref) {
-	                    var _ref2 = _slicedToArray(_ref, 2),
+	                var managedAccountsPromise = strataService.accounts.managedAccounts.get(user.account_number);
+	                var managersForAccountPromise = strataService.accounts.accountManagers.get(user.account_number);
+
+	                Promise.all([accountPromise, userPromise, managedAccountsPromise, managersForAccountPromise]).then(function (_ref) {
+	                    var _ref2 = _slicedToArray(_ref, 4),
 	                        account = _ref2[0],
-	                        authedUser = _ref2[1];
+	                        authedUser = _ref2[1],
+	                        managedAccounts = _ref2[2],
+	                        accountManagers = _ref2[3];
 
 	                    _this.setLoginStatus(true, false, authedUser);
 	                    _this.loginStatus.authedUser.account = _this.loginStatus.account;
+	                    _this.loginStatus.authedUser.managedAccounts = managedAccounts;
+	                    _this.loginStatus.authedUser.accountManagers = accountManagers;
+	                    _this.userAllowedToManageCases();
 	                    _this.loggingIn = false;
 	                    if (wasLoggedIn === false) {
 	                        $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
@@ -3473,14 +3521,33 @@
 	            }
 	        } else {
 	            strataService.authentication.checkLogin().then(angular.bind(this, function (authedUser) {
+	                var _this2 = this;
+
 	                this.setAccount(authedUser.account);
 	                this.setLoginStatus(true, false, authedUser);
-	                this.loggingIn = false;
-	                //We don't want to resend the AUTH_EVENTS.loginSuccess if we are already logged in
-	                if (wasLoggedIn === false) {
-	                    $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
-	                }
-	                defer.resolve(authedUser.loggedInUser);
+	                this.userAllowedToManageCases();
+
+	                var managedAccountsPromise = strataService.accounts.managedAccounts.get(authedUser.account.number);
+	                var managersForAccountPromise = strataService.accounts.accountManagers.get(authedUser.account.number);
+	                Promise.all([managedAccountsPromise, managersForAccountPromise]).then(function (_ref3) {
+	                    var _ref4 = _slicedToArray(_ref3, 2),
+	                        managedAccounts = _ref4[0],
+	                        accountManagers = _ref4[1];
+
+	                    _this2.loginStatus.authedUser.managedAccounts = managedAccounts;
+	                    _this2.loginStatus.authedUser.accountManagers = accountManagers;
+	                    _this2.loggingIn = false;
+	                    //We don't want to resend the AUTH_EVENTS.loginSuccess if we are already logged in
+	                    if (wasLoggedIn === false) {
+	                        $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
+	                    }
+	                    defer.resolve(authedUser.loggedInUser);
+	                }).catch(function () {
+	                    _this2.clearLoginStatus();
+	                    AlertService.addStrataErrorMessage(error);
+	                    _this2.loggingIn = false;
+	                    defer.reject(error);
+	                });
 	            }), angular.bind(this, function (error) {
 	                this.clearLoginStatus();
 	                AlertService.addStrataErrorMessage(error);
@@ -3687,6 +3754,7 @@
 		    exports.updateCaseDetails = updateCaseDetails;
 		    exports.updateCaseOwner = updateCaseOwner;
 		    exports.fetchCaseHistory = fetchCaseHistory;
+		    exports.addAssociates = addAssociates;
 		    exports.getCQIQuestions = getCQIQuestions;
 		    exports.getCQIs = getCQIs;
 		    exports.postCQIScore = postCQIScore;
@@ -3717,11 +3785,10 @@
 		    exports.getCaseContactsForAccount = getCaseContactsForAccount;
 		    exports.getCaseGroupsForContact = getCaseGroupsForContact;
 		    exports.getRMECountForAccount = getRMECountForAccount;
-		    exports.addAssociates = addAssociates;
 		    exports.deleteAssociates = deleteAssociates;
+		    exports.updateCaseAssociate = updateCaseAssociate;
 		    exports.fetchSolutionDetails = fetchSolutionDetails;
 		    exports.setHandlingSystem = setHandlingSystem;
-		    exports.fetchKCSFromDrupal = fetchKCSFromDrupal;
 		    exports.fetchSolr = fetchSolr;
 		    exports.fetchCaseSolr = fetchCaseSolr;
 		    exports.addCaseSbrs = addCaseSbrs;
@@ -3754,21 +3821,18 @@
 		    exports.addNNOToUser = addNNOToUser;
 		    exports.removeNNOsFromUser = removeNNOsFromUser;
 		    exports.setGbdSuperRegion = setGbdSuperRegion;
-		    exports.setOutOfOfficeflag = setOutOfOfficeflag;
-		    exports.updateResourceLink = updateResourceLink;
-		    exports.updateNightShiftForUser = updateNightShiftForUser;
 		    var udsHostName = new Uri('https://unified-ds-ci.gsslab.brq.redhat.com/');
 
-		    if (window.location.hostname === 'access.redhat.com' || window.location.hostname === 'prod.foo.redhat.com' || window.location.hostname === 'fooprod.redhat.com' || window.location.hostname === 'skedge.redhat.com') {
+		    if (window.location.hostname === 'access.redhat.com' || window.location.hostname === 'prod.foo.redhat.com' || window.location.hostname === 'fooprod.redhat.com') {
 		        udsHostName = new Uri('https://unified-ds.gsslab.rdu2.redhat.com/');
 		    } else {
-		        if (window.location.hostname === 'access.qa.redhat.com' || window.location.hostname === 'qa.foo.redhat.com' || window.location.hostname === 'fooqa.redhat.com' || window.location.hostname === 'skedge.qa.redhat.com') {
+		        if (window.location.hostname === 'access.qa.redhat.com' || window.location.hostname === 'qa.foo.redhat.com' || window.location.hostname === 'fooqa.redhat.com') {
 		            udsHostName = new Uri('https://unified-ds-qa.gsslab.pnq2.redhat.com/');
 		        } else {
-		            if (window.location.hostname === 'access.devgssci.devlab.phx1.redhat.com' || window.location.hostname === 'ci.foo.redhat.com' || window.location.hostname === 'fooci.redhat.com' || window.location.hostname === 'skedge.ci.redhat.com') {
+		            if (window.location.hostname === 'access.devgssci.devlab.phx1.redhat.com' || window.location.hostname === 'ci.foo.redhat.com' || window.location.hostname === 'fooci.redhat.com') {
 		                udsHostName = new Uri('https://unified-ds-ci.gsslab.brq.redhat.com/');
 		            } else {
-		                if (window.location.hostname === 'access.stage.redhat.com' || window.location.hostname === 'stage.foo.redhat.com' || window.location.hostname === 'foostage.redhat.com' || window.location.hostname === 'skedge.stage.redhat.com') {
+		                if (window.location.hostname === 'access.stage.redhat.com' || window.location.hostname === 'stage.foo.redhat.com' || window.location.hostname === 'foostage.redhat.com') {
 		                    udsHostName = new Uri('https://unified-ds-stage.gsslab.pnq2.redhat.com/');
 		                }
 		            }
@@ -3961,6 +4025,11 @@
 		        return executeUdsAjaxCall(url, 'GET');
 		    }
 
+		    function addAssociates(caseId, jsonAssociates) {
+		        var url = udsHostName.clone().setPath('/case/' + caseId + "/associate");
+		        return executeUdsAjaxCallWithData(url, jsonAssociates, 'POST');
+		    }
+
 		    function getCQIQuestions(caseNumber) {
 		        var url = udsHostName.clone().setPath('/case/' + caseNumber + '/reviews/questions');
 		        return executeUdsAjaxCall(url, 'GET');
@@ -4130,14 +4199,14 @@
 		        return executeUdsAjaxCall(url, 'GET');
 		    }
 
-		    function addAssociates(caseNumber, jsonAssociates) {
-		        var url = udsHostName.clone().setPath('/case/' + caseNumber + "/associate");
-		        return executeUdsAjaxCallWithData(url, jsonAssociates, 'POST');
+		    function deleteAssociates(caseId, associateId) {
+		        var url = udsHostName.clone().setPath('/case/' + caseId + '/associate/' + associateId);
+		        return executeUdsAjaxCall(url, 'DELETE');
 		    }
 
-		    function deleteAssociates(caseNumber, jsonAssociates) {
-		        var url = udsHostName.clone().setPath('/case/' + caseNumber + "/associate");
-		        return executeUdsAjaxCallWithData(url, jsonAssociates, 'DELETE');
+		    function updateCaseAssociate(caseId, jsonAssociates) {
+		        var url = udsHostName.clone().setPath('/case/' + caseId + "/associate");
+		        return executeUdsAjaxCallWithData(url, jsonAssociates, 'PUT');
 		    }
 
 		    function fetchSolutionDetails(solutionIdQuery) {
@@ -4149,11 +4218,6 @@
 		    function setHandlingSystem(caseNumber, handlingSystemArray) {
 		        var url = udsHostName.clone().setPath('/case/' + caseNumber + "/handlingsystems");
 		        return executeUdsAjaxCallWithData(url, handlingSystemArray, 'PUT');
-		    }
-
-		    function fetchKCSFromDrupal(id) {
-		        var url = udsHostName.clone().setPath('/documentation/drupalapi/' + id);
-		        return executeUdsAjaxCall(url, 'GET');
 		    }
 
 		    function fetchSolr(query) {
@@ -4348,7 +4412,7 @@
 
 		    function addNNOToUser(userId, nnoRegion) {
 		        var url = udsHostName.clone().setPath('/user/' + userId + '/nnoregion/' + nnoRegion);
-		        return executeUdsAjaxCall(url, 'POST');
+		        executeUdsAjaxCall(url, 'POST');
 		    }
 
 		    function removeNNOsFromUser(userId, query) {
@@ -4358,21 +4422,6 @@
 
 		    function setGbdSuperRegion(userId, value) {
 		        var url = udsHostName.clone().setPath('/user/' + userId + '/virtualoffice/' + value);
-		        return executeUdsAjaxCall(url, 'PUT');
-		    }
-
-		    function setOutOfOfficeflag(userId, value) {
-		        var url = udsHostName.clone().setPath('/user/' + userId + '/out-of-office');
-		        return executeUdsAjaxCallWithData(url, value, 'POST');
-		    }
-
-		    function updateResourceLink(caseNumber, resourceLink) {
-		        var url = udsHostName.clone().setPath('/case/' + caseNumber + '/resourcelink');
-		        return executeUdsAjaxCallWithData(url, resourceLink, 'PUT');
-		    }
-
-		    function updateNightShiftForUser(userId, value) {
-		        var url = udsHostName.clone().setPath('/user/' + userId + '/nightshift/' + value);
 		        return executeUdsAjaxCall(url, 'PUT');
 		    }
 		});

@@ -32,9 +32,19 @@ export default class StrataService {
                 status: status
             });
         };
-        var clearCache = function (key) {
+        function clearCache(key) {
             strataCache.remove(key);
-        };
+        }
+        function clearAllCaseSearch() {
+            const allKeys = strataCache.keys();
+            if(allKeys) {
+                allKeys.forEach(function(key) {
+                    if(key.startsWith('filter') || key.startsWith('search') || key.startsWith('advancedSearch')) {
+                        clearCache(key);
+                    }
+                });
+            }
+        }
         var service = {
             authentication: {
                 checkLogin: function () {
@@ -705,11 +715,7 @@ export default class StrataService {
                     var deferred = $q.defer();
                     strata.cases.post(caseJSON, function (caseNumber) {
                         //Remove any case filters that are cached
-                        for (var k in strataCache.keySet()) {
-                            if (~k.indexOf('filter')) {
-                                strataCache.remove(k);
-                            }
-                        }
+                        clearAllCaseSearch();
                         deferred.resolve(caseNumber);
                     }, angular.bind(deferred, errorHandler));
                     return deferred.promise;
@@ -717,12 +723,9 @@ export default class StrataService {
                 put: function (caseNumber, caseJSON) {
                     var deferred = $q.defer();
                     strata.cases.put(caseNumber, caseJSON, function (response) {
+                        // Remove all case caches that could have been affected
                         strataCache.remove('case' + caseNumber);
-                        for (var k in strataCache.keySet()) {
-                            if (~k.indexOf('filter')) {
-                                strataCache.remove(k);
-                            }
-                        }
+                        clearAllCaseSearch();
                         deferred.resolve(response);
                     }, angular.bind(deferred, errorHandler));
                     return deferred.promise;

@@ -558,6 +558,7 @@ export default class StrataService {
                             'public': isPublic === true ? 'true' : 'false'
                         }, function (response) {
                             strataCache.remove('comments' + caseNumber);
+                            clearAllCaseSearch();
                             deferred.resolve(response);
                         }, angular.bind(deferred, errorHandler));
                         return deferred.promise;
@@ -572,6 +573,7 @@ export default class StrataService {
                             'id': comment_id
                         }, comment_id, function (response) {
                             strataCache.remove('comments' + caseNumber);
+                            clearAllCaseSearch();
                             deferred.resolve(response);
                         }, angular.bind(deferred, errorHandler));
                         return deferred.promise;

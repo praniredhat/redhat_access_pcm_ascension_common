@@ -1708,7 +1708,7 @@
 	    value: true
 	});
 
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -3344,6 +3344,8 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	// Services
+
+
 	var app = angular.module('RedhatAccess.security', ['ui.bootstrap', 'ui.router', 'RedhatAccess.header']).constant('AUTH_EVENTS', _authEvents2.default).value('LOGIN_VIEW_CONFIG', _loginViewConfig2.default).value('SECURITY_CONFIG', _securityConfig2.default);
 
 	// Controllers
@@ -3455,6 +3457,13 @@
 	            return false;
 	        }
 	    };
+	    this.fetchUserAccountContacts = function (user) {
+	        var _this = this;
+
+	        return strataService.accounts.users(user.account_number).then(function (accountContacts) {
+	            _this.loginStatus.authedUser.accountContacts = accountContacts;
+	        });
+	    };
 	    this.getBasicAuthToken = function () {
 	        var defer = $q.defer();
 	        var token = localStorage.getItem('rhAuthToken');
@@ -3471,7 +3480,7 @@
 	        }
 	    };
 	    this.initLoginStatus = function () {
-	        var _this = this;
+	        var _this2 = this;
 
 	        this.loggingIn = true;
 	        var defer = $q.defer();
@@ -3484,9 +3493,9 @@
 	                //load account
 	                strata.addAccountNumber(user.account_number);
 	                var accountPromise = strataService.accounts.get(user.account_number).then(function (account) {
-	                    _this.loginStatus.account = account;
+	                    _this2.loginStatus.account = account;
 	                }).catch(function () {
-	                    _this.loginStatus.account = null;
+	                    _this2.loginStatus.account = null;
 	                });
 
 	                var userPromise = strataService.users.get(user.user_id);
@@ -3495,25 +3504,29 @@
 	                var managersForAccountPromise = strataService.accounts.accountManagers.get(user.account_number);
 
 	                Promise.all([accountPromise, userPromise, managedAccountsPromise, managersForAccountPromise]).then(function (_ref) {
-	                    var _ref2 = _slicedToArray(_ref, 4),
-	                        account = _ref2[0],
-	                        authedUser = _ref2[1],
-	                        managedAccounts = _ref2[2],
-	                        accountManagers = _ref2[3];
+	                    var _ref2 = _slicedToArray(_ref, 4);
 
-	                    _this.setLoginStatus(true, false, authedUser);
-	                    _this.loginStatus.authedUser.account = _this.loginStatus.account;
-	                    _this.loginStatus.authedUser.managedAccounts = managedAccounts;
-	                    _this.loginStatus.authedUser.accountManagers = accountManagers;
-	                    _this.userAllowedToManageCases();
-	                    _this.loggingIn = false;
+	                    var account = _ref2[0];
+	                    var authedUser = _ref2[1];
+	                    var managedAccounts = _ref2[2];
+	                    var accountManagers = _ref2[3];
+
+	                    _this2.setLoginStatus(true, false, authedUser);
+	                    _this2.loginStatus.authedUser.account = _this2.loginStatus.account;
+	                    _this2.loginStatus.authedUser.managedAccounts = managedAccounts;
+	                    _this2.loginStatus.authedUser.accountManagers = accountManagers;
+	                    if (authedUser.is_internal || authedUser.org_admin) {
+	                        _this2.fetchUserAccountContacts(authedUser);
+	                    }
+	                    _this2.userAllowedToManageCases();
+	                    _this2.loggingIn = false;
 	                    if (wasLoggedIn === false) {
 	                        $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
 	                    }
-	                    defer.resolve(_this.loginStatus.authedUser.loggedInUser);
+	                    defer.resolve(_this2.loginStatus.authedUser.loggedInUser);
 	                }).catch(function () {
-	                    _this.clearLoginStatus();
-	                    _this.loggingIn = false;
+	                    _this2.clearLoginStatus();
+	                    _this2.loggingIn = false;
 	                    defer.reject();
 	                });
 	            } else {
@@ -3523,31 +3536,36 @@
 	            }
 	        } else {
 	            strataService.authentication.checkLogin().then(angular.bind(this, function (authedUser) {
-	                var _this2 = this;
+	                var _this3 = this;
 
 	                this.setAccount(authedUser.account);
 	                this.setLoginStatus(true, false, authedUser);
 	                this.userAllowedToManageCases();
-
+	                var promisesArray = [];
 	                var managedAccountsPromise = strataService.accounts.managedAccounts.get(authedUser.account.number);
 	                var managersForAccountPromise = strataService.accounts.accountManagers.get(authedUser.account.number);
-	                Promise.all([managedAccountsPromise, managersForAccountPromise]).then(function (_ref3) {
-	                    var _ref4 = _slicedToArray(_ref3, 2),
-	                        managedAccounts = _ref4[0],
-	                        accountManagers = _ref4[1];
+	                promisesArray.push(managedAccountsPromise, managersForAccountPromise);
 
-	                    _this2.loginStatus.authedUser.managedAccounts = managedAccounts;
-	                    _this2.loginStatus.authedUser.accountManagers = accountManagers;
-	                    _this2.loggingIn = false;
+	                if (authedUser.is_internal || authedUser.org_admin) {
+	                    var accountContactsPromise = strataService.accounts.users(authedUser.account.number);
+	                    promisesArray.push(accountContactsPromise);
+	                }
+	                Promise.all(promisesArray).then(function (response) {
+	                    _this3.loginStatus.authedUser.managedAccounts = response[0];
+	                    _this3.loginStatus.authedUser.accountManagers = response[1];
+	                    if (authedUser.is_internal || authedUser.org_admin) {
+	                        _this3.loginStatus.authedUser.accountContacts = response[2];
+	                    }
+	                    _this3.loggingIn = false;
 	                    //We don't want to resend the AUTH_EVENTS.loginSuccess if we are already logged in
 	                    if (wasLoggedIn === false) {
 	                        $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
 	                    }
 	                    defer.resolve(authedUser.loggedInUser);
 	                }).catch(function () {
-	                    _this2.clearLoginStatus();
+	                    _this3.clearLoginStatus();
 	                    AlertService.addStrataErrorMessage(error);
-	                    _this2.loggingIn = false;
+	                    _this3.loggingIn = false;
 	                    defer.reject(error);
 	                });
 	            }), angular.bind(this, function (error) {
@@ -3723,17 +3741,17 @@
 
 		var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;(function (global, factory) {
 		    if (true) {
-		        !(__WEBPACK_AMD_DEFINE_ARRAY__ = [exports], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+		        !(__WEBPACK_AMD_DEFINE_ARRAY__ = [exports, __webpack_require__(1)], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 		    } else if (typeof exports !== "undefined") {
-		        factory(exports);
+		        factory(exports, require('jsuri'));
 		    } else {
 		        var mod = {
 		            exports: {}
 		        };
-		        factory(mod.exports);
+		        factory(mod.exports, global.jsuri);
 		        global.uds = mod.exports;
 		    }
-		})(this, function (exports) {
+		})(this, function (exports, Uri) {
 		    'use strict';
 
 		    Object.defineProperty(exports, "__esModule", {
@@ -3756,7 +3774,6 @@
 		    exports.updateCaseDetails = updateCaseDetails;
 		    exports.updateCaseOwner = updateCaseOwner;
 		    exports.fetchCaseHistory = fetchCaseHistory;
-		    exports.addAssociates = addAssociates;
 		    exports.getCQIQuestions = getCQIQuestions;
 		    exports.getCQIs = getCQIs;
 		    exports.postCQIScore = postCQIScore;
@@ -3787,10 +3804,11 @@
 		    exports.getCaseContactsForAccount = getCaseContactsForAccount;
 		    exports.getCaseGroupsForContact = getCaseGroupsForContact;
 		    exports.getRMECountForAccount = getRMECountForAccount;
+		    exports.addAssociates = addAssociates;
 		    exports.deleteAssociates = deleteAssociates;
-		    exports.updateCaseAssociate = updateCaseAssociate;
 		    exports.fetchSolutionDetails = fetchSolutionDetails;
 		    exports.setHandlingSystem = setHandlingSystem;
+		    exports.fetchKCSFromDrupal = fetchKCSFromDrupal;
 		    exports.fetchSolr = fetchSolr;
 		    exports.fetchCaseSolr = fetchCaseSolr;
 		    exports.addCaseSbrs = addCaseSbrs;
@@ -3823,18 +3841,24 @@
 		    exports.addNNOToUser = addNNOToUser;
 		    exports.removeNNOsFromUser = removeNNOsFromUser;
 		    exports.setGbdSuperRegion = setGbdSuperRegion;
+		    exports.setOutOfOfficeflag = setOutOfOfficeflag;
+		    exports.updateResourceLink = updateResourceLink;
+		    exports.updateNightShiftForUser = updateNightShiftForUser;
+		    exports.updateCaseAttachment = updateCaseAttachment;
+
+
 		    var udsHostName = new Uri('https://unified-ds-ci.gsslab.brq.redhat.com/');
 
-		    if (window.location.hostname === 'access.redhat.com' || window.location.hostname === 'prod.foo.redhat.com' || window.location.hostname === 'fooprod.redhat.com') {
+		    if (window.location.hostname === 'access.redhat.com' || window.location.hostname === 'prod.foo.redhat.com' || window.location.hostname === 'fooprod.redhat.com' || window.location.hostname === 'skedge.redhat.com') {
 		        udsHostName = new Uri('https://unified-ds.gsslab.rdu2.redhat.com/');
 		    } else {
-		        if (window.location.hostname === 'access.qa.redhat.com' || window.location.hostname === 'qa.foo.redhat.com' || window.location.hostname === 'fooqa.redhat.com') {
+		        if (window.location.hostname === 'access.qa.redhat.com' || window.location.hostname === 'qa.foo.redhat.com' || window.location.hostname === 'fooqa.redhat.com' || window.location.hostname === 'skedge.qa.redhat.com') {
 		            udsHostName = new Uri('https://unified-ds-qa.gsslab.pnq2.redhat.com/');
 		        } else {
-		            if (window.location.hostname === 'access.devgssci.devlab.phx1.redhat.com' || window.location.hostname === 'ci.foo.redhat.com' || window.location.hostname === 'fooci.redhat.com') {
+		            if (window.location.hostname === 'access.devgssci.devlab.phx1.redhat.com' || window.location.hostname === 'ci.foo.redhat.com' || window.location.hostname === 'fooci.redhat.com' || window.location.hostname === 'skedge.ci.redhat.com') {
 		                udsHostName = new Uri('https://unified-ds-ci.gsslab.brq.redhat.com/');
 		            } else {
-		                if (window.location.hostname === 'access.stage.redhat.com' || window.location.hostname === 'stage.foo.redhat.com' || window.location.hostname === 'foostage.redhat.com') {
+		                if (window.location.hostname === 'access.stage.redhat.com' || window.location.hostname === 'stage.foo.redhat.com' || window.location.hostname === 'foostage.redhat.com' || window.location.hostname === 'skedge.stage.redhat.com') {
 		                    udsHostName = new Uri('https://unified-ds-stage.gsslab.pnq2.redhat.com/');
 		                }
 		            }
@@ -4027,11 +4051,6 @@
 		        return executeUdsAjaxCall(url, 'GET');
 		    }
 
-		    function addAssociates(caseId, jsonAssociates) {
-		        var url = udsHostName.clone().setPath('/case/' + caseId + "/associate");
-		        return executeUdsAjaxCallWithData(url, jsonAssociates, 'POST');
-		    }
-
 		    function getCQIQuestions(caseNumber) {
 		        var url = udsHostName.clone().setPath('/case/' + caseNumber + '/reviews/questions');
 		        return executeUdsAjaxCall(url, 'GET');
@@ -4201,14 +4220,14 @@
 		        return executeUdsAjaxCall(url, 'GET');
 		    }
 
-		    function deleteAssociates(caseId, associateId) {
-		        var url = udsHostName.clone().setPath('/case/' + caseId + '/associate/' + associateId);
-		        return executeUdsAjaxCall(url, 'DELETE');
+		    function addAssociates(caseNumber, jsonAssociates) {
+		        var url = udsHostName.clone().setPath('/case/' + caseNumber + "/associate");
+		        return executeUdsAjaxCallWithData(url, jsonAssociates, 'POST');
 		    }
 
-		    function updateCaseAssociate(caseId, jsonAssociates) {
-		        var url = udsHostName.clone().setPath('/case/' + caseId + "/associate");
-		        return executeUdsAjaxCallWithData(url, jsonAssociates, 'PUT');
+		    function deleteAssociates(caseNumber, jsonAssociates) {
+		        var url = udsHostName.clone().setPath('/case/' + caseNumber + "/associate");
+		        return executeUdsAjaxCallWithData(url, jsonAssociates, 'DELETE');
 		    }
 
 		    function fetchSolutionDetails(solutionIdQuery) {
@@ -4220,6 +4239,11 @@
 		    function setHandlingSystem(caseNumber, handlingSystemArray) {
 		        var url = udsHostName.clone().setPath('/case/' + caseNumber + "/handlingsystems");
 		        return executeUdsAjaxCallWithData(url, handlingSystemArray, 'PUT');
+		    }
+
+		    function fetchKCSFromDrupal(id) {
+		        var url = udsHostName.clone().setPath('/documentation/drupalapi/' + id);
+		        return executeUdsAjaxCall(url, 'GET');
 		    }
 
 		    function fetchSolr(query) {
@@ -4414,7 +4438,7 @@
 
 		    function addNNOToUser(userId, nnoRegion) {
 		        var url = udsHostName.clone().setPath('/user/' + userId + '/nnoregion/' + nnoRegion);
-		        executeUdsAjaxCall(url, 'POST');
+		        return executeUdsAjaxCall(url, 'POST');
 		    }
 
 		    function removeNNOsFromUser(userId, query) {
@@ -4426,7 +4450,493 @@
 		        var url = udsHostName.clone().setPath('/user/' + userId + '/virtualoffice/' + value);
 		        return executeUdsAjaxCall(url, 'PUT');
 		    }
+
+		    function setOutOfOfficeflag(userId, value) {
+		        var url = udsHostName.clone().setPath('/user/' + userId + '/out-of-office');
+		        return executeUdsAjaxCallWithData(url, value, 'POST');
+		    }
+
+		    function updateResourceLink(caseNumber, resourceLink) {
+		        var url = udsHostName.clone().setPath('/case/' + caseNumber + '/resourcelink');
+		        return executeUdsAjaxCallWithData(url, resourceLink, 'PUT');
+		    }
+
+		    function updateNightShiftForUser(userId, value) {
+		        var url = udsHostName.clone().setPath('/user/' + userId + '/nightshift/' + value);
+		        return executeUdsAjaxCall(url, 'PUT');
+		    }
+
+		    function updateCaseAttachment(caseNumber, attachmentId, attachmentDetails) {
+		        var url = udsHostName.clone().setPath('/case/' + caseNumber + '/attachment/' + attachmentId);
+		        return executeUdsAjaxCallWithData(url, attachmentDetails, 'PUT');
+		    }
 		});
+
+	/***/ },
+	/* 1 */
+	/***/ function(module, exports, __webpack_require__) {
+
+		var __WEBPACK_AMD_DEFINE_RESULT__;/*!
+		 * jsUri
+		 * https://github.com/derek-watson/jsUri
+		 *
+		 * Copyright 2013, Derek Watson
+		 * Released under the MIT license.
+		 *
+		 * Includes parseUri regular expressions
+		 * http://blog.stevenlevithan.com/archives/parseuri
+		 * Copyright 2007, Steven Levithan
+		 * Released under the MIT license.
+		 */
+
+		 /*globals define, module */
+
+		(function(global) {
+
+		  var re = {
+		    starts_with_slashes: /^\/+/,
+		    ends_with_slashes: /\/+$/,
+		    pluses: /\+/g,
+		    query_separator: /[&;]/,
+		    uri_parser: /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@\/]*)(?::([^:@]*))?)?@)?(\[[0-9a-fA-F:.]+\]|[^:\/?#]*)(?::(\d+|(?=:)))?(:)?)((((?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/
+		  };
+
+		  /**
+		   * Define forEach for older js environments
+		   * @see https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Array/forEach#Compatibility
+		   */
+		  if (!Array.prototype.forEach) {
+		    Array.prototype.forEach = function(callback, thisArg) {
+		      var T, k;
+
+		      if (this == null) {
+		        throw new TypeError(' this is null or not defined');
+		      }
+
+		      var O = Object(this);
+		      var len = O.length >>> 0;
+
+		      if (typeof callback !== "function") {
+		        throw new TypeError(callback + ' is not a function');
+		      }
+
+		      if (arguments.length > 1) {
+		        T = thisArg;
+		      }
+
+		      k = 0;
+
+		      while (k < len) {
+		        var kValue;
+		        if (k in O) {
+		          kValue = O[k];
+		          callback.call(T, kValue, k, O);
+		        }
+		        k++;
+		      }
+		    };
+		  }
+
+		  /**
+		   * unescape a query param value
+		   * @param  {string} s encoded value
+		   * @return {string}   decoded value
+		   */
+		  function decode(s) {
+		    if (s) {
+		        s = s.toString().replace(re.pluses, '%20');
+		        s = decodeURIComponent(s);
+		    }
+		    return s;
+		  }
+
+		  /**
+		   * Breaks a uri string down into its individual parts
+		   * @param  {string} str uri
+		   * @return {object}     parts
+		   */
+		  function parseUri(str) {
+		    var parser = re.uri_parser;
+		    var parserKeys = ["source", "protocol", "authority", "userInfo", "user", "password", "host", "port", "isColonUri", "relative", "path", "directory", "file", "query", "anchor"];
+		    var m = parser.exec(str || '');
+		    var parts = {};
+
+		    parserKeys.forEach(function(key, i) {
+		      parts[key] = m[i] || '';
+		    });
+
+		    return parts;
+		  }
+
+		  /**
+		   * Breaks a query string down into an array of key/value pairs
+		   * @param  {string} str query
+		   * @return {array}      array of arrays (key/value pairs)
+		   */
+		  function parseQuery(str) {
+		    var i, ps, p, n, k, v, l;
+		    var pairs = [];
+
+		    if (typeof(str) === 'undefined' || str === null || str === '') {
+		      return pairs;
+		    }
+
+		    if (str.indexOf('?') === 0) {
+		      str = str.substring(1);
+		    }
+
+		    ps = str.toString().split(re.query_separator);
+
+		    for (i = 0, l = ps.length; i < l; i++) {
+		      p = ps[i];
+		      n = p.indexOf('=');
+
+		      if (n !== 0) {
+		        k = decode(p.substring(0, n));
+		        v = decode(p.substring(n + 1));
+		        pairs.push(n === -1 ? [p, null] : [k, v]);
+		      }
+
+		    }
+		    return pairs;
+		  }
+
+		  /**
+		   * Creates a new Uri object
+		   * @constructor
+		   * @param {string} str
+		   */
+		  function Uri(str) {
+		    this.uriParts = parseUri(str);
+		    this.queryPairs = parseQuery(this.uriParts.query);
+		    this.hasAuthorityPrefixUserPref = null;
+		  }
+
+		  /**
+		   * Define getter/setter methods
+		   */
+		  ['protocol', 'userInfo', 'host', 'port', 'path', 'anchor'].forEach(function(key) {
+		    Uri.prototype[key] = function(val) {
+		      if (typeof val !== 'undefined') {
+		        this.uriParts[key] = val;
+		      }
+		      return this.uriParts[key];
+		    };
+		  });
+
+		  /**
+		   * if there is no protocol, the leading // can be enabled or disabled
+		   * @param  {Boolean}  val
+		   * @return {Boolean}
+		   */
+		  Uri.prototype.hasAuthorityPrefix = function(val) {
+		    if (typeof val !== 'undefined') {
+		      this.hasAuthorityPrefixUserPref = val;
+		    }
+
+		    if (this.hasAuthorityPrefixUserPref === null) {
+		      return (this.uriParts.source.indexOf('//') !== -1);
+		    } else {
+		      return this.hasAuthorityPrefixUserPref;
+		    }
+		  };
+
+		  Uri.prototype.isColonUri = function (val) {
+		    if (typeof val !== 'undefined') {
+		      this.uriParts.isColonUri = !!val;
+		    } else {
+		      return !!this.uriParts.isColonUri;
+		    }
+		  };
+
+		  /**
+		   * Serializes the internal state of the query pairs
+		   * @param  {string} [val]   set a new query string
+		   * @return {string}         query string
+		   */
+		  Uri.prototype.query = function(val) {
+		    var s = '', i, param, l;
+
+		    if (typeof val !== 'undefined') {
+		      this.queryPairs = parseQuery(val);
+		    }
+
+		    for (i = 0, l = this.queryPairs.length; i < l; i++) {
+		      param = this.queryPairs[i];
+		      if (s.length > 0) {
+		        s += '&';
+		      }
+		      if (param[1] === null) {
+		        s += param[0];
+		      } else {
+		        s += param[0];
+		        s += '=';
+		        if (typeof param[1] !== 'undefined') {
+		          s += encodeURIComponent(param[1]);
+		        }
+		      }
+		    }
+		    return s.length > 0 ? '?' + s : s;
+		  };
+
+		  /**
+		   * returns the first query param value found for the key
+		   * @param  {string} key query key
+		   * @return {string}     first value found for key
+		   */
+		  Uri.prototype.getQueryParamValue = function (key) {
+		    var param, i, l;
+		    for (i = 0, l = this.queryPairs.length; i < l; i++) {
+		      param = this.queryPairs[i];
+		      if (key === param[0]) {
+		        return param[1];
+		      }
+		    }
+		  };
+
+		  /**
+		   * returns an array of query param values for the key
+		   * @param  {string} key query key
+		   * @return {array}      array of values
+		   */
+		  Uri.prototype.getQueryParamValues = function (key) {
+		    var arr = [], i, param, l;
+		    for (i = 0, l = this.queryPairs.length; i < l; i++) {
+		      param = this.queryPairs[i];
+		      if (key === param[0]) {
+		        arr.push(param[1]);
+		      }
+		    }
+		    return arr;
+		  };
+
+		  /**
+		   * removes query parameters
+		   * @param  {string} key     remove values for key
+		   * @param  {val}    [val]   remove a specific value, otherwise removes all
+		   * @return {Uri}            returns self for fluent chaining
+		   */
+		  Uri.prototype.deleteQueryParam = function (key, val) {
+		    var arr = [], i, param, keyMatchesFilter, valMatchesFilter, l;
+
+		    for (i = 0, l = this.queryPairs.length; i < l; i++) {
+
+		      param = this.queryPairs[i];
+		      keyMatchesFilter = decode(param[0]) === decode(key);
+		      valMatchesFilter = param[1] === val;
+
+		      if ((arguments.length === 1 && !keyMatchesFilter) || (arguments.length === 2 && (!keyMatchesFilter || !valMatchesFilter))) {
+		        arr.push(param);
+		      }
+		    }
+
+		    this.queryPairs = arr;
+
+		    return this;
+		  };
+
+		  /**
+		   * adds a query parameter
+		   * @param  {string}  key        add values for key
+		   * @param  {string}  val        value to add
+		   * @param  {integer} [index]    specific index to add the value at
+		   * @return {Uri}                returns self for fluent chaining
+		   */
+		  Uri.prototype.addQueryParam = function (key, val, index) {
+		    if (arguments.length === 3 && index !== -1) {
+		      index = Math.min(index, this.queryPairs.length);
+		      this.queryPairs.splice(index, 0, [key, val]);
+		    } else if (arguments.length > 0) {
+		      this.queryPairs.push([key, val]);
+		    }
+		    return this;
+		  };
+
+		  /**
+		   * test for the existence of a query parameter
+		   * @param  {string}  key        add values for key
+		   * @param  {string}  val        value to add
+		   * @param  {integer} [index]    specific index to add the value at
+		   * @return {Uri}                returns self for fluent chaining
+		   */
+		  Uri.prototype.hasQueryParam = function (key) {
+		    var i, len = this.queryPairs.length;
+		    for (i = 0; i < len; i++) {
+		      if (this.queryPairs[i][0] == key)
+		        return true;
+		    }
+		    return false;
+		  };
+
+		  /**
+		   * replaces query param values
+		   * @param  {string} key         key to replace value for
+		   * @param  {string} newVal      new value
+		   * @param  {string} [oldVal]    replace only one specific value (otherwise replaces all)
+		   * @return {Uri}                returns self for fluent chaining
+		   */
+		  Uri.prototype.replaceQueryParam = function (key, newVal, oldVal) {
+		    var index = -1, len = this.queryPairs.length, i, param;
+
+		    if (arguments.length === 3) {
+		      for (i = 0; i < len; i++) {
+		        param = this.queryPairs[i];
+		        if (decode(param[0]) === decode(key) && decodeURIComponent(param[1]) === decode(oldVal)) {
+		          index = i;
+		          break;
+		        }
+		      }
+		      if (index >= 0) {
+		        this.deleteQueryParam(key, decode(oldVal)).addQueryParam(key, newVal, index);
+		      }
+		    } else {
+		      for (i = 0; i < len; i++) {
+		        param = this.queryPairs[i];
+		        if (decode(param[0]) === decode(key)) {
+		          index = i;
+		          break;
+		        }
+		      }
+		      this.deleteQueryParam(key);
+		      this.addQueryParam(key, newVal, index);
+		    }
+		    return this;
+		  };
+
+		  /**
+		   * Define fluent setter methods (setProtocol, setHasAuthorityPrefix, etc)
+		   */
+		  ['protocol', 'hasAuthorityPrefix', 'isColonUri', 'userInfo', 'host', 'port', 'path', 'query', 'anchor'].forEach(function(key) {
+		    var method = 'set' + key.charAt(0).toUpperCase() + key.slice(1);
+		    Uri.prototype[method] = function(val) {
+		      this[key](val);
+		      return this;
+		    };
+		  });
+
+		  /**
+		   * Scheme name, colon and doubleslash, as required
+		   * @return {string} http:// or possibly just //
+		   */
+		  Uri.prototype.scheme = function() {
+		    var s = '';
+
+		    if (this.protocol()) {
+		      s += this.protocol();
+		      if (this.protocol().indexOf(':') !== this.protocol().length - 1) {
+		        s += ':';
+		      }
+		      s += '//';
+		    } else {
+		      if (this.hasAuthorityPrefix() && this.host()) {
+		        s += '//';
+		      }
+		    }
+
+		    return s;
+		  };
+
+		  /**
+		   * Same as Mozilla nsIURI.prePath
+		   * @return {string} scheme://user:password@host:port
+		   * @see  https://developer.mozilla.org/en/nsIURI
+		   */
+		  Uri.prototype.origin = function() {
+		    var s = this.scheme();
+
+		    if (this.userInfo() && this.host()) {
+		      s += this.userInfo();
+		      if (this.userInfo().indexOf('@') !== this.userInfo().length - 1) {
+		        s += '@';
+		      }
+		    }
+
+		    if (this.host()) {
+		      s += this.host();
+		      if (this.port() || (this.path() && this.path().substr(0, 1).match(/[0-9]/))) {
+		        s += ':' + this.port();
+		      }
+		    }
+
+		    return s;
+		  };
+
+		  /**
+		   * Adds a trailing slash to the path
+		   */
+		  Uri.prototype.addTrailingSlash = function() {
+		    var path = this.path() || '';
+
+		    if (path.substr(-1) !== '/') {
+		      this.path(path + '/');
+		    }
+
+		    return this;
+		  };
+
+		  /**
+		   * Serializes the internal state of the Uri object
+		   * @return {string}
+		   */
+		  Uri.prototype.toString = function() {
+		    var path, s = this.origin();
+
+		    if (this.isColonUri()) {
+		      if (this.path()) {
+		        s += ':'+this.path();
+		      }
+		    } else if (this.path()) {
+		      path = this.path();
+		      if (!(re.ends_with_slashes.test(s) || re.starts_with_slashes.test(path))) {
+		        s += '/';
+		      } else {
+		        if (s) {
+		          s.replace(re.ends_with_slashes, '/');
+		        }
+		        path = path.replace(re.starts_with_slashes, '/');
+		      }
+		      s += path;
+		    } else {
+		      if (this.host() && (this.query().toString() || this.anchor())) {
+		        s += '/';
+		      }
+		    }
+		    if (this.query().toString()) {
+		      s += this.query().toString();
+		    }
+
+		    if (this.anchor()) {
+		      if (this.anchor().indexOf('#') !== 0) {
+		        s += '#';
+		      }
+		      s += this.anchor();
+		    }
+
+		    return s;
+		  };
+
+		  /**
+		   * Clone a Uri object
+		   * @return {Uri} duplicate copy of the Uri
+		   */
+		  Uri.prototype.clone = function() {
+		    return new Uri(this.toString());
+		  };
+
+		  /**
+		   * export via AMD or CommonJS, otherwise leak a global
+		   */
+		  if (true) {
+		    !(__WEBPACK_AMD_DEFINE_RESULT__ = function() {
+		      return Uri;
+		    }.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+		  } else if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+		    module.exports = Uri;
+		  } else {
+		    global.Uri = Uri;
+		  }
+		}(this));
+
 
 	/***/ }
 	/******/ ])

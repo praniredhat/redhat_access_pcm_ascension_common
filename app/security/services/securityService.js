@@ -77,6 +77,11 @@ export default class SecurityService {
                 return false;
             }
         };
+        this.fetchUserAccountContacts = function(user) {
+            return strataService.accounts.users(user.account_number).then((accountContacts) => {
+                this.loginStatus.authedUser.accountContacts = accountContacts;
+            });
+        };
         this.getBasicAuthToken = function() {
             var defer = $q.defer();
             var token = localStorage.getItem('rhAuthToken');
@@ -118,6 +123,9 @@ export default class SecurityService {
                         this.loginStatus.authedUser.account = this.loginStatus.account;
                         this.loginStatus.authedUser.managedAccounts = managedAccounts;
                         this.loginStatus.authedUser.accountManagers = accountManagers;
+                        if(authedUser.is_internal || authedUser.org_admin) {
+                            this.fetchUserAccountContacts(authedUser);
+                        }
                         this.userAllowedToManageCases();
                         this.loggingIn = false;
                         if (wasLoggedIn === false) {
@@ -139,12 +147,21 @@ export default class SecurityService {
                     this.setAccount(authedUser.account);
                     this.setLoginStatus(true, false, authedUser);
                     this.userAllowedToManageCases();
-
+                    var promisesArray = [];
                     const managedAccountsPromise = strataService.accounts.managedAccounts.get(authedUser.account.number);
                     const managersForAccountPromise = strataService.accounts.accountManagers.get(authedUser.account.number);
-                    Promise.all([managedAccountsPromise, managersForAccountPromise]).then(([managedAccounts, accountManagers]) => {
-                        this.loginStatus.authedUser.managedAccounts = managedAccounts;
-                        this.loginStatus.authedUser.accountManagers = accountManagers;
+                    promisesArray.push(managedAccountsPromise,managersForAccountPromise);
+
+                    if(authedUser.is_internal || authedUser.org_admin) {
+                        const accountContactsPromise = strataService.accounts.users(authedUser.account.number);
+                        promisesArray.push(accountContactsPromise);
+                    }
+                    Promise.all(promisesArray).then((response) => {
+                        this.loginStatus.authedUser.managedAccounts = response[0];
+                        this.loginStatus.authedUser.accountManagers = response[1];
+                        if(authedUser.is_internal || authedUser.org_admin) {
+                            this.loginStatus.authedUser.accountContacts = response[2];
+                        }
                         this.loggingIn = false;
                         //We don't want to resend the AUTH_EVENTS.loginSuccess if we are already logged in
                         if (wasLoggedIn === false) {

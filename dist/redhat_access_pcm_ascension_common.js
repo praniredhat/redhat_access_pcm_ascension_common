@@ -3484,7 +3484,7 @@
 
 	        this.loggingIn = true;
 	        var defer = $q.defer();
-	        var wasLoggedIn = this.loginStatus.isLoggedIn;
+	        // var wasLoggedIn = this.loginStatus.isLoggedIn;
 	        this.loginStatus.verifying = true;
 	        if (window.sessionjs != null) {
 	            // JWT specific auth
@@ -3520,9 +3520,9 @@
 	                    }
 	                    _this2.userAllowedToManageCases();
 	                    _this2.loggingIn = false;
-	                    if (wasLoggedIn === false) {
-	                        $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
-	                    }
+	                    // if (wasLoggedIn === false) {
+	                    //     $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
+	                    // }
 	                    defer.resolve(_this2.loginStatus.authedUser.loggedInUser);
 	                }).catch(function () {
 	                    _this2.clearLoginStatus();
@@ -3558,9 +3558,9 @@
 	                    }
 	                    _this3.loggingIn = false;
 	                    //We don't want to resend the AUTH_EVENTS.loginSuccess if we are already logged in
-	                    if (wasLoggedIn === false) {
-	                        $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
-	                    }
+	                    // if (wasLoggedIn === false) {
+	                    //     $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
+	                    // }
 	                    defer.resolve(authedUser.loggedInUser);
 	                }).catch(function () {
 	                    _this3.clearLoginStatus();

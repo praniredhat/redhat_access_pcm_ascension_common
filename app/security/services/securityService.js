@@ -100,7 +100,7 @@ export default class SecurityService {
         this.initLoginStatus = function() {
             this.loggingIn = true;
             var defer = $q.defer();
-            var wasLoggedIn = this.loginStatus.isLoggedIn;
+            // var wasLoggedIn = this.loginStatus.isLoggedIn;
             this.loginStatus.verifying = true;
             if(window.sessionjs != null) { // JWT specific auth
                 if(window.sessionjs.isAuthenticated()) {
@@ -128,9 +128,9 @@ export default class SecurityService {
                         }
                         this.userAllowedToManageCases();
                         this.loggingIn = false;
-                        if (wasLoggedIn === false) {
-                            $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
-                        }
+                        // if (wasLoggedIn === false) {
+                        //     $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
+                        // }
                         defer.resolve(this.loginStatus.authedUser.loggedInUser);
                     }).catch(() => {
                         this.clearLoginStatus();
@@ -164,9 +164,9 @@ export default class SecurityService {
                         }
                         this.loggingIn = false;
                         //We don't want to resend the AUTH_EVENTS.loginSuccess if we are already logged in
-                        if (wasLoggedIn === false) {
-                            $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
-                        }
+                        // if (wasLoggedIn === false) {
+                        //     $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
+                        // }
                         defer.resolve(authedUser.loggedInUser);
                     }).catch(() => {
                         this.clearLoginStatus();

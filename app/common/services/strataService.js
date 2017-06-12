@@ -613,6 +613,22 @@ export default class StrataService {
                         return deferred.promise;
                     }
                 },
+                sbrs: {
+                    add: function (caseNumber, sbrGroups) {
+                        var deferred = $q.defer();
+                        strata.cases.sbrs.add(caseNumber, sbrGroups, function (response) {
+                            deferred.resolve(response);
+                        }, angular.bind(deferred, errorHandler));
+                        return deferred.promise;
+                    },
+                    remove: function (caseNumber, sbrGroups) {
+                        var deferred = $q.defer();
+                        strata.cases.sbrs.remove(caseNumber, sbrGroups, function (response) {
+                            deferred.resolve(response);
+                        }, angular.bind(deferred, errorHandler));
+                        return deferred.promise;
+                    }
+                },
                 get: function (id) {
                     var deferred = $q.defer();
                     if (strataCache.get('case' + id)) {

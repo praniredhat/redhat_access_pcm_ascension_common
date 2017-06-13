@@ -1625,17 +1625,25 @@
 	        sortOrder: 'DESC'
 	    }];
 	    this.statuses = [{
-	        ///Open and closed refers to Open and Closed support cases
-	        name: gettextCatalog.getString('Open and Closed'),
-	        value: STATUS.both
+	        // Open and Waiting on Customer
+	        name: gettextCatalog.getString('Waiting on Customer'),
+	        value: STATUS.wocust
 	    }, {
-	        ///Open refers to Open support cases
-	        name: gettextCatalog.getString('Open'),
+	        // Open and Waiting on RedHat
+	        name: gettextCatalog.getString('Waiting on Red Hat'),
+	        value: STATUS.worh
+	    }, {
+	        // Open refers to Open support cases
+	        name: gettextCatalog.getString('All Open Cases'),
 	        value: STATUS.open
 	    }, {
-	        ///Closed refers to Closed support cases
-	        name: gettextCatalog.getString('Closed'),
+	        // Closed refers to Closed support cases
+	        name: gettextCatalog.getString('All Closed Cases'),
 	        value: STATUS.closed
+	    }, {
+	        // Open and closed refers to Open and Closed support cases
+	        name: gettextCatalog.getString('All Cases'),
+	        value: STATUS.both
 	    }];
 	    this.advancedCaseListColumns = [{
 	        id: 'severity',

@@ -126,6 +126,15 @@ export default class StrataService {
 
                 return deferred.promise;
             },
+            solutionEngine: {
+                sendCaseNumber: function (caseNumObj, guid) {
+                    var deferred = $q.defer();
+                    strata.solutionEngine.sendCaseNumber(caseNumObj, guid, function () {
+                        deferred.resolve();
+                    }, angular.bind(deferred, errorHandler));
+                    return deferred.promise;
+                }
+            },
             solutions: {
                 get: function (uri) {
                     var deferred = $q.defer();

@@ -1967,6 +1967,15 @@
 
 	            return deferred.promise;
 	        },
+	        solutionEngine: {
+	            sendCaseNumber: function sendCaseNumber(caseNumObj, guid) {
+	                var deferred = $q.defer();
+	                strata.solutionEngine.sendCaseNumber(caseNumObj, guid, function () {
+	                    deferred.resolve();
+	                }, angular.bind(deferred, errorHandler));
+	                return deferred.promise;
+	            }
+	        },
 	        solutions: {
 	            get: function get(uri) {
 	                var deferred = $q.defer();

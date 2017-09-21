@@ -180,7 +180,6 @@ export default class SecurityService {
                     }
                 }), angular.bind(this, function(error) {
                     this.loginFailure = true;
-                    console.log(error);
                     this.clearLoginStatus();
                     AlertService.addStrataErrorMessage(error);
                     this.loggingIn = false;

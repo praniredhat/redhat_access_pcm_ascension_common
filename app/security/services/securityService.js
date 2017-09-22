@@ -3,7 +3,7 @@
 export default class SecurityService {
     constructor ($rootScope, $uibModal, AUTH_EVENTS, $q, LOGIN_VIEW_CONFIG, SECURITY_CONFIG, strataService, AlertService, RHAUtils) {
         'ngInject';
-        
+
         this.loginStatus = {
             isLoggedIn: false,
             verifying: false,
@@ -11,6 +11,7 @@ export default class SecurityService {
             authedUser: {}
         };
         this.loggingIn = false;
+        this.loginFailure = false;
         this.loginURL = SECURITY_CONFIG.loginURL;
         this.logoutURL = SECURITY_CONFIG.logoutURL;
         this.setLoginStatus = function(isLoggedIn, verifying, authedUser) {
@@ -80,7 +81,7 @@ export default class SecurityService {
         this.fetchUserAccountContacts = function(user) {
             return strataService.accounts.users(user.account_number).then((accountContacts) => {
                 this.loginStatus.authedUser.accountContacts = accountContacts;
-            });
+        });
         };
         this.getBasicAuthToken = function() {
             var defer = $q.defer();
@@ -99,65 +100,62 @@ export default class SecurityService {
         };
         this.initLoginStatus = function() {
             this.loggingIn = true;
+            this.loginFailure = false;
             var defer = $q.defer();
             // var wasLoggedIn = this.loginStatus.isLoggedIn;
             this.loginStatus.verifying = true;
-            if(window.sessionjs != null) { // JWT specific auth
-                if(window.sessionjs.isAuthenticated()) {
-                    const user = window.sessionjs.getUserInfo();
-                    //load account
-                    strata.addAccountNumber(user.account_number);
-                    const accountPromise = strataService.accounts.get(user.account_number).then((account) => {
-                        this.loginStatus.account = account;
-                    }).catch(() => {
-                        this.loginStatus.account = null;
-                    });
+            if(window.sessionjs != null && window.sessionjs.isAuthenticated() && RHAUtils.isNotEmpty(window.sessionjs.getUserInfo().account_number)) { // JWT specific auth
+                const user = window.sessionjs.getUserInfo();
+                //load account
+                strata.addAccountNumber(user.account_number);
+                const accountPromise = strataService.accounts.get(user.account_number).then((account) => {
+                    this.loginStatus.account = account;
+            }).catch(() => {
+                    this.loginStatus.account = null;
+            });
 
-                    const userPromise = strataService.users.get(user.user_id);
+                const userPromise = strataService.users.get(user.user_id);
 
-                    const managedAccountsPromise = strataService.accounts.managedAccounts.get(user.account_number);
-                    const managersForAccountPromise = strataService.accounts.accountManagers.get(user.account_number);
+                const managedAccountsPromise = strataService.accounts.managedAccounts.get(user.account_number);
+                const managersForAccountPromise = strataService.accounts.accountManagers.get(user.account_number);
 
-                    Promise.all([accountPromise, userPromise, managedAccountsPromise, managersForAccountPromise]).then(([account, authedUser, managedAccounts, accountManagers]) => {
-                        this.setLoginStatus(true, false, authedUser);
-                        this.loginStatus.authedUser.account = this.loginStatus.account;
-                        this.loginStatus.authedUser.managedAccounts = managedAccounts;
-                        this.loginStatus.authedUser.accountManagers = accountManagers;
-                        if(authedUser.is_internal || authedUser.org_admin) {
-                            this.fetchUserAccountContacts(authedUser);
-                        }
-                        this.userAllowedToManageCases();
-                        this.loggingIn = false;
-                        // if (wasLoggedIn === false) {
-                        //     $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
-                        // }
-                        defer.resolve(this.loginStatus.authedUser.loggedInUser);
-                    }).catch(() => {
-                        this.clearLoginStatus();
-                        this.loggingIn = false;
-                        defer.reject();
-                    });
-                } else {
-                    this.clearLoginStatus();
-                    this.loggingIn = false;
-                    defer.reject();
+                Promise.all([accountPromise, userPromise, managedAccountsPromise, managersForAccountPromise]).then(([account, authedUser, managedAccounts, accountManagers]) => {
+                    this.setLoginStatus(true, false, authedUser);
+                this.loginStatus.authedUser.account = this.loginStatus.account;
+                this.loginStatus.authedUser.managedAccounts = managedAccounts;
+                this.loginStatus.authedUser.accountManagers = accountManagers;
+                if(authedUser.is_internal || authedUser.org_admin) {
+                    this.fetchUserAccountContacts(authedUser);
                 }
+                this.userAllowedToManageCases();
+                this.loggingIn = false;
+                // if (wasLoggedIn === false) {
+                //     $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
+                // }
+                defer.resolve(this.loginStatus.authedUser.loggedInUser);
+            }).catch(() => {
+                    this.clearLoginStatus();
+                this.loggingIn = false;
+                this.loginFailure = true;
+                defer.reject();
+            });
             } else {
                 strataService.authentication.checkLogin().then(angular.bind(this, function(authedUser) {
-                    this.setAccount(authedUser.account);
-                    this.setLoginStatus(true, false, authedUser);
-                    this.userAllowedToManageCases();
-                    var promisesArray = [];
-                    const managedAccountsPromise = strataService.accounts.managedAccounts.get(authedUser.account.number);
-                    const managersForAccountPromise = strataService.accounts.accountManagers.get(authedUser.account.number);
-                    promisesArray.push(managedAccountsPromise,managersForAccountPromise);
+                    if(authedUser.account) {
+                        this.setAccount(authedUser.account);
+                        this.setLoginStatus(true, false, authedUser);
+                        this.userAllowedToManageCases();
+                        var promisesArray = [];
+                        const managedAccountsPromise = strataService.accounts.managedAccounts.get(authedUser.account.number);
+                        const managersForAccountPromise = strataService.accounts.accountManagers.get(authedUser.account.number);
+                        promisesArray.push(managedAccountsPromise,managersForAccountPromise);
 
-                    if(authedUser.is_internal || authedUser.org_admin) {
-                        const accountContactsPromise = strataService.accounts.users(authedUser.account.number);
-                        promisesArray.push(accountContactsPromise);
-                    }
-                    Promise.all(promisesArray).then((response) => {
-                        this.loginStatus.authedUser.managedAccounts = response[0];
+                        if(authedUser.is_internal || authedUser.org_admin) {
+                            const accountContactsPromise = strataService.accounts.users(authedUser.account.number);
+                            promisesArray.push(accountContactsPromise);
+                        }
+                        Promise.all(promisesArray).then((response) => {
+                            this.loginStatus.authedUser.managedAccounts = response[0];
                         this.loginStatus.authedUser.accountManagers = response[1];
                         if(authedUser.is_internal || authedUser.org_admin) {
                             this.loginStatus.authedUser.accountContacts = response[2];
@@ -169,15 +167,23 @@ export default class SecurityService {
                         // }
                         defer.resolve(authedUser.loggedInUser);
                     }).catch(() => {
-                        this.clearLoginStatus();
+                            this.clearLoginStatus();
                         AlertService.addStrataErrorMessage(error);
                         this.loggingIn = false;
                         defer.reject(error);
                     });
+                    } else {
+                        this.loginFailure = true;
+                        this.clearLoginStatus();
+                        this.loggingIn = false;
+                        defer.reject();
+                    }
                 }), angular.bind(this, function(error) {
+                    this.loginFailure = true;
                     this.clearLoginStatus();
                     AlertService.addStrataErrorMessage(error);
                     this.loggingIn = false;
+
                     defer.reject(error);
                 }));
             }

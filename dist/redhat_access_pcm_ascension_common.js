@@ -338,7 +338,7 @@
 	  var jade_mixins = {};
 	  var jade_interp;
 
-	  buf.push("<div id=\"outageHead\" ng-show=\"(!securityService.loginStatus.userAllowedToManageCases || HeaderService.showPartnerEscalationError) &amp;&amp; !COMMON_CONFIG.isGS4\"><div id=\"errornoDirectSupport403\"><h1 translate=\"\">Support Subscription Required</h1><p translate=\"\">The credentials you provided are valid, but you do not have<b>direct support from Red Hat.</b></p><p translate=\"\">If you believe you should have permission to view this resource, please<a href=\"/support/contact/customerService.html\">contact Customer Service</a>for assistance. Your Red Hat login might not be associated with the right account for your organization,\nor there might be an issue with your subscription. Either way, Customer Service should be able to help\nyou resolve the problem.</p></div></div>");;return buf.join("");
+	  buf.push("<div id=\"outageHead\" ng-show=\"(!securityService.loginStatus.userAllowedToManageCases || HeaderService.showPartnerEscalationError) &amp;&amp; !COMMON_CONFIG.isGS4\"><div id=\"errornoDirectSupport403\"><h1 translate=\"\">Support Subscription Required</h1><p translate=\"\">The credentials you provided are valid, but you do not have&nbsp;<b>direct support from Red Hat.</b></p><p translate=\"\">If you believe you should have permission to view this resource, please&nbsp;<a href=\"/support/contact/customerService.html\">contact Customer Service&nbsp;</a>for assistance. Your Red Hat login might not be associated with the right account for your organization,\nor there might be an issue with your subscription. Either way, Customer Service should be able to help\nyou resolve the problem.</p></div></div>");;return buf.join("");
 	};
 
 /***/ },
@@ -3424,6 +3424,7 @@
 	        authedUser: {}
 	    };
 	    this.loggingIn = false;
+	    this.loginFailure = false;
 	    this.loginURL = SECURITY_CONFIG.loginURL;
 	    this.logoutURL = SECURITY_CONFIG.logoutURL;
 	    this.setLoginStatus = function (isLoggedIn, verifying, authedUser) {
@@ -3516,95 +3517,101 @@
 	        var _this2 = this;
 
 	        this.loggingIn = true;
+	        this.loginFailure = false;
 	        var defer = $q.defer();
 	        // var wasLoggedIn = this.loginStatus.isLoggedIn;
 	        this.loginStatus.verifying = true;
-	        if (window.sessionjs != null) {
+	        if (window.sessionjs != null && window.sessionjs.isAuthenticated() && RHAUtils.isNotEmpty(window.sessionjs.getUserInfo().account_number)) {
 	            // JWT specific auth
-	            if (window.sessionjs.isAuthenticated()) {
-	                var user = window.sessionjs.getUserInfo();
-	                //load account
-	                strata.addAccountNumber(user.account_number);
-	                var accountPromise = strataService.accounts.get(user.account_number).then(function (account) {
-	                    _this2.loginStatus.account = account;
-	                }).catch(function () {
-	                    _this2.loginStatus.account = null;
-	                });
+	            var user = window.sessionjs.getUserInfo();
+	            //load account
+	            strata.addAccountNumber(user.account_number);
+	            var accountPromise = strataService.accounts.get(user.account_number).then(function (account) {
+	                _this2.loginStatus.account = account;
+	            }).catch(function () {
+	                _this2.loginStatus.account = null;
+	            });
 
-	                var userPromise = strataService.users.get(user.user_id);
+	            var userPromise = strataService.users.get(user.user_id);
 
-	                var managedAccountsPromise = strataService.accounts.managedAccounts.get(user.account_number);
-	                var managersForAccountPromise = strataService.accounts.accountManagers.get(user.account_number);
+	            var managedAccountsPromise = strataService.accounts.managedAccounts.get(user.account_number);
+	            var managersForAccountPromise = strataService.accounts.accountManagers.get(user.account_number);
 
-	                Promise.all([accountPromise, userPromise, managedAccountsPromise, managersForAccountPromise]).then(function (_ref) {
-	                    var _ref2 = _slicedToArray(_ref, 4);
+	            Promise.all([accountPromise, userPromise, managedAccountsPromise, managersForAccountPromise]).then(function (_ref) {
+	                var _ref2 = _slicedToArray(_ref, 4);
 
-	                    var account = _ref2[0];
-	                    var authedUser = _ref2[1];
-	                    var managedAccounts = _ref2[2];
-	                    var accountManagers = _ref2[3];
+	                var account = _ref2[0];
+	                var authedUser = _ref2[1];
+	                var managedAccounts = _ref2[2];
+	                var accountManagers = _ref2[3];
 
-	                    _this2.setLoginStatus(true, false, authedUser);
-	                    _this2.loginStatus.authedUser.account = _this2.loginStatus.account;
-	                    _this2.loginStatus.authedUser.managedAccounts = managedAccounts;
-	                    _this2.loginStatus.authedUser.accountManagers = accountManagers;
-	                    if (authedUser.is_internal || authedUser.org_admin) {
-	                        _this2.fetchUserAccountContacts(authedUser);
-	                    }
-	                    _this2.userAllowedToManageCases();
-	                    _this2.loggingIn = false;
-	                    // if (wasLoggedIn === false) {
-	                    //     $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
-	                    // }
-	                    defer.resolve(_this2.loginStatus.authedUser.loggedInUser);
-	                }).catch(function () {
-	                    _this2.clearLoginStatus();
-	                    _this2.loggingIn = false;
-	                    defer.reject();
-	                });
-	            } else {
-	                this.clearLoginStatus();
-	                this.loggingIn = false;
+	                _this2.setLoginStatus(true, false, authedUser);
+	                _this2.loginStatus.authedUser.account = _this2.loginStatus.account;
+	                _this2.loginStatus.authedUser.managedAccounts = managedAccounts;
+	                _this2.loginStatus.authedUser.accountManagers = accountManagers;
+	                if (authedUser.is_internal || authedUser.org_admin) {
+	                    _this2.fetchUserAccountContacts(authedUser);
+	                }
+	                _this2.userAllowedToManageCases();
+	                _this2.loggingIn = false;
+	                // if (wasLoggedIn === false) {
+	                //     $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
+	                // }
+	                defer.resolve(_this2.loginStatus.authedUser.loggedInUser);
+	            }).catch(function () {
+	                _this2.clearLoginStatus();
+	                _this2.loggingIn = false;
+	                _this2.loginFailure = true;
 	                defer.reject();
-	            }
+	            });
 	        } else {
 	            strataService.authentication.checkLogin().then(angular.bind(this, function (authedUser) {
 	                var _this3 = this;
 
-	                this.setAccount(authedUser.account);
-	                this.setLoginStatus(true, false, authedUser);
-	                this.userAllowedToManageCases();
-	                var promisesArray = [];
-	                var managedAccountsPromise = strataService.accounts.managedAccounts.get(authedUser.account.number);
-	                var managersForAccountPromise = strataService.accounts.accountManagers.get(authedUser.account.number);
-	                promisesArray.push(managedAccountsPromise, managersForAccountPromise);
+	                if (authedUser.account) {
+	                    this.setAccount(authedUser.account);
+	                    this.setLoginStatus(true, false, authedUser);
+	                    this.userAllowedToManageCases();
+	                    var promisesArray = [];
+	                    var _managedAccountsPromise = strataService.accounts.managedAccounts.get(authedUser.account.number);
+	                    var _managersForAccountPromise = strataService.accounts.accountManagers.get(authedUser.account.number);
+	                    promisesArray.push(_managedAccountsPromise, _managersForAccountPromise);
 
-	                if (authedUser.is_internal || authedUser.org_admin) {
-	                    var accountContactsPromise = strataService.accounts.users(authedUser.account.number);
-	                    promisesArray.push(accountContactsPromise);
-	                }
-	                Promise.all(promisesArray).then(function (response) {
-	                    _this3.loginStatus.authedUser.managedAccounts = response[0];
-	                    _this3.loginStatus.authedUser.accountManagers = response[1];
 	                    if (authedUser.is_internal || authedUser.org_admin) {
-	                        _this3.loginStatus.authedUser.accountContacts = response[2];
+	                        var accountContactsPromise = strataService.accounts.users(authedUser.account.number);
+	                        promisesArray.push(accountContactsPromise);
 	                    }
-	                    _this3.loggingIn = false;
-	                    //We don't want to resend the AUTH_EVENTS.loginSuccess if we are already logged in
-	                    // if (wasLoggedIn === false) {
-	                    //     $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
-	                    // }
-	                    defer.resolve(authedUser.loggedInUser);
-	                }).catch(function () {
-	                    _this3.clearLoginStatus();
-	                    AlertService.addStrataErrorMessage(error);
-	                    _this3.loggingIn = false;
-	                    defer.reject(error);
-	                });
+	                    Promise.all(promisesArray).then(function (response) {
+	                        _this3.loginStatus.authedUser.managedAccounts = response[0];
+	                        _this3.loginStatus.authedUser.accountManagers = response[1];
+	                        if (authedUser.is_internal || authedUser.org_admin) {
+	                            _this3.loginStatus.authedUser.accountContacts = response[2];
+	                        }
+	                        _this3.loggingIn = false;
+	                        //We don't want to resend the AUTH_EVENTS.loginSuccess if we are already logged in
+	                        // if (wasLoggedIn === false) {
+	                        //     $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
+	                        // }
+	                        defer.resolve(authedUser.loggedInUser);
+	                    }).catch(function () {
+	                        _this3.clearLoginStatus();
+	                        AlertService.addStrataErrorMessage(error);
+	                        _this3.loggingIn = false;
+	                        defer.reject(error);
+	                    });
+	                } else {
+	                    this.loginFailure = true;
+	                    this.clearLoginStatus();
+	                    this.loggingIn = false;
+	                    defer.reject();
+	                }
 	            }), angular.bind(this, function (error) {
+	                this.loginFailure = true;
+	                console.log(error);
 	                this.clearLoginStatus();
 	                AlertService.addStrataErrorMessage(error);
 	                this.loggingIn = false;
+
 	                defer.reject(error);
 	            }));
 	        }

@@ -671,7 +671,7 @@ export default class StrataService {
                     }
                     return deferred.promise;
                 },
-                search: function (caseStatus, caseOwner, caseGroup, accountNumber, searchString, sortField, sortOrder, offset, limit, queryParams) {
+                search: function (caseStatus, caseOwner, caseGroup, accountNumber, searchString, sortField, sortOrder, offset, limit, queryParams, start) {
                     const deferred = $q.defer(),
                           key = `search${Array.prototype.join.call(arguments, '-')}`;
 
@@ -687,7 +687,7 @@ export default class StrataService {
                             });
                             strataCache.put(key, response);
                             deferred.resolve(response);
-                        }, angular.bind(deferred, errorHandler), caseStatus, caseOwner, caseGroup, accountNumber, searchString, sortField, sortOrder, offset, limit, queryParams);
+                        }, angular.bind(deferred, errorHandler), caseStatus, caseOwner, caseGroup, accountNumber, searchString, sortField, sortOrder, offset, limit, queryParams, start);
                     }
                     return deferred.promise;
                 },

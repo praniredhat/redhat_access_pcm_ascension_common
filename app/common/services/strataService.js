@@ -671,7 +671,7 @@ export default class StrataService {
                     }
                     return deferred.promise;
                 },
-                search: function (caseStatus, caseOwner, caseGroup, accountNumber, searchString, sortField, sortOrder, offset, limit, queryParams, start) {
+                search: function (caseStatus, caseOwner, caseGroup, accountNumber, searchString, sortField, sortOrder, offset, limit, queryParams, start, partnerSearch) {
                     const deferred = $q.defer(),
                           key = `search${Array.prototype.join.call(arguments, '-')}`;
 
@@ -687,7 +687,7 @@ export default class StrataService {
                             });
                             strataCache.put(key, response);
                             deferred.resolve(response);
-                        }, angular.bind(deferred, errorHandler), caseStatus, caseOwner, caseGroup, accountNumber, searchString, sortField, sortOrder, offset, limit, queryParams, start);
+                        }, angular.bind(deferred, errorHandler), caseStatus, caseOwner, caseGroup, accountNumber, searchString, sortField, sortOrder, offset, limit, queryParams, start, partnerSearch);
                     }
                     return deferred.promise;
                 },
@@ -712,7 +712,7 @@ export default class StrataService {
 
                     return deferred.promise;
                 },
-                filter: function (params) {
+                filter: function (params, partnerSearch) {
                     const deferred = $q.defer(),
                           key = `filter${JSON.stringify(params)}`;
 
@@ -725,7 +725,7 @@ export default class StrataService {
                     if (strataCache.get(key)) {
                         deferred.resolve(strataCache.get(key));
                     } else {
-                        strata.cases.filter(params, (response) => {
+                        strata.cases.filter(params, partnerSearch, (response) => {
                             angular.forEach(response['case'], (kase) => {
                                 const createdDate = RHAUtils.convertToTimezone(kase.created_date);
                                 kase.created_date = RHAUtils.formatDate(createdDate, 'MMM DD YYYY');

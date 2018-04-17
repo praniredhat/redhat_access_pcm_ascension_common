@@ -1,6 +1,6 @@
 {
   "name": "redhat_access_pcm_ascension_common",
-  "version": "1.2.46",
+  "version": "1.2.47",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack --config webpack.minified.config.js --bail --progress --profile && webpack --config webpack.unminified.config.js --bail --progress --profile",

@@ -2476,7 +2476,7 @@
 	                }
 	                return deferred.promise;
 	            },
-	            search: function search(caseStatus, caseOwner, caseGroup, accountNumber, searchString, sortField, sortOrder, offset, limit, queryParams, start) {
+	            search: function search(caseStatus, caseOwner, caseGroup, accountNumber, searchString, sortField, sortOrder, offset, limit, queryParams, start, partnerSearch) {
 	                var deferred = $q.defer(),
 	                    key = 'search' + Array.prototype.join.call(arguments, '-');
 
@@ -2492,7 +2492,7 @@
 	                        });
 	                        strataCache.put(key, response);
 	                        deferred.resolve(response);
-	                    }, angular.bind(deferred, errorHandler), caseStatus, caseOwner, caseGroup, accountNumber, searchString, sortField, sortOrder, offset, limit, queryParams, start);
+	                    }, angular.bind(deferred, errorHandler), caseStatus, caseOwner, caseGroup, accountNumber, searchString, sortField, sortOrder, offset, limit, queryParams, start, partnerSearch);
 	                }
 	                return deferred.promise;
 	            },
@@ -2517,7 +2517,7 @@
 
 	                return deferred.promise;
 	            },
-	            filter: function filter(params) {
+	            filter: function filter(params, partnerSearch) {
 	                var deferred = $q.defer(),
 	                    key = 'filter' + JSON.stringify(params);
 
@@ -2530,7 +2530,7 @@
 	                if (strataCache.get(key)) {
 	                    deferred.resolve(strataCache.get(key));
 	                } else {
-	                    strata.cases.filter(params, function (response) {
+	                    strata.cases.filter(params, partnerSearch, function (response) {
 	                        angular.forEach(response['case'], function (kase) {
 	                            var createdDate = RHAUtils.convertToTimezone(kase.created_date);
 	                            kase.created_date = RHAUtils.formatDate(createdDate, 'MMM DD YYYY');

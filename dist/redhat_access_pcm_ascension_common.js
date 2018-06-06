@@ -3532,6 +3532,8 @@
 	                    managedAccounts = _ref2[2],
 	                    accountManagers = _ref2[3];
 
+	                // PCM-6964 hardcoded s_entitled = true when subscrition service is down
+	                authedUser.is_entitled = true;
 	                _this2.setLoginStatus(true, false, authedUser);
 	                _this2.loginStatus.authedUser.account = _this2.loginStatus.account;
 	                _this2.loginStatus.authedUser.managedAccounts = managedAccounts;

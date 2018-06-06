@@ -120,6 +120,8 @@ export default class SecurityService {
                 const managersForAccountPromise = strataService.accounts.accountManagers.get(user.account_number);
 
                 Promise.all([accountPromise, userPromise, managedAccountsPromise, managersForAccountPromise]).then(([account, authedUser, managedAccounts, accountManagers]) => {
+                    // PCM-6964 hardcoded s_entitled = true when subscrition service is down
+                    authedUser.is_entitled = true;
                     this.setLoginStatus(true, false, authedUser);
                 this.loginStatus.authedUser.account = this.loginStatus.account;
                 this.loginStatus.authedUser.managedAccounts = managedAccounts;

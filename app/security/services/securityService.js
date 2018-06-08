@@ -1,5 +1,7 @@
 'use strict';
 
+import hydrajs  from '../../common_shared/hydrajs';
+
 export default class SecurityService {
     constructor ($rootScope, $uibModal, AUTH_EVENTS, $q, LOGIN_VIEW_CONFIG, SECURITY_CONFIG, strataService, AlertService, RHAUtils) {
         'ngInject';
@@ -14,6 +16,7 @@ export default class SecurityService {
         this.loginFailure = false;
         this.loginURL = SECURITY_CONFIG.loginURL;
         this.logoutURL = SECURITY_CONFIG.logoutURL;
+        this.isSubscriptionServiceM = false;
         this.setLoginStatus = function(isLoggedIn, verifying, authedUser) {
             this.loginStatus.isLoggedIn = isLoggedIn;
             this.loginStatus.verifying = verifying;
@@ -98,7 +101,7 @@ export default class SecurityService {
                 return defer.promise;
             }
         };
-        this.initLoginStatus = function() {
+        this.initLoginStatus = async function() {
             this.loggingIn = true;
             this.loginFailure = false;
             var defer = $q.defer();
@@ -113,6 +116,19 @@ export default class SecurityService {
             }).catch(() => {
                     this.loginStatus.account = null;
             });
+                try {
+                    const configuration = await hydrajs.maintenance.getMaintenanceMode('pcm_configurations');
+                    if (configuration.length >= 0) {
+                        configuration.map((value) => {
+                          if (value.fieldName === 'isEntitled' && value.fieldValue === '1') {
+                            this.isSubscriptionServiceM = true;
+                          }
+                        });
+                      }
+                } catch(error) {
+                    this.isSubscriptionServiceM = false;
+                    console.log('Error getting PCM Configurations' + error);
+                }
 
                 const userPromise = strataService.users.get(user.user_id);
 
@@ -120,6 +136,10 @@ export default class SecurityService {
                 const managersForAccountPromise = strataService.accounts.accountManagers.get(user.account_number);
 
                 Promise.all([accountPromise, userPromise, managedAccountsPromise, managersForAccountPromise]).then(([account, authedUser, managedAccounts, accountManagers]) => {
+                    // PCM-6964 hardcoded is_entitled = true when subscrition service is down
+                    if (this.isSubscriptionServiceM === true) {
+                        authedUser.is_entitled = true;
+                    }
                     this.setLoginStatus(true, false, authedUser);
                 this.loginStatus.authedUser.account = this.loginStatus.account;
                 this.loginStatus.authedUser.managedAccounts = managedAccounts;
@@ -143,6 +163,10 @@ export default class SecurityService {
                 strataService.authentication.checkLogin().then(angular.bind(this, function(authedUser) {
                     if(authedUser.account) {
                         this.setAccount(authedUser.account);
+                        // PCM-6964 hardcoded is_entitled = true when subscrition service is down
+                        if (this.isSubscriptionServiceM === true) {
+                            authedUser.is_entitled = true;
+                        }
                         this.setLoginStatus(true, false, authedUser);
                         this.userAllowedToManageCases();
                         var promisesArray = [];

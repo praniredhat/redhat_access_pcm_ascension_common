@@ -117,9 +117,9 @@ export default class SecurityService {
                     this.loginStatus.account = null;
             });
                 try {
-                    const maintenance = await hydrajs.maintenance.getMaintenanceMode('pcm_configurations');
-                    if (maintenance.length >= 0) {
-                        maintenance.map((value) => {
+                    const configuration = await hydrajs.maintenance.getMaintenanceMode('pcm_configurations');
+                    if (configuration.length >= 0) {
+                        configuration.map((value) => {
                           if (value.fieldName === 'isEntitled' && value.fieldValue === '1') {
                             this.isSubscriptionServiceM = true;
                           }
@@ -127,7 +127,7 @@ export default class SecurityService {
                       }
                 } catch(error) {
                     this.isSubscriptionServiceM = false;
-                    console.log('getting pcm_configurations error' + error);
+                    console.log('Error getting PCM Configurations' + error);
                 }
 
                 const userPromise = strataService.users.get(user.user_id);

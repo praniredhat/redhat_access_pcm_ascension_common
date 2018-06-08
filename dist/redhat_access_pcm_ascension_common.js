@@ -7704,7 +7704,7 @@
 	    this.initLoginStatus = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
 	        var _this2 = this;
 
-	        var defer, user, accountPromise, maintenance, userPromise, managedAccountsPromise, managersForAccountPromise;
+	        var defer, user, accountPromise, configuration, userPromise, managedAccountsPromise, managersForAccountPromise;
 	        return regeneratorRuntime.wrap(function _callee$(_context) {
 	            while (1) {
 	                switch (_context.prev = _context.next) {
@@ -7736,10 +7736,10 @@
 	                        return _hydrajs2.default.maintenance.getMaintenanceMode('pcm_configurations');
 
 	                    case 11:
-	                        maintenance = _context.sent;
+	                        configuration = _context.sent;
 
-	                        if (maintenance.length >= 0) {
-	                            maintenance.map(function (value) {
+	                        if (configuration.length >= 0) {
+	                            configuration.map(function (value) {
 	                                if (value.fieldName === 'isEntitled' && value.fieldValue === '1') {
 	                                    _this2.isSubscriptionServiceM = true;
 	                                }
@@ -7753,7 +7753,7 @@
 	                        _context.t0 = _context['catch'](8);
 
 	                        this.isSubscriptionServiceM = false;
-	                        console.log('getting pcm_configurations error' + _context.t0);
+	                        console.log('Error getting PCM Configurations' + _context.t0);
 
 	                    case 19:
 	                        userPromise = strataService.users.get(user.user_id);

@@ -127,7 +127,7 @@ export default class SecurityService {
                       }
                 } catch(error) {
                     this.isSubscriptionServiceM = false;
-                    console.log('error getting mainenance mode' + error);
+                    console.log('getting pcm_configurations error' + error);
                 }
 
                 const userPromise = strataService.users.get(user.user_id);
@@ -136,7 +136,7 @@ export default class SecurityService {
                 const managersForAccountPromise = strataService.accounts.accountManagers.get(user.account_number);
 
                 Promise.all([accountPromise, userPromise, managedAccountsPromise, managersForAccountPromise]).then(([account, authedUser, managedAccounts, accountManagers]) => {
-                    // PCM-6964 hardcoded s_entitled = true when subscrition service is down
+                    // PCM-6964 hardcoded is_entitled = true when subscrition service is down
                     if (this.isSubscriptionServiceM === true) {
                         authedUser.is_entitled = true;
                     }
@@ -163,7 +163,7 @@ export default class SecurityService {
                 strataService.authentication.checkLogin().then(angular.bind(this, function(authedUser) {
                     if(authedUser.account) {
                         this.setAccount(authedUser.account);
-                        // PCM-6964 hardcoded s_entitled = true when subscrition service is down
+                        // PCM-6964 hardcoded is_entitled = true when subscrition service is down
                         if (this.isSubscriptionServiceM === true) {
                             authedUser.is_entitled = true;
                         }

@@ -130,7 +130,12 @@ export default class SecurityService {
                     console.log('Error getting PCM Configurations' + error);
                 }
 
-                const userPromise = strataService.users.get(user.user_id);
+                let userPromise = {};
+                if (this.isSubscriptionServiceM === true) {
+                    userPromise = strataService.users.getBySSO(user.username);
+                } else {
+                    userPromise = strataService.users.get(user.user_id);
+                }
 
                 const managedAccountsPromise = strataService.accounts.managedAccounts.get(user.account_number);
                 const managersForAccountPromise = strataService.accounts.accountManagers.get(user.account_number);
@@ -138,7 +143,55 @@ export default class SecurityService {
                 Promise.all([accountPromise, userPromise, managedAccountsPromise, managersForAccountPromise]).then(([account, authedUser, managedAccounts, accountManagers]) => {
                     // PCM-6964 hardcoded is_entitled = true when subscrition service is down
                     if (this.isSubscriptionServiceM === true) {
-                        authedUser.is_entitled = true;
+                        authedUser.account_number = user.account_number,
+                        authedUser.preferred_language = user.lang,
+                        authedUser.is_entitled = true,
+                        authedUser.is_active = true,
+                        authedUser.timezone = 'America/New_York',
+                        authedUser.rights = {
+                            "right": [
+                                {
+                                    "name": "AllowEmailContact",
+                                    "has_access": false
+                                },
+                                {
+                                    "name": "AllowFaxContact",
+                                    "has_access": false
+                                },
+                                {
+                                    "name": "AllowMailContact",
+                                    "has_access": false
+                                },
+                                {
+                                    "name": "AllowPhoneContact",
+                                    "has_access": false
+                                },
+                                {
+                                    "name": "AllowThirdPartyContact",
+                                    "has_access": false
+                                },
+                                {
+                                    "name": "portal_manage_cases",
+                                    "description": "Customer Portal: Manage Support Cases",
+                                    "has_access": true
+                                },
+                                {
+                                    "name": "portal_manage_subscriptions",
+                                    "description": "Customer Portal: Manage Subscriptions",
+                                    "has_access": true
+                                },
+                                {
+                                    "name": "portal_download",
+                                    "description": "Customer Portal: Download Software and Updates",
+                                    "has_access": true
+                                },
+                                {
+                                    "name": "portal_system_management",
+                                    "description": "Customer Portal: System Management",
+                                    "has_access": true
+                                }
+                            ]
+                        }
                     }
                     this.setLoginStatus(true, false, authedUser);
                 this.loginStatus.authedUser.account = this.loginStatus.account;

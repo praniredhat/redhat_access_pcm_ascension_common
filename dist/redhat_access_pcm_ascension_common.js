@@ -7717,7 +7717,7 @@
 	                        this.loginStatus.verifying = true;
 
 	                        if (!(window.sessionjs != null && window.sessionjs.isAuthenticated() && RHAUtils.isNotEmpty(window.sessionjs.getUserInfo().account_number))) {
-	                            _context.next = 25;
+	                            _context.next = 26;
 	                            break;
 	                        }
 
@@ -7756,7 +7756,14 @@
 	                        console.log('Error getting PCM Configurations' + _context.t0);
 
 	                    case 19:
-	                        userPromise = strataService.users.get(user.user_id);
+	                        userPromise = {};
+
+	                        if (this.isSubscriptionServiceM === true) {
+	                            userPromise = strataService.users.getBySSO(user.username);
+	                        } else {
+	                            userPromise = strataService.users.get(user.user_id);
+	                        }
+
 	                        managedAccountsPromise = strataService.accounts.managedAccounts.get(user.account_number);
 	                        managersForAccountPromise = strataService.accounts.accountManagers.get(user.account_number);
 
@@ -7770,7 +7777,40 @@
 
 	                            // PCM-6964 hardcoded is_entitled = true when subscrition service is down
 	                            if (_this2.isSubscriptionServiceM === true) {
-	                                authedUser.is_entitled = true;
+	                                authedUser.account_number = user.account_number, authedUser.preferred_language = user.lang, authedUser.is_entitled = true, authedUser.is_active = true, authedUser.timezone = 'America/New_York', authedUser.rights = {
+	                                    "right": [{
+	                                        "name": "AllowEmailContact",
+	                                        "has_access": false
+	                                    }, {
+	                                        "name": "AllowFaxContact",
+	                                        "has_access": false
+	                                    }, {
+	                                        "name": "AllowMailContact",
+	                                        "has_access": false
+	                                    }, {
+	                                        "name": "AllowPhoneContact",
+	                                        "has_access": false
+	                                    }, {
+	                                        "name": "AllowThirdPartyContact",
+	                                        "has_access": false
+	                                    }, {
+	                                        "name": "portal_manage_cases",
+	                                        "description": "Customer Portal: Manage Support Cases",
+	                                        "has_access": true
+	                                    }, {
+	                                        "name": "portal_manage_subscriptions",
+	                                        "description": "Customer Portal: Manage Subscriptions",
+	                                        "has_access": true
+	                                    }, {
+	                                        "name": "portal_download",
+	                                        "description": "Customer Portal: Download Software and Updates",
+	                                        "has_access": true
+	                                    }, {
+	                                        "name": "portal_system_management",
+	                                        "description": "Customer Portal: System Management",
+	                                        "has_access": true
+	                                    }]
+	                                };
 	                            }
 	                            _this2.setLoginStatus(true, false, authedUser);
 	                            _this2.loginStatus.authedUser.account = _this2.loginStatus.account;
@@ -7791,10 +7831,10 @@
 	                            _this2.loginFailure = true;
 	                            defer.reject();
 	                        });
-	                        _context.next = 26;
+	                        _context.next = 27;
 	                        break;
 
-	                    case 25:
+	                    case 26:
 	                        strataService.authentication.checkLogin().then(angular.bind(this, function (authedUser) {
 	                            var _this3 = this;
 
@@ -7848,10 +7888,10 @@
 	                            defer.reject(error);
 	                        }));
 
-	                    case 26:
+	                    case 27:
 	                        return _context.abrupt('return', defer.promise);
 
-	                    case 27:
+	                    case 28:
 	                    case 'end':
 	                        return _context.stop();
 	                }

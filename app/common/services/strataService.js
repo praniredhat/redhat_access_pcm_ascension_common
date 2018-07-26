@@ -13,7 +13,7 @@ export default class StrataService {
             storageMode: 'sessionStorage'
         });
         var strataCache = CacheFactory.get('strataCache');
-        $(window).unload(function () {
+        $(window).on('unload', function () {
             strataCache.destroy();
         });
         var errorHandler = function (message, xhr, response, status) {

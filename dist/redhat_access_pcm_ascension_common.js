@@ -1844,7 +1844,7 @@
 	        storageMode: 'sessionStorage'
 	    });
 	    var strataCache = CacheFactory.get('strataCache');
-	    $(window).unload(function () {
+	    $(window).on('unload', function () {
 	        strataCache.destroy();
 	    });
 	    var errorHandler = function errorHandler(message, xhr, response, status) {

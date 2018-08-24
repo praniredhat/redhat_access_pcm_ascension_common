@@ -45,6 +45,16 @@ export default class StrataService {
                 });
             }
         }
+        function clearAllCaseGroups(accountNumber) {
+            const allKeys = strataCache.keys();
+            if(allKeys) {
+                allKeys.forEach(function(key) {
+                    if(key.startsWith('users' + accountNumber)) {
+                        clearCache(key);
+                    }
+                });
+            }
+        }
         var service = {
             authentication: {
                 checkLogin: function () {
@@ -335,10 +345,13 @@ export default class StrataService {
                     }, angular.bind(deferred, errorHandler));
                     return deferred.promise;
                 },
-                createDefault: function (group) {
+                createDefault: function (group, ssoUserName, accountNumber) {
                     var deferred = $q.defer();
                     strata.groups.createDefault(group, function (response) {
                         deferred.resolve(response);
+                        clearCache('groups' + ssoUserName);
+                        clearCache('groups' + group.number + ssoUserName);
+                        clearAllCaseGroups(accountNumber);
                     }, angular.bind(deferred, errorHandler));
                     return deferred.promise;
                 }

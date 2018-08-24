@@ -1876,6 +1876,16 @@
 	            });
 	        }
 	    }
+	    function clearAllCaseGroups(accountNumber) {
+	        var allKeys = strataCache.keys();
+	        if (allKeys) {
+	            allKeys.forEach(function (key) {
+	                if (key.startsWith('users' + accountNumber)) {
+	                    clearCache(key);
+	                }
+	            });
+	        }
+	    }
 	    var service = {
 	        authentication: {
 	            checkLogin: function checkLogin() {
@@ -2148,10 +2158,13 @@
 	                }, angular.bind(deferred, errorHandler));
 	                return deferred.promise;
 	            },
-	            createDefault: function createDefault(group) {
+	            createDefault: function createDefault(group, ssoUserName, accountNumber) {
 	                var deferred = $q.defer();
 	                strata.groups.createDefault(group, function (response) {
 	                    deferred.resolve(response);
+	                    clearCache('groups' + ssoUserName);
+	                    clearCache('groups' + group.number + ssoUserName);
+	                    clearAllCaseGroups(accountNumber);
 	                }, angular.bind(deferred, errorHandler));
 	                return deferred.promise;
 	            }

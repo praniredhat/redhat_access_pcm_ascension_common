@@ -2200,8 +2200,13 @@
 	                    deferred.resolve(strataCache.get('users' + accountNumber + group));
 	                } else {
 	                    strata.accounts.users(accountNumber, function (response) {
-	                        strataCache.put('users' + accountNumber + group, response);
-	                        deferred.resolve(response);
+	                        try {
+	                            strataCache.put('users' + accountNumber + group, response);
+	                        } catch (error) {
+	                            clearAllCaseGroups(accountNumber);
+	                        } finally {
+	                            deferred.resolve(response);
+	                        }
 	                    }, angular.bind(deferred, errorHandler), group);
 	                }
 	                return deferred.promise;

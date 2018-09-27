@@ -388,11 +388,11 @@ export default class StrataService {
                     } else {
                         strata.accounts.users(accountNumber, function (response) {
                             try {
-                                deferred.resolve(response);
                                 strataCache.put('users' + accountNumber + group, response);
                             } catch (error) {
                                 clearAllCaseGroups(accountNumber);
-                                console.log(error);
+                            } finally {
+                                deferred.resolve(response);
                             }
 
                         }, angular.bind(deferred, errorHandler), group);

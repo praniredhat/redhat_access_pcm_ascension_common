@@ -557,7 +557,7 @@ export default class StrataService {
                         } else {
                             strata.cases.comments.get(id, function (response) {
                                 angular.forEach(response, angular.bind(this, function (comment) {
-                                    var sortPublishedDate = comment.published_date;
+                                    var sortPublishedDate = comment.last_modified_date;
                                     comment.sortModifiedDate = sortPublishedDate;
 
                                     var lastModifiedDate = RHAUtils.convertToTimezone(comment.last_modified_date);

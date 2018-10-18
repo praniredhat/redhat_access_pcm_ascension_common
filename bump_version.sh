@@ -9,8 +9,10 @@ git checkout master
 git pull upstream master
 git reset --hard upstream/master
 versiony --version=$1 --to=package.json,bower.json
-git commit -am "Publish version $1"
+npm run build
+git add package.json bower.json
+git commit -m "Publish version $1"
 git tag $1
-git push
-git push --tags
+git push upstream master
+git push upstream $1
 git publish

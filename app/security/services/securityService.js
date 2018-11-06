@@ -17,6 +17,7 @@ export default class SecurityService {
         this.loginURL = SECURITY_CONFIG.loginURL;
         this.logoutURL = SECURITY_CONFIG.logoutURL;
         this.isSubscriptionServiceM = false;
+        this.isCep = false;
         this.setLoginStatus = function(isLoggedIn, verifying, authedUser) {
             this.loginStatus.isLoggedIn = isLoggedIn;
             this.loginStatus.verifying = verifying;
@@ -122,11 +123,14 @@ export default class SecurityService {
                         configuration.map((value) => {
                           if (value.fieldName === 'isEntitled' && value.fieldValue === '1') {
                             this.isSubscriptionServiceM = true;
+                          } else if (value.fieldName === 'isCep' && value.fieldValue === '1') {
+                            this.isCep = true;
                           }
                         });
                       }
                 } catch(error) {
                     this.isSubscriptionServiceM = false;
+                    this.isCep = false;
                     console.log('Error getting PCM Configurations' + error);
                 }
 

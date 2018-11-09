@@ -7633,6 +7633,7 @@
 	    this.loginURL = SECURITY_CONFIG.loginURL;
 	    this.logoutURL = SECURITY_CONFIG.logoutURL;
 	    this.isSubscriptionServiceM = false;
+	    this.isCep = false;
 	    this.setLoginStatus = function (isLoggedIn, verifying, authedUser) {
 	        this.loginStatus.isLoggedIn = isLoggedIn;
 	        this.loginStatus.verifying = verifying;
@@ -7735,7 +7736,7 @@
 	                        this.loginStatus.verifying = true;
 
 	                        if (!(window.sessionjs != null && window.sessionjs.isAuthenticated() && RHAUtils.isNotEmpty(window.sessionjs.getUserInfo().account_number))) {
-	                            _context.next = 26;
+	                            _context.next = 27;
 	                            break;
 	                        }
 
@@ -7760,10 +7761,12 @@
 	                            configuration.map(function (value) {
 	                                if (value.fieldName === 'isEntitled' && value.fieldValue === '1') {
 	                                    _this2.isSubscriptionServiceM = true;
+	                                } else if (value.fieldName === 'isCep' && value.fieldValue === '1') {
+	                                    _this2.isCep = true;
 	                                }
 	                            });
 	                        }
-	                        _context.next = 19;
+	                        _context.next = 20;
 	                        break;
 
 	                    case 15:
@@ -7771,9 +7774,10 @@
 	                        _context.t0 = _context['catch'](8);
 
 	                        this.isSubscriptionServiceM = false;
+	                        this.isCep = false;
 	                        console.log('Error getting PCM Configurations' + _context.t0);
 
-	                    case 19:
+	                    case 20:
 	                        userPromise = {};
 
 	                        if (this.isSubscriptionServiceM === true) {
@@ -7849,10 +7853,10 @@
 	                            _this2.loginFailure = true;
 	                            defer.reject();
 	                        });
-	                        _context.next = 27;
+	                        _context.next = 28;
 	                        break;
 
-	                    case 26:
+	                    case 27:
 	                        strataService.authentication.checkLogin().then(angular.bind(this, function (authedUser) {
 	                            var _this3 = this;
 
@@ -7906,10 +7910,10 @@
 	                            defer.reject(error);
 	                        }));
 
-	                    case 27:
+	                    case 28:
 	                        return _context.abrupt('return', defer.promise);
 
-	                    case 28:
+	                    case 29:
 	                    case 'end':
 	                        return _context.stop();
 	                }

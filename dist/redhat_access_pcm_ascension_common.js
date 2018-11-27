@@ -50,26 +50,26 @@
 	    value: true
 	});
 
-	var _resourceTypes = __webpack_require__(11);
+	var _resourceTypes = __webpack_require__(12);
 
 	var _resourceTypes2 = _interopRequireDefault(_resourceTypes);
 
-	var _commonConfig = __webpack_require__(10);
+	var _commonConfig = __webpack_require__(11);
 
 	var _commonConfig2 = _interopRequireDefault(_commonConfig);
 
-	var _configurationService = __webpack_require__(36);
+	var _configurationService = __webpack_require__(37);
 
 	var _configurationService2 = _interopRequireDefault(_configurationService);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	__webpack_require__(43);
-	__webpack_require__(34);
+	__webpack_require__(44);
+	__webpack_require__(35);
 
 	var app = angular.module('RedhatAccess.common', ['RedhatAccess.ui-utils', 'angular-cache']).config(["CacheFactoryProvider", function (CacheFactoryProvider) {}]).constant('RESOURCE_TYPES', _resourceTypes2.default).value('COMMON_CONFIG', _commonConfig2.default).factory('configurationService', _configurationService2.default);
 
-	__webpack_require__(50);
+	__webpack_require__(52);
 
 	exports.default = app.name;
 
@@ -294,7 +294,7 @@
 	    throw err;
 	  }
 	  try {
-	    str = str || __webpack_require__(55).readFileSync(filename, 'utf8')
+	    str = str || __webpack_require__(57).readFileSync(filename, 'utf8')
 	  } catch (ex) {
 	    rethrow(err, null, lineno)
 	  }
@@ -434,7 +434,7 @@
 	  var jade_mixins = {};
 	  var jade_interp;
 
-	  buf.push("<div id=\"rha-login-modal-header\" class=\"modal-header\"><h3 translate=\"\">Sign into the Red Hat Customer Portal</h3></div><div class=\"container-fluid\"><div id=\"rha-login-modal-body\" class=\"modal-body form-horizontal\"><!-- form ng-submit=\"modalOptions.ok()\"  method=\"post\"--><div ng-show=\"useVerboseLoginView\" class=\"form-group\">{{'Red Hat Access makes it easy for you to self-solve issues, diagnose problems, and engage with us via the Red Hat Customer Portal. To access Red Hat Customer Portal resources, you must enter valid portal credentials.'|translate}}</div><div ng-show=\"authError\" class=\"alert alert-danger\">{{authError}}</div><div id=\"rha-login-modal-user-id\" class=\"form-group\"><label for=\"rha-login-user-id\" translate=\"\" class=\"control-label\">Red Hat Login</label><div><input id=\"rha-login-user-id\" type=\"text\" placeholder=\"{{'Red Hat Login'|translate}}\" ng-model=\"user.user\" required=\"\" autofocus=\"\" class=\"form-control\"></div></div><div id=\"rha-login-modal-user-pass\" class=\"form-group\"><label for=\"rha-login-password\" translate=\"\" class=\"control-label\">Password</label><div><input id=\"rha-login-password\" type=\"password\" placeholder=\"{{'Password'|translate}}\" ng-model=\"user.password\" required=\"\" class=\"form-control\"></div></div><div style=\"font-size:smaller\" ng-show=\"useVerboseLoginView\" class=\"form-group\"><strong>{{'Note:'|translate}}</strong>{{'Red Hat Customer Portal credentials differ from the credentials used to log into this product.'|translate}}</div><!-- /form--></div><div class=\"modal-footer\"><div id=\"rha-login-modal-buttons\" class=\"form-group\"><span class=\"pull-right\"><button ng-click=\"modalOptions.close()\" type=\"submit\" translate=\"\" class=\"btn btn-md cancel\">Cancel</button><button ng-click=\"modalOptions.ok()\" type=\"submit\" translate=\"\" ng-disabled=\"status.authenticating\" class=\"btn btn-primary btn-md login\">Sign in</button></span></div></div></div>");;return buf.join("");
+	  buf.push("<div class=\"modal-header\"><h3 translate=\"\" class=\"modal-title\">Unauthenticated</h3></div><div class=\"modal-body\"><div class=\"row\"><div class=\"col-sm-12\"><span>{{'Your Login has expired!'|translate}}</span>&nbsp;<span>{{'Please, '|translate}}</span><a ng-click=\"login()\">{{'re-login'|translate}}</a></div></div></div><div class=\"modal-footer\"><button style=\"margin-left: 10px;\" ng-click=\"login()\" class=\"btn-accent btn\"><span>{{'Re-login'|translate}}</span></button></div>");;return buf.join("");
 	};
 
 /***/ },
@@ -450,11 +450,27 @@
 	  var jade_mixins = {};
 	  var jade_interp;
 
-	  buf.push("<div ng-controller=\"SecurityController\" ng-show=\"displayLoginStatus()\"><div class=\"row\"><div class=\"col-sm-12\"><span ng-show=\"securityService.loginStatus.isLoggedIn\" class=\"pull-right rha-logged-in\">{{'Logged into the Red Hat Customer Portal as'|translate}} {{securityService.loginStatus.authedUser.loggedInUser}}  <span ng-if=\"securityService.logoutURL.length === 0\" ng-show=\"!securityService.loginStatus.verifying\"><a href=\"\" ng-click=\"securityService.logout()\"> {{'Log Out'|translate}}</a></span><span ng-if=\"securityService.logoutURL.length &gt; 0\" ng-show=\"!securityService.loginStatus.verifying\"><a href=\"{{securityService.logoutURL}}\"> {{'Log Out'|translate}}</a></span><span ng-show=\"securityService.loginStatus.verifying\">{{'Log Out'|translate}}</span></span><span ng-show=\"!securityService.loginStatus.isLoggedIn\" class=\"pull-right rha-logged-out\">{{'Not Logged into the Red Hat Customer Portal'|translate}} <span ng-if=\"securityService.loginURL.length === 0\" ng-show=\"!securityService.loginStatus.verifying\"><a href=\"\" ng-click=\"securityService.login()\"> {{'Log In'|translate}}</a></span><span ng-if=\"securityService.loginURL.length &gt; 0\" ng-show=\"!securityService.loginStatus.verifying\"><a href=\"{{securityService.loginURL}}\"> {{'Log In'|translate}}</a></span><span ng-show=\"securityService.loginStatus.verifying\">{{'Log In'|translate}}</span></span></div></div></div>");;return buf.join("");
+	  buf.push("<div id=\"rha-login-modal-header\" class=\"modal-header\"><h3 translate=\"\">Sign into the Red Hat Customer Portal</h3></div><div class=\"container-fluid\"><div id=\"rha-login-modal-body\" class=\"modal-body form-horizontal\"><!-- form ng-submit=\"modalOptions.ok()\"  method=\"post\"--><div ng-show=\"useVerboseLoginView\" class=\"form-group\">{{'Red Hat Access makes it easy for you to self-solve issues, diagnose problems, and engage with us via the Red Hat Customer Portal. To access Red Hat Customer Portal resources, you must enter valid portal credentials.'|translate}}</div><div ng-show=\"authError\" class=\"alert alert-danger\">{{authError}}</div><div id=\"rha-login-modal-user-id\" class=\"form-group\"><label for=\"rha-login-user-id\" translate=\"\" class=\"control-label\">Red Hat Login</label><div><input id=\"rha-login-user-id\" type=\"text\" placeholder=\"{{'Red Hat Login'|translate}}\" ng-model=\"user.user\" required=\"\" autofocus=\"\" class=\"form-control\"></div></div><div id=\"rha-login-modal-user-pass\" class=\"form-group\"><label for=\"rha-login-password\" translate=\"\" class=\"control-label\">Password</label><div><input id=\"rha-login-password\" type=\"password\" placeholder=\"{{'Password'|translate}}\" ng-model=\"user.password\" required=\"\" class=\"form-control\"></div></div><div style=\"font-size:smaller\" ng-show=\"useVerboseLoginView\" class=\"form-group\"><strong>{{'Note:'|translate}}</strong>{{'Red Hat Customer Portal credentials differ from the credentials used to log into this product.'|translate}}</div><!-- /form--></div><div class=\"modal-footer\"><div id=\"rha-login-modal-buttons\" class=\"form-group\"><span class=\"pull-right\"><button ng-click=\"modalOptions.close()\" type=\"submit\" translate=\"\" class=\"btn btn-md cancel\">Cancel</button><button ng-click=\"modalOptions.ok()\" type=\"submit\" translate=\"\" ng-disabled=\"status.authenticating\" class=\"btn btn-primary btn-md login\">Sign in</button></span></div></div></div>");;return buf.join("");
 	};
 
 /***/ },
 /* 10 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var jade = __webpack_require__(1);
+
+	module.exports = function template(locals) {
+	  var buf = [];
+	  var jade_mixins = {};
+	  var jade_interp;
+
+	  buf.push("<div ng-controller=\"SecurityController\" ng-show=\"displayLoginStatus()\"><div class=\"row\"><div class=\"col-sm-12\"><span ng-show=\"securityService.loginStatus.isLoggedIn\" class=\"pull-right rha-logged-in\">{{'Logged into the Red Hat Customer Portal as'|translate}} {{securityService.loginStatus.authedUser.loggedInUser}}  <span ng-if=\"securityService.logoutURL.length === 0\" ng-show=\"!securityService.loginStatus.verifying\"><a href=\"\" ng-click=\"securityService.logout()\"> {{'Log Out'|translate}}</a></span><span ng-if=\"securityService.logoutURL.length &gt; 0\" ng-show=\"!securityService.loginStatus.verifying\"><a href=\"{{securityService.logoutURL}}\"> {{'Log Out'|translate}}</a></span><span ng-show=\"securityService.loginStatus.verifying\">{{'Log Out'|translate}}</span></span><span ng-show=\"!securityService.loginStatus.isLoggedIn\" class=\"pull-right rha-logged-out\">{{'Not Logged into the Red Hat Customer Portal'|translate}} <span ng-if=\"securityService.loginURL.length === 0\" ng-show=\"!securityService.loginStatus.verifying\"><a href=\"\" ng-click=\"securityService.login()\"> {{'Log In'|translate}}</a></span><span ng-if=\"securityService.loginURL.length &gt; 0\" ng-show=\"!securityService.loginStatus.verifying\"><a href=\"{{securityService.loginURL}}\"> {{'Log In'|translate}}</a></span><span ng-show=\"securityService.loginStatus.verifying\">{{'Log In'|translate}}</span></span></div></div></div>");;return buf.join("");
+	};
+
+/***/ },
+/* 11 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -473,7 +489,7 @@
 	};
 
 /***/ },
-/* 11 */
+/* 12 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -487,7 +503,7 @@
 	};
 
 /***/ },
-/* 12 */
+/* 13 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -522,7 +538,7 @@
 	exports.default = FourOhThree;
 
 /***/ },
-/* 13 */
+/* 14 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -546,7 +562,7 @@
 	exports.default = FourOhFour;
 
 /***/ },
-/* 14 */
+/* 15 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -578,7 +594,7 @@
 	exports.default = AlertController;
 
 /***/ },
-/* 15 */
+/* 16 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -705,8 +721,8 @@
 	exports.default = ChatButton;
 
 /***/ },
-/* 16 */
-/***/ function(module, exports) {
+/* 17 */
+/***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
@@ -716,7 +732,7 @@
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	var HeaderController = function HeaderController($scope, AlertService, HeaderService, COMMON_CONFIG, RHAUtils, $interval, $sce) {
+	var HeaderController = function HeaderController($scope, AlertService, HeaderService, COMMON_CONFIG, RHAUtils, $interval, $sce, securityService, $uibModal) {
 	    'ngInject';
 
 	    /**
@@ -729,6 +745,7 @@
 
 	    $scope.AlertService = AlertService;
 	    $scope.HeaderService = HeaderService;
+	    $scope.securityService = securityService;
 	    $scope.closeable = true;
 	    $scope.closeAlert = function (index) {
 	        AlertService.alerts.splice(index, 1);
@@ -753,6 +770,41 @@
 	        }
 	        return parsedHtml;
 	    };
+	    $scope.showReLoginModal = function () {
+	        $uibModal.open({
+	            template: __webpack_require__(8),
+	            controller: 'LoginModal',
+	            backdrop: 'static',
+	            keyboard: false
+	        });
+	        securityService.clearLoginStatus();
+	    };
+	    window.chrometwo_require(['session'], function (session) {
+	        'use strict';
+
+	        var originalOnAuthLogoutCallback = session._state.keycloak.onAuthLogout;
+	        session._state.keycloak.onAuthLogout = function () {
+	            // logged out in one of the portal tabs, needs re-login
+	            $scope.showReLoginModal();
+	            if (originalOnAuthLogoutCallback) originalOnAuthLogoutCallback();
+	        };
+	        var originalOnAuthRefreshErrorCallback = session._state.keycloak.onAuthRefreshError;
+	        session._state.keycloak.onAuthRefreshError = function () {
+	            if (!session.isAuthenticated()) {
+	                // Cannot refresh token and is not authed, needs re-login
+	                $scope.showReLoginModal();
+	                if (originalOnAuthRefreshErrorCallback) originalOnAuthRefreshErrorCallback();
+	            }
+	        };
+	        var originaOnTokenExpiredCallback = session._state.keycloak.onTokenExpired;
+	        session._state.keycloak.onTokenExpired = function () {
+	            if (!session.isAuthenticated()) {
+	                // Token expired and is not authed, needs re-login
+	                $scope.showReLoginModal();
+	                if (originaOnTokenExpiredCallback) originaOnTokenExpiredCallback();
+	            }
+	        };
+	    });
 	    $scope.$on('$destroy', function () {
 	        $interval.cancel($scope.healthTimer);
 	    });
@@ -765,12 +817,12 @@
 	        $scope.dismissAlerts();
 	    });
 	};
-	HeaderController.$inject = ["$scope", "AlertService", "HeaderService", "COMMON_CONFIG", "RHAUtils", "$interval", "$sce"];
+	HeaderController.$inject = ["$scope", "AlertService", "HeaderService", "COMMON_CONFIG", "RHAUtils", "$interval", "$sce", "securityService", "$uibModal"];
 
 	exports.default = HeaderController;
 
 /***/ },
-/* 17 */
+/* 18 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -818,7 +870,7 @@
 	exports.default = TitleViewCtrl;
 
 /***/ },
-/* 18 */
+/* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -836,7 +888,7 @@
 	};
 
 /***/ },
-/* 19 */
+/* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -854,7 +906,7 @@
 	};
 
 /***/ },
-/* 20 */
+/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -872,7 +924,7 @@
 	};
 
 /***/ },
-/* 21 */
+/* 22 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -895,7 +947,7 @@
 	}];
 
 /***/ },
-/* 22 */
+/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -919,7 +971,7 @@
 	};
 
 /***/ },
-/* 23 */
+/* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -933,7 +985,7 @@
 
 	    return {
 	        restrict: 'A',
-	        template: __webpack_require__(52),
+	        template: __webpack_require__(54),
 	        link: function link(scope, elm) {
 	            scope.choiceClicked = function (choice) {
 	                choice.checked = !choice.checked;
@@ -955,7 +1007,7 @@
 	}];
 
 /***/ },
-/* 24 */
+/* 25 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -978,7 +1030,7 @@
 	};
 
 /***/ },
-/* 25 */
+/* 26 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -1004,7 +1056,7 @@
 	};
 
 /***/ },
-/* 26 */
+/* 27 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1023,7 +1075,7 @@
 	};
 
 /***/ },
-/* 27 */
+/* 28 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -1042,7 +1094,7 @@
 	};
 
 /***/ },
-/* 28 */
+/* 29 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -1079,7 +1131,7 @@
 	}];
 
 /***/ },
-/* 29 */
+/* 30 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -1121,7 +1173,7 @@
 	}];
 
 /***/ },
-/* 30 */
+/* 31 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1140,7 +1192,7 @@
 	};
 
 /***/ },
-/* 31 */
+/* 32 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -1175,7 +1227,7 @@
 	}];
 
 /***/ },
-/* 32 */
+/* 33 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -1292,7 +1344,7 @@
 	};
 
 /***/ },
-/* 33 */
+/* 34 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -1310,7 +1362,7 @@
 	}];
 
 /***/ },
-/* 34 */
+/* 35 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1321,79 +1373,79 @@
 	  value: true
 	});
 
-	var _ = __webpack_require__(12);
+	var _ = __webpack_require__(13);
 
 	var _2 = _interopRequireDefault(_);
 
-	var _3 = __webpack_require__(13);
+	var _3 = __webpack_require__(14);
 
 	var _4 = _interopRequireDefault(_3);
 
-	var _alert = __webpack_require__(14);
+	var _alert = __webpack_require__(15);
 
 	var _alert2 = _interopRequireDefault(_alert);
 
-	var _chatButton = __webpack_require__(15);
+	var _chatButton = __webpack_require__(16);
 
 	var _chatButton2 = _interopRequireDefault(_chatButton);
 
-	var _header = __webpack_require__(16);
+	var _header = __webpack_require__(17);
 
 	var _header2 = _interopRequireDefault(_header);
 
-	var _titleView = __webpack_require__(17);
+	var _titleView = __webpack_require__(18);
 
 	var _titleView2 = _interopRequireDefault(_titleView);
 
-	var _5 = __webpack_require__(18);
+	var _5 = __webpack_require__(19);
 
 	var _6 = _interopRequireDefault(_5);
 
-	var _7 = __webpack_require__(19);
+	var _7 = __webpack_require__(20);
 
 	var _8 = _interopRequireDefault(_7);
 
-	var _alert3 = __webpack_require__(20);
+	var _alert3 = __webpack_require__(21);
 
 	var _alert4 = _interopRequireDefault(_alert3);
 
-	var _chatButton3 = __webpack_require__(22);
+	var _chatButton3 = __webpack_require__(23);
 
 	var _chatButton4 = _interopRequireDefault(_chatButton3);
 
-	var _header3 = __webpack_require__(26);
+	var _header3 = __webpack_require__(27);
 
 	var _header4 = _interopRequireDefault(_header3);
 
-	var _onChange = __webpack_require__(27);
+	var _onChange = __webpack_require__(28);
 
 	var _onChange2 = _interopRequireDefault(_onChange);
 
-	var _titleTemplate = __webpack_require__(30);
+	var _titleTemplate = __webpack_require__(31);
 
 	var _titleTemplate2 = _interopRequireDefault(_titleTemplate);
 
-	var _autoFocus = __webpack_require__(21);
+	var _autoFocus = __webpack_require__(22);
 
 	var _autoFocus2 = _interopRequireDefault(_autoFocus);
 
-	var _alertService = __webpack_require__(35);
+	var _alertService = __webpack_require__(36);
 
 	var _alertService2 = _interopRequireDefault(_alertService);
 
-	var _constantsService = __webpack_require__(37);
+	var _constantsService = __webpack_require__(38);
 
 	var _constantsService2 = _interopRequireDefault(_constantsService);
 
-	var _headerService = __webpack_require__(38);
+	var _headerService = __webpack_require__(39);
 
 	var _headerService2 = _interopRequireDefault(_headerService);
 
-	var _strataService = __webpack_require__(40);
+	var _strataService = __webpack_require__(41);
 
 	var _strataService2 = _interopRequireDefault(_strataService);
 
-	var _udsService = __webpack_require__(42);
+	var _udsService = __webpack_require__(43);
 
 	var _udsService2 = _interopRequireDefault(_udsService);
 
@@ -1435,7 +1487,7 @@
 	exports.default = app.name;
 
 /***/ },
-/* 35 */
+/* 36 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -1533,7 +1585,7 @@
 	exports.default = AlertService;
 
 /***/ },
-/* 36 */
+/* 37 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -1557,7 +1609,7 @@
 	}];
 
 /***/ },
-/* 37 */
+/* 38 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -1707,7 +1759,7 @@
 	exports.default = ConstantsService;
 
 /***/ },
-/* 38 */
+/* 39 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -1752,7 +1804,7 @@
 	exports.default = HeaderService;
 
 /***/ },
-/* 39 */
+/* 40 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -1819,7 +1871,7 @@
 	exports.default = RHAUtils;
 
 /***/ },
-/* 40 */
+/* 41 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -2738,7 +2790,7 @@
 	exports.default = StrataService;
 
 /***/ },
-/* 41 */
+/* 42 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -2756,7 +2808,7 @@
 	}];
 
 /***/ },
-/* 42 */
+/* 43 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2767,7 +2819,7 @@
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	var uds = __webpack_require__(53);
+	var uds = __webpack_require__(55);
 
 	var UdsService = function UdsService() {
 	    'ngInject';
@@ -3167,7 +3219,7 @@
 	exports.default = UdsService;
 
 /***/ },
-/* 43 */
+/* 44 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -3178,43 +3230,43 @@
 	  value: true
 	});
 
-	var _rhaUtils = __webpack_require__(39);
+	var _rhaUtils = __webpack_require__(40);
 
 	var _rhaUtils2 = _interopRequireDefault(_rhaUtils);
 
-	var _translate = __webpack_require__(41);
+	var _translate = __webpack_require__(42);
 
 	var _translate2 = _interopRequireDefault(_translate);
 
-	var _trust = __webpack_require__(33);
+	var _trust = __webpack_require__(34);
 
 	var _trust2 = _interopRequireDefault(_trust);
 
-	var _enter = __webpack_require__(25);
+	var _enter = __webpack_require__(26);
 
 	var _enter2 = _interopRequireDefault(_enter);
 
-	var _resizable = __webpack_require__(29);
+	var _resizable = __webpack_require__(30);
 
 	var _resizable2 = _interopRequireDefault(_resizable);
 
-	var _choice = __webpack_require__(23);
+	var _choice = __webpack_require__(24);
 
 	var _choice2 = _interopRequireDefault(_choice);
 
-	var _optionsDisabled = __webpack_require__(28);
+	var _optionsDisabled = __webpack_require__(29);
 
 	var _optionsDisabled2 = _interopRequireDefault(_optionsDisabled);
 
-	var _choicetree = __webpack_require__(24);
+	var _choicetree = __webpack_require__(25);
 
 	var _choicetree2 = _interopRequireDefault(_choicetree);
 
-	var _treeViewSelectorData = __webpack_require__(31);
+	var _treeViewSelectorData = __webpack_require__(32);
 
 	var _treeViewSelectorData2 = _interopRequireDefault(_treeViewSelectorData);
 
-	var _treeViewSelectorUtils = __webpack_require__(32);
+	var _treeViewSelectorUtils = __webpack_require__(33);
 
 	var _treeViewSelectorUtils2 = _interopRequireDefault(_treeViewSelectorUtils);
 
@@ -3253,7 +3305,7 @@
 	exports.default = app.name;
 
 /***/ },
-/* 44 */
+/* 45 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module) {'use strict';
@@ -7441,10 +7493,10 @@
 	        /******/)
 	    );
 	});
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(54)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(56)(module)))
 
 /***/ },
-/* 45 */
+/* 46 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -7463,7 +7515,7 @@
 	};
 
 /***/ },
-/* 46 */
+/* 47 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -7474,7 +7526,7 @@
 	exports.default = { verbose: true };
 
 /***/ },
-/* 47 */
+/* 48 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -7491,7 +7543,32 @@
 	};
 
 /***/ },
-/* 48 */
+/* 49 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var CepModal = function CepModal($scope) {
+	    'ngInject';
+
+	    _classCallCheck(this, CepModal);
+
+	    $scope.login = function () {
+	        window.portal.session.login();
+	    };
+	};
+	CepModal.$inject = ["$scope"];
+
+	exports.default = CepModal;
+
+/***/ },
+/* 50 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -7520,7 +7597,7 @@
 	exports.default = SecurityController;
 
 /***/ },
-/* 49 */
+/* 51 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -7533,12 +7610,12 @@
 	    return {
 	        restrict: 'AE',
 	        scope: false,
-	        template: __webpack_require__(9)
+	        template: __webpack_require__(10)
 	    };
 	};
 
 /***/ },
-/* 50 */
+/* 52 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -7549,27 +7626,31 @@
 	    value: true
 	});
 
-	var _securityController = __webpack_require__(48);
+	var _securityController = __webpack_require__(50);
 
 	var _securityController2 = _interopRequireDefault(_securityController);
 
-	var _loginStatus = __webpack_require__(49);
+	var _loginModal = __webpack_require__(49);
+
+	var _loginModal2 = _interopRequireDefault(_loginModal);
+
+	var _loginStatus = __webpack_require__(51);
 
 	var _loginStatus2 = _interopRequireDefault(_loginStatus);
 
-	var _securityService = __webpack_require__(51);
+	var _securityService = __webpack_require__(53);
 
 	var _securityService2 = _interopRequireDefault(_securityService);
 
-	var _authEvents = __webpack_require__(45);
+	var _authEvents = __webpack_require__(46);
 
 	var _authEvents2 = _interopRequireDefault(_authEvents);
 
-	var _loginViewConfig = __webpack_require__(46);
+	var _loginViewConfig = __webpack_require__(47);
 
 	var _loginViewConfig2 = _interopRequireDefault(_loginViewConfig);
 
-	var _securityConfig = __webpack_require__(47);
+	var _securityConfig = __webpack_require__(48);
 
 	var _securityConfig2 = _interopRequireDefault(_securityConfig);
 
@@ -7586,6 +7667,7 @@
 
 	// Directives
 	app.controller('SecurityController', _securityController2.default);
+	app.controller('LoginModal', _loginModal2.default);
 
 	// Directives
 	app.directive('rhaLoginstatus', _loginStatus2.default);
@@ -7596,7 +7678,7 @@
 	exports.default = app.name;
 
 /***/ },
-/* 51 */
+/* 53 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -7607,7 +7689,7 @@
 
 	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
-	var _hydrajs = __webpack_require__(44);
+	var _hydrajs = __webpack_require__(45);
 
 	var _hydrajs2 = _interopRequireDefault(_hydrajs);
 
@@ -7654,7 +7736,7 @@
 	        backdrop: 'static',
 	        keyboard: true,
 	        modalFade: true,
-	        template: __webpack_require__(8),
+	        template: __webpack_require__(9),
 	        windowClass: 'rha-login-modal'
 	    };
 	    this.modalOptions = {
@@ -8013,13 +8095,13 @@
 	exports.default = SecurityService;
 
 /***/ },
-/* 52 */
+/* 54 */
 /***/ function(module, exports) {
 
 	module.exports = "<li class=\"rha-treeselector-node\">\n    <div>\n        <span class=\"icon\" ng-class=\"{collapsed: choice.collapsed, expanded: !choice.collapsed}\" ng-show=\"choice.children.length > 0\" ng-click=\"choice.collapsed = !choice.collapsed\">\n        </span>\n        <span class=\"label\" ng-if=\"choice.children.length > 0\" ng-class=\"folder\">{{choice.name}}\n        </span>\n        <span class=\"label\" ng-if=\"choice.children.length === 0\"  ng-click=\"choiceClicked(choice)\">\n            <input type=\"checkbox\" ng-checked=\"choice.checked\">{{choice.name}}\n        </span>\n    </div>\n</li>"
 
 /***/ },
-/* 53 */
+/* 55 */
 /***/ function(module, exports, __webpack_require__) {
 
 	(function webpackUniversalModuleDefinition(root, factory) {
@@ -9403,7 +9485,7 @@
 	;
 
 /***/ },
-/* 54 */
+/* 56 */
 /***/ function(module, exports) {
 
 	module.exports = function(module) {
@@ -9419,7 +9501,7 @@
 
 
 /***/ },
-/* 55 */
+/* 57 */
 /***/ function(module, exports) {
 
 	/* (ignored) */

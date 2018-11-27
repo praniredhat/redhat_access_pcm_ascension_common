@@ -1,7 +1,7 @@
 'use strict';
 
 export default class HeaderController {
-    constructor($scope, AlertService, HeaderService, COMMON_CONFIG, RHAUtils, $interval, $sce) {
+    constructor($scope, AlertService, HeaderService, COMMON_CONFIG, RHAUtils, $interval, $sce, securityService, $uibModal) {
         'ngInject';
 
         /**
@@ -11,6 +11,7 @@ export default class HeaderController {
          */
         $scope.AlertService = AlertService;
         $scope.HeaderService = HeaderService;
+        $scope.securityService = securityService;
         $scope.closeable = true;
         $scope.closeAlert = function (index) {
             AlertService.alerts.splice(index, 1);
@@ -35,6 +36,42 @@ export default class HeaderController {
             }
             return parsedHtml;
         };
+        $scope.showReLoginModal = () => {
+            $uibModal.open({
+                template: require('../../security/views/loginModal.jade'),
+                controller: 'LoginModal',
+                backdrop: 'static',
+                keyboard: false
+            });
+            securityService.clearLoginStatus();
+        }
+        window.chrometwo_require([
+            'session'
+        ], (session) => {
+            'use strict';
+            const originalOnAuthLogoutCallback = session._state.keycloak.onAuthLogout;
+            session._state.keycloak.onAuthLogout = () => {
+                // logged out in one of the portal tabs, needs re-login
+                $scope.showReLoginModal();
+                if (originalOnAuthLogoutCallback) originalOnAuthLogoutCallback();
+            };
+            const originalOnAuthRefreshErrorCallback = session._state.keycloak.onAuthRefreshError;
+            session._state.keycloak.onAuthRefreshError = () => {
+                if (!session.isAuthenticated()) {
+                    // Cannot refresh token and is not authed, needs re-login
+                    $scope.showReLoginModal();
+                    if (originalOnAuthRefreshErrorCallback) originalOnAuthRefreshErrorCallback();
+                }
+            };
+            const originaOnTokenExpiredCallback = session._state.keycloak.onTokenExpired;
+            session._state.keycloak.onTokenExpired = () => {
+                if (!session.isAuthenticated()) {
+                    // Token expired and is not authed, needs re-login
+                    $scope.showReLoginModal();
+                    if (originaOnTokenExpiredCallback) originaOnTokenExpiredCallback();
+                }
+            };
+        });
         $scope.$on('$destroy', function () {
             $interval.cancel($scope.healthTimer);
         });

@@ -49,6 +49,7 @@ export default class HeaderController {
             'session'
         ], (session) => {
             'use strict';
+            // We can avoid accessing private state once https://projects.engineering.redhat.com/browse/CPFED-2782 is resolved
             const originalOnAuthLogoutCallback = session._state.keycloak.onAuthLogout;
             session._state.keycloak.onAuthLogout = () => {
                 // logged out in one of the portal tabs, needs re-login

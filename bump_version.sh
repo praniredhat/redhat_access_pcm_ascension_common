@@ -15,4 +15,4 @@ git commit -m "Publish version $1"
 git tag $1
 git push upstream master
 git push upstream $1
-git publish
+npm publish

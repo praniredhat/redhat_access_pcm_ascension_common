@@ -781,6 +781,7 @@
 	    };
 	    window.chrometwo_require(['session'], function (session) {
 	        'use strict';
+	        // We can avoid accessing private state once https://projects.engineering.redhat.com/browse/CPFED-2782 is resolved
 
 	        var originalOnAuthLogoutCallback = session._state.keycloak.onAuthLogout;
 	        session._state.keycloak.onAuthLogout = function () {
@@ -3397,7 +3398,7 @@
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	var CepModal = function CepModal($scope) {
+	var CepModal = function CepModal($scope, $rootScope, $uibModalInstance, AUTH_EVENTS) {
 	    'ngInject';
 
 	    _classCallCheck(this, CepModal);
@@ -3405,8 +3406,11 @@
 	    $scope.login = function () {
 	        window.portal.session.login();
 	    };
+	    $rootScope.$on(AUTH_EVENTS.loginSuccess, function () {
+	        $uibModalInstance.close();
+	    });
 	};
-	CepModal.$inject = ["$scope"];
+	CepModal.$inject = ["$scope", "$rootScope", "$uibModalInstance", "AUTH_EVENTS"];
 
 	exports.default = CepModal;
 

@@ -2,6 +2,7 @@
 
 // Controllers
 import SecurityController from './controllers/securityController'
+import LoginModal from './controllers/loginModal'
 
 // Directives
 import rhaLoginstatus from './directives/loginStatus'
@@ -22,6 +23,7 @@ const app = angular.module('RedhatAccess.security', [
 
 // Controllers
 app.controller('SecurityController', SecurityController);
+app.controller('LoginModal', LoginModal);
 
 // Directives
 app.directive('rhaLoginstatus', rhaLoginstatus);

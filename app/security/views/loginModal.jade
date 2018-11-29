@@ -1,14 +1,9 @@
-.modal-header
-    h3.modal-title(translate='') Unauthenticated
-.modal-body
-    .row
-        .col-sm-12
-            span {{'Your Login has expired!'|translate}}
-            &nbsp;
-            span {{'Please, '|translate}}
-            a(ng-click='login()') {{'re-login'|translate}}
-.modal-footer
-    button.btn-accent.btn(
-        style='margin-left: 10px;',
-        ng-click='login()')
-        span {{'Re-login'|translate}}
+.modal-dialog(role="document")
+    .modal-content
+        .modal-header
+            h4.modal-title {{'Accidentally Logged out?'|translate}}
+        .modal-body
+            span {{'No worries, simply log back in with the button below.!'|translate}}
+        .modal-footer
+            button.btn.btn-primary(ng-click='login()')
+                span {{'Log back in'|translate}}

@@ -434,7 +434,7 @@
 	  var jade_mixins = {};
 	  var jade_interp;
 
-	  buf.push("<div class=\"modal-header\"><h3 translate=\"\" class=\"modal-title\">Unauthenticated</h3></div><div class=\"modal-body\"><div class=\"row\"><div class=\"col-sm-12\"><span>{{'Your Login has expired!'|translate}}</span>&nbsp;<span>{{'Please, '|translate}}</span><a ng-click=\"login()\">{{'re-login'|translate}}</a></div></div></div><div class=\"modal-footer\"><button style=\"margin-left: 10px;\" ng-click=\"login()\" class=\"btn-accent btn\"><span>{{'Re-login'|translate}}</span></button></div>");;return buf.join("");
+	  buf.push("<div role=\"document\" class=\"modal-dialog\"><div class=\"modal-content\"><div class=\"modal-header\"><h4 class=\"modal-title\">{{'Accidentally Logged out?'|translate}}</h4></div><div class=\"modal-body\"><span>{{'No worries, simply log back in with the button below.!'|translate}}</span></div><div class=\"modal-footer\"><button ng-click=\"login()\" class=\"btn btn-primary\"><span>{{'Log back in'|translate}}</span></button></div></div></div>");;return buf.join("");
 	};
 
 /***/ },

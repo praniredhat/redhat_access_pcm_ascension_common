@@ -3,7 +3,7 @@
 // Controllers
 import SecurityController from './controllers/securityController'
 import LoginModal from './controllers/loginModal'
-
+import SessionExpireModal from './controllers/sessionExpireModal';
 // Directives
 import rhaLoginstatus from './directives/loginStatus'
 
@@ -24,6 +24,7 @@ const app = angular.module('RedhatAccess.security', [
 // Controllers
 app.controller('SecurityController', SecurityController);
 app.controller('LoginModal', LoginModal);
+app.controller('SessionExpireModal', SessionExpireModal);
 
 // Directives
 app.directive('rhaLoginstatus', rhaLoginstatus);

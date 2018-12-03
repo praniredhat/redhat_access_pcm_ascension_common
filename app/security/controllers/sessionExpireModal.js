@@ -1,6 +1,6 @@
 'use strict';
 
-export default class LoginModal {
+export default class SessionExpireModal {
     constructor($scope, $rootScope, $uibModalInstance, AUTH_EVENTS) {
         'ngInject';
         $scope.login = function () {

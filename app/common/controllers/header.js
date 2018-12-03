@@ -45,6 +45,15 @@ export default class HeaderController {
             });
             securityService.clearLoginStatus();
         }
+        $scope.showSessionExpiredModal = () => {
+            $uibModal.open({
+                template: require('../../security/views/sessionExpireModal.jade'),
+                controller: 'SessionExpireModal',
+                backdrop: 'static',
+                keyboard: false
+            });
+            securityService.clearLoginStatus();
+        }
         window.chrometwo_require([
             'session'
         ], (session) => {
@@ -60,7 +69,7 @@ export default class HeaderController {
             session._state.keycloak.onAuthRefreshError = () => {
                 if (!session.isAuthenticated()) {
                     // Cannot refresh token and is not authed, needs re-login
-                    $scope.showReLoginModal();
+                    $scope.showSessionExpiredModal();
                     if (originalOnAuthRefreshErrorCallback) originalOnAuthRefreshErrorCallback();
                 }
             };
@@ -68,7 +77,7 @@ export default class HeaderController {
             session._state.keycloak.onTokenExpired = () => {
                 if (!session.isAuthenticated()) {
                     // Token expired and is not authed, needs re-login
-                    $scope.showReLoginModal();
+                    $scope.showSessionExpiredModal();
                     if (originaOnTokenExpiredCallback) originaOnTokenExpiredCallback();
                 }
             };

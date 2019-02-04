@@ -27936,11 +27936,12 @@ function getS3UploadAccounts() {
                         if (config.fieldName === maintenance_1.s3ConfigurationFieldNames.s3UploadFunctionality)
                             s3Configurations.s3UploadFunctionality = config.fieldValue;
                         else if (config.fieldName === maintenance_1.s3ConfigurationFieldNames.partSize) {
-                            var partSize = parseFloat(config.fieldValue) * 1024 * 1024;
-                            s3Configurations.partSize = partSize >= 5 ? partSize : 5;
+                            var partSize = parseFloat(config.fieldValue);
+                            partSize = (partSize >= 5) ? partSize : 5;
+                            s3Configurations.partSize = partSize * 1024 * 1024;
                         }
                         else if (config.fieldName === maintenance_1.s3ConfigurationFieldNames.queueSize)
-                            s3Configurations.queueSize = parseFloat(config.fieldValue);
+                            s3Configurations.queueSize = parseInt(config.fieldValue);
                         else if (config.fieldName.match(regex))
                             (_a = s3Configurations.result).push.apply(_a, config.fieldValue.split(','));
                     });

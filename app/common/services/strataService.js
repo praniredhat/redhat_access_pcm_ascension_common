@@ -37,9 +37,9 @@ export default class StrataService {
         }
         function clearAllCaseSearch() {
             const allKeys = strataCache.keys();
-            if(allKeys) {
-                allKeys.forEach(function(key) {
-                    if(key.startsWith('filter') || key.startsWith('search') || key.startsWith('advancedSearch')) {
+            if (allKeys) {
+                allKeys.forEach(function (key) {
+                    if (key.startsWith('filter') || key.startsWith('search') || key.startsWith('advancedSearch')) {
                         clearCache(key);
                     }
                 });
@@ -47,9 +47,9 @@ export default class StrataService {
         }
         function clearAllCaseGroups(accountNumber) {
             const allKeys = strataCache.keys();
-            if(allKeys) {
-                allKeys.forEach(function(key) {
-                    if(key.startsWith('users' + accountNumber)) {
+            if (allKeys) {
+                allKeys.forEach(function (key) {
+                    if (key.startsWith('users' + accountNumber)) {
                         clearCache(key);
                     }
                 });
@@ -78,7 +78,7 @@ export default class StrataService {
                                     deferred.resolve(authedUser);
                                 });
                             } else {
-                                var error = {message: 'Unauthorized.'};
+                                var error = { message: 'Unauthorized.' };
                                 deferred.reject(error);
                             }
                         });
@@ -427,7 +427,7 @@ export default class StrataService {
 
                     return deferred.promise;
                 },
-                managedAccounts : {
+                managedAccounts: {
                     get: function (accountNumber) {
                         var deferred = $q.defer();
                         if (strataCache.get('managedAccounts' + accountNumber)) {
@@ -441,7 +441,7 @@ export default class StrataService {
                         return deferred.promise;
                     }
                 },
-                accountManagers : {
+                accountManagers: {
                     get: function (accountNumber) {
                         var deferred = $q.defer();
                         if (strataCache.get('accountManagers' + accountNumber)) {
@@ -690,9 +690,9 @@ export default class StrataService {
                     }
                     return deferred.promise;
                 },
-                search: function (caseStatus, caseOwner, caseGroup, accountNumber, searchString, sortField, sortOrder, offset, limit, queryParams, start, partnerSearch) {
+                search: function (caseStatus, caseOwner, caseGroup, accountNumber, searchString, sortField, sortOrder, offset, limit, queryParams, start, partnerSearch, caseFields) {
                     const deferred = $q.defer(),
-                          key = `search${Array.prototype.join.call(arguments, '-')}`;
+                        key = `search${Array.prototype.join.call(arguments, '-')}`;
 
                     if (strataCache.get(key)) {
                         deferred.resolve(strataCache.get(key));
@@ -706,13 +706,13 @@ export default class StrataService {
                             });
                             strataCache.put(key, response);
                             deferred.resolve(response);
-                        }, angular.bind(deferred, errorHandler), caseStatus, caseOwner, caseGroup, accountNumber, searchString, sortField, sortOrder, offset, limit, queryParams, start, partnerSearch);
+                        }, angular.bind(deferred, errorHandler), caseStatus, caseOwner, caseGroup, accountNumber, searchString, sortField, sortOrder, offset, limit, queryParams, start, partnerSearch, caseFields);
                     }
                     return deferred.promise;
                 },
-                advancedSearch: function (query, order, offset, limit, format) {
+                advancedSearch: function (query, order, offset, limit, format, caseFields) {
                     const deferred = $q.defer(),
-                          key = `advancedSearch-${Array.prototype.join.call(arguments, '-')}`;
+                        key = `advancedSearch-${Array.prototype.join.call(arguments, '-')}`;
 
                     if (strataCache.get(key)) {
                         deferred.resolve(strataCache.get(key));
@@ -726,14 +726,14 @@ export default class StrataService {
                             });
                             strataCache.put(key, response);
                             deferred.resolve(response);
-                        }, angular.bind(deferred, errorHandler), query, order, offset, limit, format);
+                        }, angular.bind(deferred, errorHandler), query, order, offset, limit, format, caseFields);
                     }
 
                     return deferred.promise;
                 },
                 filter: function (params, partnerSearch) {
                     const deferred = $q.defer(),
-                          key = `filter${JSON.stringify(params)}`;
+                        key = `filter${JSON.stringify(params)}`;
 
                     if (RHAUtils.isEmpty(params)) {
                         params = {};
@@ -865,12 +865,12 @@ export default class StrataService {
                     }
                     return deferred.promise;
                 },
-                getBySSO: function(userSSO) {
+                getBySSO: function (userSSO) {
                     var deferred = $q.defer();
-                    if(strataCache.get('userSSO' + userSSO)) {
+                    if (strataCache.get('userSSO' + userSSO)) {
                         deferred.resolve(strataCache.get('userSSO' + userSSO));
                     } else {
-                        strata.users.getBySSO(function(response) {
+                        strata.users.getBySSO(function (response) {
                             strataCache.put('userSSO' + userSSO, response);
                             deferred.resolve(response);
                         }, angular.bind(deferred, errorHandler), userSSO);

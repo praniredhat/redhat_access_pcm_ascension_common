@@ -4626,7 +4626,7 @@
 	                }
 	                return deferred.promise;
 	            },
-	            search: function search(caseStatus, caseOwner, caseGroup, accountNumber, searchString, sortField, sortOrder, offset, limit, queryParams, start, partnerSearch) {
+	            search: function search(caseStatus, caseOwner, caseGroup, accountNumber, searchString, sortField, sortOrder, offset, limit, queryParams, start, partnerSearch, caseFields) {
 	                var deferred = $q.defer(),
 	                    key = 'search' + Array.prototype.join.call(arguments, '-');
 
@@ -4642,11 +4642,11 @@
 	                        });
 	                        strataCache.put(key, response);
 	                        deferred.resolve(response);
-	                    }, angular.bind(deferred, errorHandler), caseStatus, caseOwner, caseGroup, accountNumber, searchString, sortField, sortOrder, offset, limit, queryParams, start, partnerSearch);
+	                    }, angular.bind(deferred, errorHandler), caseStatus, caseOwner, caseGroup, accountNumber, searchString, sortField, sortOrder, offset, limit, queryParams, start, partnerSearch, caseFields);
 	                }
 	                return deferred.promise;
 	            },
-	            advancedSearch: function advancedSearch(query, order, offset, limit, format) {
+	            advancedSearch: function advancedSearch(query, order, offset, limit, format, caseFields) {
 	                var deferred = $q.defer(),
 	                    key = 'advancedSearch-' + Array.prototype.join.call(arguments, '-');
 
@@ -4662,7 +4662,7 @@
 	                        });
 	                        strataCache.put(key, response);
 	                        deferred.resolve(response);
-	                    }, angular.bind(deferred, errorHandler), query, order, offset, limit, format);
+	                    }, angular.bind(deferred, errorHandler), query, order, offset, limit, format, caseFields);
 	                }
 
 	                return deferred.promise;

@@ -29151,6 +29151,27 @@ exports.deleteTimelineActivity = deleteTimelineActivity;
 
 /***/ }),
 
+/***/ "./src/api/csp/user.ts":
+/*!*****************************!*\
+  !*** ./src/api/csp/user.ts ***!
+  \*****************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var fetch_1 = __webpack_require__(/*! ../../utils/fetch */ "./src/utils/fetch.ts");
+var env_1 = __webpack_require__(/*! ../../utils/env */ "./src/utils/env.ts");
+function getUserPermissions() {
+    var uri = env_1.default.hydraHostName.clone().setPath(env_1.default.pathPrefix + "/cs/authorization");
+    return fetch_1.getUri(uri);
+}
+exports.getUserPermissions = getUserPermissions;
+
+
+/***/ }),
+
 /***/ "./src/api/cweAdmin/configuration.ts":
 /*!*******************************************!*\
   !*** ./src/api/cweAdmin/configuration.ts ***!
@@ -29292,6 +29313,37 @@ function removePolicyGuide(id) {
     return fetch_1.deleteUri(uri);
 }
 exports.removePolicyGuide = removePolicyGuide;
+
+
+/***/ }),
+
+/***/ "./src/api/cweAdmin/rhcertVersion.ts":
+/*!*******************************************!*\
+  !*** ./src/api/cweAdmin/rhcertVersion.ts ***!
+  \*******************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var env_1 = __webpack_require__(/*! ../../utils/env */ "./src/utils/env.ts");
+var fetch_1 = __webpack_require__(/*! ../../utils/fetch */ "./src/utils/fetch.ts");
+function getRhcertVersions(id) {
+    var uri = env_1.default.hydraHostName.clone().setPath(env_1.default.pathPrefix + "/cwe/support/versions/" + (id ? id : ''));
+    return fetch_1.getUri(uri);
+}
+exports.getRhcertVersions = getRhcertVersions;
+function addRhcertVersion(versionObj) {
+    var uri = env_1.default.hydraHostName.clone().setPath(env_1.default.pathPrefix + "/cwe/support/versions");
+    return fetch_1.postUri(uri, versionObj);
+}
+exports.addRhcertVersion = addRhcertVersion;
+function updateRhcertVersion(id, updateObj) {
+    var uri = env_1.default.hydraHostName.clone().setPath(env_1.default.pathPrefix + "/cwe/support/versions/" + id);
+    return fetch_1.putUri(uri, updateObj);
+}
+exports.updateRhcertVersion = updateRhcertVersion;
 
 
 /***/ }),
@@ -31924,6 +31976,7 @@ var product_2 = __webpack_require__(/*! ./api/csp/product */ "./src/api/csp/prod
 var cta_1 = __webpack_require__(/*! ./api/csp/cta */ "./src/api/csp/cta.ts");
 var timeline_1 = __webpack_require__(/*! ./api/csp/timeline */ "./src/api/csp/timeline.ts");
 var contact_2 = __webpack_require__(/*! ./api/csp/contact */ "./src/api/csp/contact.ts");
+var user_3 = __webpack_require__(/*! ./api/csp/user */ "./src/api/csp/user.ts");
 var contact_3 = __webpack_require__(/*! ./api/contacts/contact */ "./src/api/contacts/contact.ts");
 var vendor_1 = __webpack_require__(/*! ./api/cweAdmin/vendor */ "./src/api/cweAdmin/vendor.ts");
 var openstackPluginProtocol_1 = __webpack_require__(/*! ./api/cweAdmin/openstackPluginProtocol */ "./src/api/cweAdmin/openstackPluginProtocol.ts");
@@ -31931,7 +31984,9 @@ var openstackFeatures_1 = __webpack_require__(/*! ./api/cweAdmin/openstackFeatur
 var testClass_2 = __webpack_require__(/*! ./api/cweAdmin/testClass */ "./src/api/cweAdmin/testClass.ts");
 var configuration_1 = __webpack_require__(/*! ./api/cweAdmin/configuration */ "./src/api/cweAdmin/configuration.ts");
 var policyGuide_1 = __webpack_require__(/*! ./api/cweAdmin/policyGuide */ "./src/api/cweAdmin/policyGuide.ts");
+var rhcertVersion_1 = __webpack_require__(/*! ./api/cweAdmin/rhcertVersion */ "./src/api/cweAdmin/rhcertVersion.ts");
 var fetch_1 = __webpack_require__(/*! ./utils/fetch */ "./src/utils/fetch.ts");
+var env_1 = __webpack_require__(/*! ./utils/env */ "./src/utils/env.ts");
 exports.default = {
     general: {
         health: general_1.health,
@@ -32260,6 +32315,9 @@ exports.default = {
             updateTimelineActivity: timeline_1.updateTimelineActivity,
             addTimelineActivity: timeline_1.addTimelineActivity,
             deleteTimelineActivity: timeline_1.deleteTimelineActivity
+        },
+        user: {
+            getUserPermissions: user_3.getUserPermissions
         }
     },
     cweAdmin: {
@@ -32294,6 +32352,11 @@ exports.default = {
             addPolicyGuide: policyGuide_1.addPolicyGuide,
             updatePolicyGuide: policyGuide_1.updatePolicyGuide,
             removePolicyGuide: policyGuide_1.removePolicyGuide
+        },
+        rhcertVersion: {
+            getRhcertVersions: rhcertVersion_1.getRhcertVersions,
+            addRhcertVersion: rhcertVersion_1.addRhcertVersion,
+            updateRhcertVersion: rhcertVersion_1.updateRhcertVersion
         }
     },
     contacts: {
@@ -32307,7 +32370,8 @@ exports.default = {
         patchUri: fetch_1.patchUri,
         deleteUri: fetch_1.deleteUri,
         deleteUriWithBody: fetch_1.deleteUriWithBody
-    }
+    },
+    Env: env_1.default
 };
 
 
@@ -32367,6 +32431,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // Since we aren't transpiling to babel can't use ES6 imports here
 var Uri = __webpack_require__(/*! jsuri */ "./node_modules/jsuri/Uri.js");
 var btoa = __webpack_require__(/*! btoa-lite */ "./node_modules/btoa-lite/btoa-browser.js");
+var EnvNames = {
+    DEV: 'DEV',
+    QA: 'QA',
+    STAGE: 'Stage',
+    FTE: 'FTE',
+    CI: 'CI',
+    PROD: 'PROD',
+};
 function createBasicAuth(user, pass) {
     return "Basic " + btoa(user + ':' + pass);
 }
@@ -32378,11 +32450,31 @@ var securePathPrefix = '/hydra/secure/rest';
 var secureExtPathPrefix = '/hydra/secure/rest/external';
 var auth = null;
 // Add any new services consuming hydrajs to below arrays
-var prodHostNames = ['access.redhat.com', 'prod.foo.redhat.com', 'fooprod.redhat.com', 'skedge.redhat.com'];
-var qaHostNames = ['access.qa.redhat.com', 'qa.foo.redhat.com', 'fooqa.redhat.com', 'skedge.qa.redhat.com'];
-var fteHostNames = ['access.devgssfte.devlab.phx1.redhat.com', 'fte.foo.redhat.com', 'foofte.redhat.com'];
-var ciHostNames = ['access.devgssci.devlab.phx1.redhat.com', 'ci.foo.redhat.com', 'fooci.redhat.com', 'skedge.ci.redhat.com'];
-var stageHostNames = ['access.stage.redhat.com', 'stage.foo.redhat.com', 'foostage.redhat.com', 'skedge.stage.redhat.com'];
+var getEnvName = function () {
+    // Returns PROD | QA | FTE | CI | STAGE
+    var prodHostNames = ['access.redhat.com', 'prod.foo.redhat.com', 'fooprod.redhat.com', 'skedge.redhat.com'];
+    var qaHostNames = ['access.qa.redhat.com', 'qa.foo.redhat.com', 'fooqa.redhat.com', 'skedge.qa.redhat.com'];
+    var fteHostNames = ['access.devgssfte.devlab.phx1.redhat.com', 'fte.foo.redhat.com', 'foofte.redhat.com'];
+    var ciHostNames = ['access.devgssci.devlab.phx1.redhat.com', 'ci.foo.redhat.com', 'fooci.redhat.com', 'skedge.ci.redhat.com'];
+    var stageHostNames = ['access.stage.redhat.com', 'stage.foo.redhat.com', 'foostage.redhat.com', 'skedge.stage.redhat.com'];
+    if (typeof window !== 'undefined' && window) {
+        if (prodHostNames.indexOf(window.location.hostname) !== -1) {
+            return EnvNames.PROD;
+        }
+        else if (qaHostNames.indexOf(window.location.hostname) !== -1) {
+            return EnvNames.QA;
+        }
+        else if (fteHostNames.indexOf(window.location.hostname) !== -1) {
+            return EnvNames.FTE;
+        }
+        else if (ciHostNames.indexOf(window.location.hostname) !== -1) {
+            return EnvNames.CI;
+        }
+        else if (stageHostNames.indexOf(window.location.hostname) !== -1) {
+            return EnvNames.STAGE;
+        }
+    }
+};
 if (process && process.env && process.env.RHN_USER) {
     auth = createBasicAuth(process.env.RHN_USER, process.env.RHN_PASS);
 }
@@ -32393,23 +32485,24 @@ if (process && process.env && (process.env.HYDRA_HOSTNAME || process.env.PCM_HOS
         pcmHostName = new Uri(process.env.PCM_HOSTNAME);
 }
 else if (typeof window !== 'undefined' && window) {
-    if (prodHostNames.indexOf(window.location.hostname) !== -1) {
+    var env = getEnvName();
+    if (env === EnvNames.PROD) {
         hydraHostName = new Uri('https://access.redhat.com/hydra/rest/');
         pcmHostName = hydraHostName;
     }
-    else if (qaHostNames.indexOf(window.location.hostname) !== -1) {
+    else if (env === EnvNames.QA) {
         hydraHostName = new Uri('https://access.qa.redhat.com/hydra/rest/');
         pcmHostName = hydraHostName;
     }
-    else if (fteHostNames.indexOf(window.location.hostname) !== -1) {
+    else if (env === EnvNames.FTE) {
         hydraHostName = new Uri('https://access.devgssfte.devlab.phx1.redhat.com/hydra/rest/');
         pcmHostName = hydraHostName;
     }
-    else if (ciHostNames.indexOf(window.location.hostname) !== -1) {
+    else if (env === EnvNames.CI) {
         // There is no Hydra CI
         pcmHostName = new Uri('https://hydraadmin-corp-dev-redhat-com.vserver.devlab.ext.phx1.redhat.com/hydra/rest/');
     }
-    else if (stageHostNames.indexOf(window.location.hostname) !== -1) {
+    else if (env === EnvNames.STAGE) {
         hydraHostName = new Uri('https://access.stage.redhat.com/hydra/rest/');
         pcmHostName = hydraHostName;
     }
@@ -32426,6 +32519,8 @@ var Env = /** @class */ (function () {
     Env.securePathPrefix = securePathPrefix;
     Env.secureExtPathPrefix = secureExtPathPrefix;
     Env.auth = auth;
+    Env.getEnvName = getEnvName;
+    Env.EnvNames = EnvNames;
     return Env;
 }());
 exports.default = Env;
@@ -32589,12 +32684,16 @@ function processCaughtError(uri, params, error) {
 }
 function callFetchAndHandleJwt(uri, params, dataType, externalUrl) {
     if (!externalUrl) {
+        var isIE11 = ((!(window.ActiveXObject) && 'ActiveXObject' in window));
         if (env_1.default.auth) {
             params.headers['Authorization'] = env_1.default.auth;
             // Added ActiveXObject check for detecting IE11 and setting authorization only in browsers other than IE11
         }
-        else if (getToken() && !((!(window.ActiveXObject) && 'ActiveXObject' in window))) {
+        else if (getToken() && !isIE11) {
             params.headers['Authorization'] = getToken();
+        }
+        else if (isIE11) {
+            params.cache = 'no-store';
         }
     }
     return new Promise(function (resolve, reject) {

@@ -5,14 +5,14 @@ if  [ "$1" = "" ] ; then
     exit
 fi
 
-git checkout master
-git pull upstream master
-git reset --hard upstream/master
-versiony --version=$1 --to=package.json,bower.json
-npm run build
-git add package.json bower.json dist/
-git commit -m "Publish version $1"
-git tag $1
-git push upstream master
-git push upstream $1
+git checkout master &&
+git pull upstream master &&
+git reset --hard upstream/master &&
+versiony --version=$1 --to=package.json,bower.json &&
+npm run build &&
+git add package.json bower.json dist/ &&
+git commit -m "Publish version $1" &&
+git tag $1 &&
+git push upstream master &&
+git push upstream $1 &&
 npm publish

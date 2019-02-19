@@ -1,5 +1,5 @@
 {
   "name": "redhat-access-pcm-ascension-common",
-  "version": "1.2.67",
+  "version": "1.2.68",
   "main": "dist/redhat_access_pcm_ascension_common.js"
 }

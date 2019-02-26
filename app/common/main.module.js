@@ -16,7 +16,6 @@ const app = angular.module('RedhatAccess.common', [
     .value('COMMON_CONFIG', CommonConfig)
     .factory('configurationService', ConfigurationService);
 
-require('./common.module');
 require('../security/security.module');
 
 export default app.name;

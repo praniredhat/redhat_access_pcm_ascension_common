@@ -3,7 +3,7 @@
 import hydrajs  from '../../common_shared/hydrajs';
 
 export default class SecurityService {
-    constructor ($rootScope, $uibModal, AUTH_EVENTS, $q, LOGIN_VIEW_CONFIG, SECURITY_CONFIG, strataService, AlertService, RHAUtils) {
+    constructor ($rootScope, $uibModal, AUTH_EVENTS, $q, LOGIN_VIEW_CONFIG, SECURITY_CONFIG, strataService, AlertService, RHAUtils, ConfigService) {
         'ngInject';
 
         this.loginStatus = {
@@ -118,9 +118,9 @@ export default class SecurityService {
                     this.loginStatus.account = null;
             });
                 try {
-                    const configuration = await hydrajs.maintenance.getMaintenanceMode('pcm_configurations');
-                    if (configuration.length >= 0) {
-                        configuration.map((value) => {
+                    await ConfigService.loadConfig();
+                    if (ConfigService.config.length >= 0) {
+                        ConfigService.config.map((value) => {
                           if (value.fieldName === 'isEntitled' && value.fieldValue === '1') {
                             this.isSubscriptionServiceM = true;
                           } else if (value.fieldName === 'isCep' && value.fieldValue === '1') {

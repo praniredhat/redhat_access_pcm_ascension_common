@@ -13864,7 +13864,7 @@
 	    };
 	    $scope.$on('$locationChangeSuccess', function (event, oldUrl, newUrl) {
 	        //Don't reset alerts when only QP has changed in the url. 
-	        if (!this.onlyQPHasChanged(oldUrl, newUrl)) {
+	        if (!$scope.onlyQPHasChanged(oldUrl, newUrl)) {
 	            $scope.dismissAlerts();
 	        }
 	    });

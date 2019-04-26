@@ -13753,6 +13753,8 @@
 	    value: true
 	});
 
+	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	var HeaderController = function HeaderController($scope, AlertService, HeaderService, COMMON_CONFIG, RHAUtils, $interval, $sce, securityService, $uibModal) {
@@ -13846,8 +13848,25 @@
 	            $scope.dismissAlerts();
 	        }
 	    });
-	    $scope.$on('$locationChangeSuccess', function (event) {
-	        $scope.dismissAlerts();
+
+	    $scope.onlyQPHasChanged = function (oldUrl, newUrl) {
+	        var _oldUrl$split = oldUrl.split('?'),
+	            _oldUrl$split2 = _slicedToArray(_oldUrl$split, 2),
+	            url1 = _oldUrl$split2[0],
+	            qp1 = _oldUrl$split2[1];
+
+	        var _newUrl$split = newUrl.split('?'),
+	            _newUrl$split2 = _slicedToArray(_newUrl$split, 2),
+	            url2 = _newUrl$split2[0],
+	            qp2 = _newUrl$split2[1];
+
+	        return url1 === url2 && qp1 !== qp2;
+	    };
+	    $scope.$on('$locationChangeSuccess', function (event, oldUrl, newUrl) {
+	        //Don't reset alerts when only QP has changed in the url. 
+	        if (!this.onlyQPHasChanged(oldUrl, newUrl)) {
+	            $scope.dismissAlerts();
+	        }
 	    });
 	};
 	HeaderController.$inject = ["$scope", "AlertService", "HeaderService", "COMMON_CONFIG", "RHAUtils", "$interval", "$sce", "securityService", "$uibModal"];

@@ -90,8 +90,17 @@ export default class HeaderController {
                 $scope.dismissAlerts();
             }
         });
-        $scope.$on('$locationChangeSuccess', function (event) {
-            $scope.dismissAlerts();
+
+        $scope.onlyQPHasChanged = (oldUrl, newUrl) => {
+            const [url1, qp1] = oldUrl.split('?');
+            const [url2, qp2] = newUrl.split('?');
+            return url1 === url2 && qp1 !== qp2;
+        }
+        $scope.$on('$locationChangeSuccess', function (event, oldUrl, newUrl) {
+            //Don't reset alerts when only QP has changed in the url. 
+            if(!this.onlyQPHasChanged(oldUrl, newUrl)) {
+                $scope.dismissAlerts();
+            }
         });
     }
 }
